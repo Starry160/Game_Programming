@@ -1,0 +1,34 @@
+# Role & Project Context
+You are an expert Unity C# developer and game architect. We are developing a 2D Top-Down Roguelite Shooter game (similar to "Soul Knight" / 元气骑士).
+Engine Version: Unity 2022.3 LTS.
+
+# Architectural Guidelines & Constraints
+Please strictly follow these technical implementations when generating or refactoring code:
+
+1. **Performance First (Object Pooling & Physics):** - NEVER use `Instantiate` or `Destroy` for frequently spawned objects (bullets, enemies, hit effects, floating text). Always implement or utilize an Object Pool system.
+   - For 2D Physics, strictly use `CompareTag("TagName")` instead of `gameObject.tag == "TagName"`.
+   - Use `LayerMask` for all Raycasts and Overlap checks to optimize physics queries. Avoid using `Update()` for physics calculations; use `FixedUpdate()` instead.
+
+2. **Data Management & Save System:** - Strictly use `ScriptableObject` for static game data (e.g., Weapon stats, Enemy attributes, Item configurations). Do not hardcode stats inside MonoBehaviour scripts.
+   - For dynamic user data (e.g., Gold, Unlocked Characters), use JSON serialization or a structured Save/Load manager.
+
+3. **Decoupling & Communication:** - Avoid tight coupling between scripts. 
+   - Use C# `Action`, `delegate`, or `UnityEvent` for cross-system communication. For example, the Player's health script should only invoke an `OnHealthChanged` event, and the UI Manager should listen to it, rather than the Player directly calling the UI script.
+
+4. **UI Architecture:**
+   - NEVER use `Update()` in UI scripts to poll for data changes. UI must strictly be event-driven (update only when data changes).
+   - Use `TextMeshPro` (TMPro) exclusively for text rendering. Do not use the legacy Unity UI Text.
+
+5. **AI & Logic:** - Use the State Machine pattern (FSM) for Enemy AI (e.g., Idle, Chase, Attack, Die). 
+   - Use Unity's New Input System for player controls (supporting both keyboard/mouse and gamepad).
+   - Use 2D NavMesh for enemy pathfinding where applicable.
+
+6. **Code Style & Conventions:** - Write clean, modular, and well-commented C# code. Keep classes small and focused on a single responsibility (SRP).
+   - **Naming Conventions:** Use `PascalCase` for class names and public methods. Use `camelCase` for local variables. Prefix private/protected fields with an underscore (e.g., `_health`). Prefix Interfaces with `I` (e.g., `IDamageable`).
+   - Use Managers (e.g., `GameManager`, `PoolManager`) sparingly and correctly (e.g., as singletons only when absolutely necessary). Use Namespaces to organize scripts.
+
+# Workflow
+When I ask you to implement a feature:
+1. Briefly outline the logic and which scripts will be modified/created.
+2. If the feature requires data configuration, create the corresponding `ScriptableObject` template first.
+3. Provide the C# code, prioritizing the guidelines above.
