@@ -12,6 +12,6 @@ EditorBuildSettings:
     path: Assets/Scenes/StoryIntro.unity
     guid: 90927c441b835194ea15ba651947e487
   - enabled: 1
-    path: Assets/Scenes/Test.unity
+    path: Assets/Scenes/InitialRoom.unity
     guid: cd0d51860f2cc124abe074dbb19150ff
   m_configObjects: {}
