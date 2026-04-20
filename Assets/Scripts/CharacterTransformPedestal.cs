@@ -1,0 +1,87 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+[RequireComponent(typeof(Collider2D))]
+public class CharacterTransformPedestal : MonoBehaviour
+{
+    [Header("Transform Config")]
+    [Tooltip("替换到玩家 Animator 上的新动画控制器（相当于换一套“大脑”）。")]
+    public RuntimeAnimatorController newAnimatorController;
+
+    [Header("Visual")]
+    [Tooltip("祭坛上方悬浮的职业图标物体，变身成功后会隐藏。")]
+    public GameObject classIcon;
+
+    private bool canInteract;
+    private GameObject _currentPlayer;
+    private Collider2D _triggerCollider;
+
+    private void Awake()
+    {
+        _triggerCollider = GetComponent<Collider2D>();
+    }
+
+    private void Update()
+    {
+        if (!canInteract || _currentPlayer == null)
+        {
+            return;
+        }
+
+        // 使用新输入系统直接读取键盘状态，与 PlayerController 保持风格统一。
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        {
+            PerformTransform();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        canInteract = true;
+        _currentPlayer = other.gameObject;
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (!other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        // 仅在离开的确实是当前记录的玩家时才重置状态，避免多 Player 场景下误清除。
+        if (other.gameObject == _currentPlayer)
+        {
+            canInteract = false;
+            _currentPlayer = null;
+        }
+    }
+
+    private void PerformTransform()
+    {
+        Animator playerAnimator = _currentPlayer.GetComponent<Animator>();
+        if (playerAnimator != null && newAnimatorController != null)
+        {
+            // 无缝换脑：保留 Animator 状态接口，仅替换背后的控制器资源。
+            playerAnimator.runtimeAnimatorController = newAnimatorController;
+        }
+
+        // if (classIcon != null)
+        // {
+        //     classIcon.SetActive(false);
+        // }
+
+        // canInteract = false;
+        // _currentPlayer = null;
+
+        // 关闭触发器，防止玩家再次靠近重复变身。
+        // if (_triggerCollider != null)
+        // {
+        //     _triggerCollider.enabled = false;
+        // }
+    }
+}

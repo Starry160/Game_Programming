@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
@@ -14,7 +15,16 @@ public class DoorController : MonoBehaviour
     [Tooltip("阻挡玩家通行的实体碰撞体（不是触发器）。")]
     [SerializeField] private Collider2D _solidCollider;
 
+    [Header("Scene Transition")]
+    [Tooltip("勾选后，玩家进入这扇门会触发场景跳转。")]
+    public bool isExitDoor;
+
+    [Tooltip("跳转的目标场景名称（需在 Build Settings 中已添加）。")]
+    public string targetSceneName;
+
     private SpriteRenderer _spriteRenderer;
+    private bool _isOpen;
+    private bool _hasTransitioned;
 
     private void Awake()
     {
@@ -30,6 +40,8 @@ public class DoorController : MonoBehaviour
         {
             _solidCollider.enabled = true;
         }
+
+        _isOpen = false;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -40,6 +52,12 @@ public class DoorController : MonoBehaviour
         }
 
         OpenDoor();
+
+        // 出口门：仅在门成功开启后再触发场景跳转，避免与门的状态冲突。
+        if (isExitDoor && _isOpen)
+        {
+            TryLoadTargetScene();
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -63,6 +81,8 @@ public class DoorController : MonoBehaviour
         {
             _solidCollider.enabled = false;
         }
+
+        _isOpen = true;
     }
 
     private void CloseDoor()
@@ -76,5 +96,25 @@ public class DoorController : MonoBehaviour
         {
             _solidCollider.enabled = true;
         }
+
+        _isOpen = false;
+    }
+
+    private void TryLoadTargetScene()
+    {
+        // 防止 LoadScene 期间触发器多次回调导致重复加载。
+        if (_hasTransitioned)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(targetSceneName))
+        {
+            Debug.LogWarning($"[DoorController] {name} 标记为出口门，但未配置 targetSceneName。", this);
+            return;
+        }
+
+        _hasTransitioned = true;
+        SceneManager.LoadScene(targetSceneName);
     }
 }

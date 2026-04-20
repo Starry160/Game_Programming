@@ -335,7 +335,7 @@ Transform:
   m_GameObject: {fileID: 553869434}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2660,7 +2660,7 @@ Transform:
   m_GameObject: {fileID: 1107209156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.41, y: 1.17, z: 0}
+  m_LocalPosition: {x: 1.06, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3863,6 +3863,8 @@ MonoBehaviour:
   _closedSprite: {fileID: -46417537, guid: 07f00dab726ae4e4cbd57832db254bab, type: 3}
   _openSprite: {fileID: 1247855850, guid: 07f00dab726ae4e4cbd57832db254bab, type: 3}
   _solidCollider: {fileID: 1978643717}
+  isExitDoor: 1
+  targetSceneName: Level_01
 --- !u!1 &2071995401
 GameObject:
   m_ObjectHideFlags: 0
