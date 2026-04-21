@@ -12,6 +12,9 @@ public class CharacterTransformPedestal : MonoBehaviour
     [Tooltip("祭坛上方悬浮的职业图标物体，变身成功后会隐藏。")]
     public GameObject classIcon;
 
+    [Tooltip("玩家靠近时显示的交互提示（例如“按 E 变身”Canvas 或文字）。")]
+    public GameObject interactHint;
+
     private bool canInteract;
     private GameObject _currentPlayer;
     private Collider2D _triggerCollider;
@@ -19,6 +22,12 @@ public class CharacterTransformPedestal : MonoBehaviour
     private void Awake()
     {
         _triggerCollider = GetComponent<Collider2D>();
+
+        // 默认隐藏交互提示，只有玩家靠近时才出现。
+        if (interactHint != null)
+        {
+            interactHint.SetActive(false);
+        }
     }
 
     private void Update()
@@ -44,6 +53,11 @@ public class CharacterTransformPedestal : MonoBehaviour
 
         canInteract = true;
         _currentPlayer = other.gameObject;
+
+        if (interactHint != null)
+        {
+            interactHint.SetActive(true);
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -58,6 +72,11 @@ public class CharacterTransformPedestal : MonoBehaviour
         {
             canInteract = false;
             _currentPlayer = null;
+
+            if (interactHint != null)
+            {
+                interactHint.SetActive(false);
+            }
         }
     }
 
