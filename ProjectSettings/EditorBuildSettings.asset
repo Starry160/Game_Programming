@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/InitialRoom.unity
     guid: cd0d51860f2cc124abe074dbb19150ff
   - enabled: 1
+    path: Assets/Scenes/TalentRoom.unity
+    guid: f5d98349cd6865d4caa1ad973bb1067f
+  - enabled: 1
     path: Assets/Scenes/Level_01.unity
-    guid: 4734c0c503385e247a378e4eb39f7831
+    guid: 8191b039a552c08409094e0a68e28dfa
   m_configObjects: {}

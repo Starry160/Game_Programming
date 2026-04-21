@@ -15,6 +15,10 @@ public class CharacterTransformPedestal : MonoBehaviour
     [Tooltip("玩家靠近时显示的交互提示（例如“按 E 变身”Canvas 或文字）。")]
     public GameObject interactHint;
 
+    [Header("Unlock")]
+    [Tooltip("变身成功后要唤醒的传送门物体（场景中默认关闭）。")]
+    public GameObject targetPortal;
+
     private bool canInteract;
     private GameObject _currentPlayer;
     private Collider2D _triggerCollider;
@@ -87,6 +91,12 @@ public class CharacterTransformPedestal : MonoBehaviour
         {
             // 无缝换脑：保留 Animator 状态接口，仅替换背后的控制器资源。
             playerAnimator.runtimeAnimatorController = newAnimatorController;
+        }
+
+        // 变身成功后唤醒关联的传送门（进入下一关的通道）。
+        if (targetPortal != null)
+        {
+            targetPortal.SetActive(true);
         }
 
         // if (classIcon != null)
