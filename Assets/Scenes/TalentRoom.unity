@@ -4692,8 +4692,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.078647435, y: -0.19842823}
-  m_Size: {x: 0.537802, y: 1.0197265}
+  m_Offset: {x: 0.078647435, y: -0.0008098284}
+  m_Size: {x: 0.537802, y: 0.6244898}
   m_Direction: 0
 --- !u!212 &799949324
 SpriteRenderer:
@@ -5048,9 +5048,9 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.013999114, y: -0.5432985}
+  m_Offset: {x: -0.013999114, y: -0.43630308}
   serializedVersion: 2
-  m_Radius: 0.4900761
+  m_Radius: 0.3830809
 --- !u!1 &1079813194
 GameObject:
   m_ObjectHideFlags: 0
@@ -5133,6 +5133,7 @@ GameObject:
   - component: {fileID: 1107209158}
   - component: {fileID: 1107209157}
   - component: {fileID: 1107209162}
+  - component: {fileID: 1107209163}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -5266,7 +5267,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: -2002346781, guid: 323140526ba14b14ba76be71ddd65920, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -5314,6 +5315,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1107209163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1107209156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a357e9d10249f741bb07e73a533915d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1173003540
 GameObject:
   m_ObjectHideFlags: 0

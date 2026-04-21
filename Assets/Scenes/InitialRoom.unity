@@ -3864,7 +3864,7 @@ MonoBehaviour:
   _openSprite: {fileID: 1247855850, guid: 07f00dab726ae4e4cbd57832db254bab, type: 3}
   _solidCollider: {fileID: 1978643717}
   isExitDoor: 1
-  targetSceneName: Level_01
+  targetSceneName: TalentRoom
 --- !u!1 &2071995401
 GameObject:
   m_ObjectHideFlags: 0

@@ -318,6 +318,7 @@ MonoBehaviour:
   newAnimatorController: {fileID: 9100000, guid: 73664a2bf7e65c14992eac6df43dae0f, type: 2}
   classIcon: {fileID: 1592805365}
   interactHint: {fileID: 1629067739}
+  targetPortal: {fileID: 0}
 --- !u!58 &108483437
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4105,6 +4106,7 @@ MonoBehaviour:
   newAnimatorController: {fileID: 9100000, guid: 822f79aa981b49b489195743963b219e, type: 2}
   classIcon: {fileID: 1173003540}
   interactHint: {fileID: 1678668614}
+  targetPortal: {fileID: 0}
 --- !u!61 &745066118
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4505,6 +4507,7 @@ MonoBehaviour:
   newAnimatorController: {fileID: 9100000, guid: aac215a82b27c754bbe16e0cfed27a2e, type: 2}
   classIcon: {fileID: 1862347045}
   interactHint: {fileID: 341483837}
+  targetPortal: {fileID: 0}
 --- !u!61 &931235040
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4799,6 +4802,7 @@ GameObject:
   - component: {fileID: 1107209158}
   - component: {fileID: 1107209157}
   - component: {fileID: 1107209162}
+  - component: {fileID: 1107209163}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -4980,6 +4984,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1107209163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1107209156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a357e9d10249f741bb07e73a533915d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1173003540
 GameObject:
   m_ObjectHideFlags: 0

@@ -91,6 +91,8 @@ public class CharacterTransformPedestal : MonoBehaviour
         {
             // 无缝换脑：保留 Animator 状态接口，仅替换背后的控制器资源。
             playerAnimator.runtimeAnimatorController = newAnimatorController;
+            // 写入跨场景全局库，保证下关出生时自动穿回同一套职业动画。
+            GlobalData.chosenAnimatorController = newAnimatorController;
         }
 
         // 变身成功后唤醒关联的传送门（进入下一关的通道）。
