@@ -12,4 +12,10 @@ public static class GlobalData
     /// 新关卡出生时由 PlayerClassLoader 读取并应用到玩家 Animator 上。
     /// </summary>
     public static RuntimeAnimatorController chosenAnimatorController;
+
+    /// <summary>
+    /// 玩家最后一次在祭坛选择的武器索引；
+    /// -1 表示尚未选择，新关卡出生时 WeaponManager 读取并自动装备对应武器。
+    /// </summary>
+    public static int chosenWeaponIndex = -1;
 }

@@ -19,6 +19,10 @@ public class CharacterTransformPedestal : MonoBehaviour
     [Tooltip("变身成功后要唤醒的传送门物体（场景中默认关闭）。")]
     public GameObject targetPortal;
 
+    [Header("Weapon")]
+    [Tooltip("这个祭坛对应的武器索引（0=剑，1=法杖，依此类推）。")]
+    public int weaponIndex;
+
     private bool canInteract;
     private GameObject _currentPlayer;
     private Collider2D _triggerCollider;
@@ -99,6 +103,15 @@ public class CharacterTransformPedestal : MonoBehaviour
         if (targetPortal != null)
         {
             targetPortal.SetActive(true);
+        }
+
+        // 通知玩家的 WeaponManager 切换到对应武器。
+        WeaponManager weaponManager = _currentPlayer.GetComponent<WeaponManager>();
+        if (weaponManager != null)
+        {
+            weaponManager.SwitchWeapon(weaponIndex);
+            // 写入跨场景全局库，保证下关出生时自动装备同一把武器。
+            GlobalData.chosenWeaponIndex = weaponIndex;
         }
 
         // if (classIcon != null)
