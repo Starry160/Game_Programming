@@ -89,7 +89,8 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         UpdateAimDirection();
-        UpdateFacingByAim();
+        // 角色左右朝向已交给 PlayerFacing 脚本基于鼠标位置处理，这里不再翻转。
+        // UpdateFacingByAim();
         UpdateAnimation();
     }
 

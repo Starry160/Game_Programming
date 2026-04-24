@@ -257,7 +257,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!61 &108483435
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -390,6 +390,23 @@ CircleCollider2D:
   m_Offset: {x: -0.007487627, y: -0.460895}
   serializedVersion: 2
   m_Radius: 0.41491073
+--- !u!1 &130797063 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6358300033908118940, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+  m_PrefabInstance: {fileID: 53611989403946784}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &130797072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130797063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0f7cc4dcdcf47f4283499d568bd4248, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &276340498
 GameObject:
   m_ObjectHideFlags: 0
@@ -4385,7 +4402,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!58 &745066121
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4983,7 +5000,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!58 &931235043
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -5194,7 +5211,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 12
   m_Sprite: {fileID: -1740119847, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -6517,7 +6534,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 12
   m_Sprite: {fileID: 1947919150, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -6852,7 +6869,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 12
   m_Sprite: {fileID: -584414680, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -7456,14 +7473,49 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1827178479478801359, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.31
+      objectReference: {fileID: 0}
+    - target: {fileID: 1827178479478801359, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 1964141611800642899, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 1964141611800642899, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4583530983862676723, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5282168647663794896, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5500168491831800953, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_SpriteSortPoint
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6358300033908118940, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 7289098382230594588, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.88
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6358300033908118940, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 130797072}
   m_SourcePrefab: {fileID: 100100000, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
