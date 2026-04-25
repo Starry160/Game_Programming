@@ -3679,18 +3679,47 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1447330422657561123, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: arrowPrefab
+      value: 
+      objectReference: {fileID: 2683771245454303140, guid: 1793ae625628b3f469e9c937ea922fb7, type: 3}
+    - target: {fileID: 1447330422657561123, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: attackDamage
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1447330422657561123, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: bowFirePoint
+      value: 
+      objectReference: {fileID: 1981745235}
+    - target: {fileID: 1447330422657561123, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
       propertyPath: fireballPrefab
       value: 
       objectReference: {fileID: 7251361255885995030, guid: 6d9c2eefda4935540ba0e1395fb97a76, type: 3}
+    - target: {fileID: 1447330422657561123, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: staffFirePoint
+      value: 
+      objectReference: {fileID: 940348734}
     - target: {fileID: 6358300033908118940, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1827178479478801359, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1981745235}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+--- !u!4 &940348734 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4564480645610436756, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+  m_PrefabInstance: {fileID: 940348733}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &940348735 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1827178479478801359, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+  m_PrefabInstance: {fileID: 940348733}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1079813194
 GameObject:
   m_ObjectHideFlags: 0
@@ -4942,6 +4971,37 @@ Transform:
   - {fileID: 1471702587}
   - {fileID: 2071995402}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1981745234
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1981745235}
+  m_Layer: 0
+  m_Name: ArrowPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1981745235
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1981745234}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 940348735}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2071995401
 GameObject:

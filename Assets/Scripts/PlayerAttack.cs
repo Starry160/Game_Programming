@@ -33,8 +33,8 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("法师发射的火球预制体（需挂载 Projectile 脚本 + 勾选 Is Trigger 的 2D 碰撞器）。")]
     public GameObject fireballPrefab;
 
-    [Tooltip("火球的发射点 Transform（通常放在法杖尖端）。")]
-    public Transform firePoint;
+    [Tooltip("法杖的火球发射点 Transform（通常放在法杖尖端）。")]
+    public Transform staffFirePoint;
 
     [Header("Bow (弓箭手弓)")]
     [Tooltip("弓的拉弓/复位总时长。")]
@@ -42,6 +42,12 @@ public class PlayerAttack : MonoBehaviour
 
     [Tooltip("弓拉弓时向角色后方平移的距离（本地空间 X 负方向），越大后坐力越明显。")]
     public float bowRecoilDistance = 0.15f;
+
+    [Tooltip("弓箭手发射的箭矢预制体（需挂 Projectile 脚本 + 勾选 Is Trigger 的 2D 碰撞器）。")]
+    public GameObject arrowPrefab;
+
+    [Tooltip("弓的箭矢发射点 Transform（通常放在弓的箭槽处）。")]
+    public Transform bowFirePoint;
 
     [Header("Cooldown")]
     [Tooltip("两次攻击之间的冷却时间（秒），所有武器共用。")]
@@ -165,7 +171,8 @@ public class PlayerAttack : MonoBehaviour
         Vector3 recoilPosition = startPosition + new Vector3(-bowRecoilDistance, 0f, 0f);
         float halfDuration = Mathf.Max(0.0001f, bowRecoilDuration * 0.5f);
 
-        // TODO: 生成并在此处发射弓箭预制体
+        // 拉弓瞬间发射箭矢，复用与火球相同的精确瞄准逻辑。
+        SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, "Arrow");
 
         yield return LerpPosition(startPosition, recoilPosition, halfDuration);
         yield return LerpPosition(recoilPosition, startPosition, halfDuration);
@@ -176,8 +183,21 @@ public class PlayerAttack : MonoBehaviour
 
     private void SpawnFireball()
     {
-        if (fireballPrefab == null || firePoint == null)
+        SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball");
+    }
+
+    private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName)
+    {
+        // 安全检查：预制体或发射点缺失时打印警告，避免运行时静默失效或空引用异常。
+        if (prefab == null)
         {
+            Debug.LogWarning($"[PlayerAttack] {debugName} 预制体未配置，无法发射。", this);
+            return;
+        }
+
+        if (spawnPoint == null)
+        {
+            Debug.LogWarning($"[PlayerAttack] {debugName} 的发射点 Transform 未配置，无法发射。", this);
             return;
         }
 
@@ -191,15 +211,14 @@ public class PlayerAttack : MonoBehaviour
         // 修复 ScreenToWorldPoint 丢失 Z 深度的经典 Bug：
         // 必须显式传入相机与发射点平面之间的距离，否则结果会坍缩到相机位置。
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-        float distanceToCamera = Mathf.Abs(mainCamera.transform.position.z - firePoint.position.z);
+        float distanceToCamera = Mathf.Abs(mainCamera.transform.position.z - spawnPoint.position.z);
         Vector3 screenPosWithZ = new Vector3(mouseScreenPos.x, mouseScreenPos.y, distanceToCamera);
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(screenPosWithZ);
 
-        Vector2 aimDir = (Vector2)(mouseWorldPos - firePoint.position);
-        float angleZ = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
-        Quaternion fireballRotation = Quaternion.Euler(0f, 0f, angleZ);
+        Vector2 aimDir = (Vector2)(mouseWorldPos - spawnPoint.position);
+        float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
 
-        Instantiate(fireballPrefab, firePoint.position, fireballRotation);
+        Instantiate(prefab, spawnPoint.position, Quaternion.Euler(0f, 0f, angle));
     }
 
     private IEnumerator LerpRotation(Quaternion from, Quaternion to, float duration)

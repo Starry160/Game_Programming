@@ -36,7 +36,7 @@ public class Projectile : MonoBehaviour
 
         if (col.CompareTag("Enemy"))
         {
-            Debug.Log($"火球击中了敌人: {col.name}");
+            Debug.Log($"{gameObject.name} 击中了敌人: {col.name}");
             // TODO: 之后在这里调用敌人扣血接口，例如 col.GetComponent<IDamageable>()?.TakeDamage(damage);
             if (explosionPrefab != null)
             {
@@ -48,7 +48,7 @@ public class Projectile : MonoBehaviour
 
         if (col.CompareTag("Wall"))
         {
-            Debug.Log("火球撞墙了！");
+            Debug.Log($"{gameObject.name} 撞墙了！");
             if (explosionPrefab != null)
             {
                 Instantiate(explosionPrefab, transform.position, Quaternion.identity);
