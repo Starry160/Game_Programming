@@ -30,6 +30,12 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("法杖小幅挥动的目标角度（度），通常 20~30 度即可。")]
     public float staffSwingAngle = 25f;
 
+    [Tooltip("法师发射的火球预制体（需挂载 Projectile 脚本 + 勾选 Is Trigger 的 2D 碰撞器）。")]
+    public GameObject fireballPrefab;
+
+    [Tooltip("火球的发射点 Transform（通常放在法杖尖端）。")]
+    public Transform firePoint;
+
     [Header("Bow (弓箭手弓)")]
     [Tooltip("弓的拉弓/复位总时长。")]
     public float bowRecoilDuration = 0.1f;
@@ -98,15 +104,20 @@ public class PlayerAttack : MonoBehaviour
             yield break;
         }
 
-        Quaternion startRotation = weaponPivot.localRotation;
+        // 使用固定常量作为初始旋转，避免每次读取 localRotation 导致累积浮点误差，
+        // 造成多次挥剑后武器逐渐"下垂"的漂移 Bug。
+        Quaternion defaultRotation = Quaternion.Euler(0f, 0f, 0f);
         Quaternion targetRotation = Quaternion.Euler(0f, 0f, swordSwingAngle);
         float halfDuration = Mathf.Max(0.0001f, swordSwingDuration * 0.5f);
 
         // 劈下瞬间触发扇形近战伤害判定。
         PerformDamage();
 
-        yield return LerpRotation(startRotation, targetRotation, halfDuration);
-        yield return LerpRotation(targetRotation, startRotation, halfDuration);
+        yield return LerpRotation(defaultRotation, targetRotation, halfDuration);
+        yield return LerpRotation(targetRotation, defaultRotation, halfDuration);
+
+        // 强制归位：无论 Lerp 结束时是否有帧误差，这一行都会把武器精确拉回默认角度。
+        weaponPivot.localRotation = defaultRotation;
 
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
@@ -127,7 +138,9 @@ public class PlayerAttack : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(0f, 0f, staffSwingAngle);
         float halfDuration = Mathf.Max(0.0001f, staffSwingDuration * 0.5f);
 
-        // TODO: 生成并在此处发射火球预制体
+        // 挥动瞬间留出一个极短的"蓄力"间隔，再发射火球，手感更有节奏。
+        yield return new WaitForSeconds(0.05f);
+        SpawnFireball();
 
         yield return LerpRotation(startRotation, targetRotation, halfDuration);
         yield return LerpRotation(targetRotation, startRotation, halfDuration);
@@ -159,6 +172,34 @@ public class PlayerAttack : MonoBehaviour
 
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
+    }
+
+    private void SpawnFireball()
+    {
+        if (fireballPrefab == null || firePoint == null)
+        {
+            return;
+        }
+
+        // 精确瞄准鼠标位置：基于鼠标世界坐标与发射点的向量，做 360° 角度换算。
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null || Mouse.current == null)
+        {
+            return;
+        }
+
+        // 修复 ScreenToWorldPoint 丢失 Z 深度的经典 Bug：
+        // 必须显式传入相机与发射点平面之间的距离，否则结果会坍缩到相机位置。
+        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
+        float distanceToCamera = Mathf.Abs(mainCamera.transform.position.z - firePoint.position.z);
+        Vector3 screenPosWithZ = new Vector3(mouseScreenPos.x, mouseScreenPos.y, distanceToCamera);
+        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(screenPosWithZ);
+
+        Vector2 aimDir = (Vector2)(mouseWorldPos - firePoint.position);
+        float angleZ = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
+        Quaternion fireballRotation = Quaternion.Euler(0f, 0f, angleZ);
+
+        Instantiate(fireballPrefab, firePoint.position, fireballRotation);
     }
 
     private IEnumerator LerpRotation(Quaternion from, Quaternion to, float duration)

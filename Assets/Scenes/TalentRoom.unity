@@ -420,9 +420,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponPivot: {fileID: 1618804361}
-  swingDuration: 0.15
-  swingAngle: -120
+  attackPoint: {fileID: 0}
+  swordSwingDuration: 0.2
+  swordSwingAngle: -120
+  staffSwingDuration: 0.1
+  staffSwingAngle: -25
+  fireballPrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  bowRecoilDuration: 0.1
+  bowRecoilDistance: 0.15
   attackCooldown: 0.4
+  attackRange: 0.8
+  attackAngle: 90
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  attackDamage: 10
 --- !u!1 &276340498
 GameObject:
   m_ObjectHideFlags: 0
@@ -5355,7 +5368,7 @@ GameObject:
   - component: {fileID: 1471702588}
   m_Layer: 0
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7494,6 +7507,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1447330422657561123, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
+      propertyPath: fireballPrefab
+      value: 
+      objectReference: {fileID: 7251361255885995030, guid: 6d9c2eefda4935540ba0e1395fb97a76, type: 3}
     - target: {fileID: 1827178479478801359, guid: 31531d698dfa91d4c9b33c353ab1d0da, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.31
