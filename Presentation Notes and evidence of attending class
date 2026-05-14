@@ -1,0 +1,37 @@
+On May 14th, I attended this class. My group was called Happy Unity. 
+I and my group discussed topics such as function, inheritance, polymorphism, and the role of instances in Unity. 
+Our group was going to study Unity's event-driven system.
+
+
+# Unity Event-Driven Programming — Presentation Plan
+
+**Group**: Happy Unity   **Date**: 5.14
+
+## Presentation Topic
+
+**How `Assets/Scripts/ShootingProjectiles/ShootingController.cs` controls the spawning and destruction of projectiles through Unity's event-driven model.**
+
+We will trace what happens from the moment the player presses the fire button to the moment a projectile disappears from the scene, and use this small example to explain the main ideas of Unity's event-driven architecture.
+
+---
+
+## 1. How Unity automatically calls event functions
+
+We will explain that Unity owns the game loop, and that scripts simply implement methods with reserved names. The engine calls these methods at the right time, so we never need to write a main loop ourselves.
+
+## 2. How player input is checked every frame
+
+We will show that Unity provides a per-frame event function, and that the shooting script uses it to continuously poll the current input value. This is why the game responds smoothly to the player holding the fire button.
+
+## 3. The role of `InputAction` in the new Input System
+
+We will introduce `InputAction` as an abstraction that separates a gameplay action from the specific key or button used to trigger it. We will also mention why it has to be enabled and disabled together with the script's lifecycle.
+
+## 4. How a projectile is dynamically spawned at runtime
+
+We will describe how the shooting script holds a prefab and asks Unity to create a copy of it whenever the player fires. This is our example of runtime object creation.
+
+## 5. How a projectile is automatically destroyed at runtime
+
+We will point out that the shooting script does not destroy projectiles itself. Destruction is handled by a separate script reacting to a Unity physics event when the projectile collides with something. We plan to highlight this as an example of loose coupling between scripts through events.
+
