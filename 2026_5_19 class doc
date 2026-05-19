@@ -15,7 +15,7 @@ What the player does:
 What I will build as my vertical slice:
                 One playable room/level: spawn player + enemies, full combat (player damages and kills at least one enemy), 
                 coin on kill, simple upgrade or stat change, and a win condition (e.g. clear all enemies or reach exit). 
-                Includes basic HUD (❤ health / 🛡 shield) and weapon-specific attack.
+                Includes basic HUD and weapon-specific attack.
 What's the smallest playable version of the idea?
                 Player can attack → enemy dies → player gains coins → one upgrade applies → player can win (level clear). 
                 No extra biomes, full meta-progression, or many levels—just one loop that proves “fight → reward → get stronger → win.”
@@ -29,7 +29,7 @@ Player health (and shield if you keep it)—death = fail or restart
 Coins (or score) on enemy kill
 One upgrade that changes gameplay (e.g. +damage, +max HP, faster attack)
 One win condition (clear room / beat boss / reach exit)
-One playable level/room with spawn + basic UI (❤ / 🛡 or simple HP text)
+One playable level/room with spawn + basic UI
 
 should-have:
 All three weapons (sword, staff, bow) with distinct feel + SFX
@@ -55,3 +55,6 @@ Advanced AI (NavMesh, complex FSM) before one enemy type works
 Fancy UI animations, localization, achievements
 Separate “2D shooting” tutorial project features merged into main game before vertical slice ships
 Perfect pixel art pass / full audio suite before core loop plays once
+
+peer feedback: try to make the game more attractive and engaging
+solution: try to make the UI fancy and add some special effects to Enhance the sense of experience
