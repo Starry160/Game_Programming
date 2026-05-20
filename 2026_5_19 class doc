@@ -1,0 +1,60 @@
+My project:
+Smallest playable version: player attack enemies, gain coins, upgrade and win
+Type: 2D top-down pixel fighting game
+github status: already started https://github.com/Starry160/Game_Programming
+biggest risk:  the core loop (enemy takes damage → dies → drops coins → upgrade → win) not finished
+
+one visible task before next session: Make one enemy die from player attacks and show a clear result in-game 
+
+What my game is: 
+                A 2D top-down pixel action game (roguelite-style) where you move through rooms,
+                fight enemies, collect coins, and get stronger until you clear the run or win the level.
+What the player does:
+                Move in top-down view, aim, and attack with one of three weapons (sword melee, staff fireball, bow arrow). 
+                Take damage (health + shield), avoid enemies, earn coins, and use upgrades to survive and progress.
+What I will build as my vertical slice:
+                One playable room/level: spawn player + enemies, full combat (player damages and kills at least one enemy), 
+                coin on kill, simple upgrade or stat change, and a win condition (e.g. clear all enemies or reach exit). 
+                Includes basic HUD and weapon-specific attack.
+What's the smallest playable version of the idea?
+                Player can attack → enemy dies → player gains coins → one upgrade applies → player can win (level clear). 
+                No extra biomes, full meta-progression, or many levels—just one loop that proves “fight → reward → get stronger → win.”
+
+For the own game, sort features into four boxed:
+
+must-have:
+Top-down player move + aim + attack (at least one weapon working end-to-end)
+Enemies that can be damaged and die
+Player health (and shield if you keep it)—death = fail or restart
+Coins (or score) on enemy kill
+One upgrade that changes gameplay (e.g. +damage, +max HP, faster attack)
+One win condition (clear room / beat boss / reach exit)
+One playable level/room with spawn + basic UI
+
+should-have:
+All three weapons (sword, staff, bow) with distinct feel + SFX
+Simple enemy variety (e.g. chaser + shooter)
+Upgrade UI (shop, talent room, or pick-one-of-three)
+Room transition or door to next area
+Game over + restart or return to menu
+Basic feedback (hit flash, death effect, coin pickup sound)
+
+could-have:
+Multiple levels or procedural rooms
+More upgrades / weapon synergies
+Minimap, pause menu polish, high score save
+Object pooling for bullets and enemies
+Talent/meta progression across runs
+Cursor/Unity MCP dev tooling (not player-facing)
+
+cut first:
+Large content packs (many enemy types, biomes, story)
+Full roguelite meta (unlock tree, many characters)
+Multiplayer / networking
+Advanced AI (NavMesh, complex FSM) before one enemy type works
+Fancy UI animations, localization, achievements
+Separate “2D shooting” tutorial project features merged into main game before vertical slice ships
+Perfect pixel art pass / full audio suite before core loop plays once
+
+peer feedback: try to make the game more attractive and engaging
+solution: try to make the UI fancy and add some special effects to Enhance the sense of experience
