@@ -18,4 +18,15 @@ public static class GlobalData
     /// -1 表示尚未选择，新关卡出生时 WeaponManager 读取并自动装备对应武器。
     /// </summary>
     public static int chosenWeaponIndex = -1;
+
+    /// <summary>
+    /// 是否已有跨场景继承的生命值。
+    /// false 时表示首次进入流程，PlayerStats 应使用 maxHealth 初始化生命值。
+    /// </summary>
+    public static bool hasPersistedHealth = false;
+
+    /// <summary>
+    /// 跨场景继承的当前生命值（同一次运行内有效）。
+    /// </summary>
+    public static float persistedHealth = 0f;
 }

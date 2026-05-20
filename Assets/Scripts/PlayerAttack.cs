@@ -16,6 +16,19 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("伤害判定的中心点（通常放在剑刃前方的空物体）。")]
     public Transform attackPoint;
 
+    [Header("Audio")]
+    [Tooltip("用于播放攻击音效的 AudioSource（通常挂在主角身上）。")]
+    public AudioSource audioSource;
+
+    [Tooltip("大剑挥击音效。")]
+    public AudioClip swordSfx;
+
+    [Tooltip("法杖开火音效。")]
+    public AudioClip staffSfx;
+
+    [Tooltip("弓箭射击音效。")]
+    public AudioClip bowSfx;
+
     [Header("Sword (骑士大剑)")]
     [Tooltip("大剑挥砍总时长（前半段劈下 + 后半段收剑）。")]
     public float swordSwingDuration = 0.2f;
@@ -118,6 +131,7 @@ public class PlayerAttack : MonoBehaviour
 
         // 劈下瞬间触发扇形近战伤害判定。
         PerformDamage();
+        PlayAttackSfx(swordSfx);
 
         yield return LerpRotation(defaultRotation, targetRotation, halfDuration);
         yield return LerpRotation(targetRotation, defaultRotation, halfDuration);
@@ -147,6 +161,7 @@ public class PlayerAttack : MonoBehaviour
         // 挥动瞬间留出一个极短的"蓄力"间隔，再发射火球，手感更有节奏。
         yield return new WaitForSeconds(0.05f);
         SpawnFireball();
+        PlayAttackSfx(staffSfx);
 
         yield return LerpRotation(startRotation, targetRotation, halfDuration);
         yield return LerpRotation(targetRotation, startRotation, halfDuration);
@@ -173,6 +188,7 @@ public class PlayerAttack : MonoBehaviour
 
         // 拉弓瞬间发射箭矢，复用与火球相同的精确瞄准逻辑。
         SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, "Arrow");
+        PlayAttackSfx(bowSfx);
 
         yield return LerpPosition(startPosition, recoilPosition, halfDuration);
         yield return LerpPosition(recoilPosition, startPosition, halfDuration);
@@ -184,6 +200,18 @@ public class PlayerAttack : MonoBehaviour
     private void SpawnFireball()
     {
         SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball");
+    }
+
+    private void PlayAttackSfx(AudioClip clip)
+    {
+        if (audioSource == null || clip == null)
+        {
+            return;
+        }
+
+        // 让音高在一个小范围内随机波动，减少重复播放时的机械感。
+        audioSource.pitch = Random.Range(0.9f, 1.1f);
+        audioSource.PlayOneShot(clip);
     }
 
     private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName)
