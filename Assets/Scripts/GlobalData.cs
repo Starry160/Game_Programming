@@ -29,4 +29,16 @@ public static class GlobalData
     /// 跨场景继承的当前生命值（同一次运行内有效）。
     /// </summary>
     public static float persistedHealth = 0f;
+
+    /// <summary>
+    /// 清空本局运行时的跨场景状态。
+    /// 用于“回到主菜单后重新开始”这种应视为新开一局的场景。
+    /// </summary>
+    public static void ResetRunState()
+    {
+        chosenAnimatorController = null;
+        chosenWeaponIndex = -1;
+        hasPersistedHealth = false;
+        persistedHealth = 0f;
+    }
 }

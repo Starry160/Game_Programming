@@ -198,6 +198,8 @@ public class PauseMenuController : MonoBehaviour
 
     public void ConfirmQuitToMainMenu()
     {
+        // 返回主菜单即视为放弃当前 run，清空跨场景职业/武器/生命等运行态。
+        GlobalData.ResetRunState();
         Time.timeScale = 1f;
         isPaused = false;
         SceneManager.LoadScene(mainMenuSceneName);

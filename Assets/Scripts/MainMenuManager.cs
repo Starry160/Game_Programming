@@ -12,6 +12,8 @@ public class MainMenuManager : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
+        // 从主菜单开始新游戏时，兜底清空上一局遗留的全局运行态。
+        GlobalData.ResetRunState();
         SceneManager.LoadScene(_gameSceneBuildIndex);
     }
 
