@@ -173,3 +173,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 30
   moveSpeed: 3
+  attackRange: 1.1
+  attackCooldown: 1
+  attackDamage: 1
+  hitFrameTimeNormalized: 0.45
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  hitRadius: 0.8
+  hitPoint: {fileID: 0}
+  weaponPivot: {fileID: 0}
+  weaponSprite: {fileID: 0}
+  attackStartAngle: 35
+  attackEndAngle: -85
+  attackWindupDuration: 0.06
+  attackSwingDuration: 0.1
+  attackRecoverDuration: 0.1
+  canChase: 0
+  stopDistance: 1.2
+  flankOffset: 1

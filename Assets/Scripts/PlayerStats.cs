@@ -3,12 +3,15 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections;
 
 public class PlayerStats : MonoBehaviour
 {
     [Header("Health")]
     public float maxHealth = 100f;
     public float currentHealth;
+    public float invulnerabilityDuration = 1.5f;
+    public float flashInterval = 0.1f;
 
     [Header("Shield")]
     public float maxShield = 50f;
@@ -25,6 +28,10 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI shieldText;
 
     private float nextShieldRegenTime;
+    private bool isInvulnerable = false;
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor = Color.white;
+    private Coroutine invulnerabilityCoroutine;
 
     private void OnEnable()
     {
@@ -39,6 +46,15 @@ public class PlayerStats : MonoBehaviour
     private void Start()
     {
         TryAutoBindUIReferences();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+        }
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
 
         if (GlobalData.hasPersistedHealth)
         {
@@ -201,6 +217,17 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
+        if (isInvulnerable)
+        {
+            return;
+        }
+
+        HitFeedback feedback = GetComponent<HitFeedback>();
+        if (feedback != null)
+        {
+            feedback.PlayFeedback();
+        }
+
         // 任何受伤都会打断护盾恢复计时，重新等待 5 秒（可在 Inspector 调整）。
         nextShieldRegenTime = Time.time + shieldRegenDelay;
 
@@ -210,7 +237,9 @@ public class PlayerStats : MonoBehaviour
             if (amount <= currentShield)
             {
                 currentShield -= amount;
+                Debug.Log("玩家受击，当前血量：" + currentHealth);
                 UpdateUI();
+                StartInvulnerability();
                 return;
             }
 
@@ -220,8 +249,17 @@ public class PlayerStats : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         GlobalData.persistedHealth = currentHealth;
+        Debug.Log("玩家受击，当前血量：" + currentHealth);
 
         UpdateUI();
+
+        if (currentHealth <= 0f)
+        {
+            Debug.Log("玩家已死亡！");
+            return;
+        }
+
+        StartInvulnerability();
     }
 
     public void Heal(float amount)
@@ -234,5 +272,48 @@ public class PlayerStats : MonoBehaviour
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
         GlobalData.persistedHealth = currentHealth;
         UpdateUI();
+    }
+
+    private void StartInvulnerability()
+    {
+        if (invulnerabilityCoroutine != null)
+        {
+            StopCoroutine(invulnerabilityCoroutine);
+        }
+
+        invulnerabilityCoroutine = StartCoroutine(InvulnerabilityRoutine());
+    }
+
+    private IEnumerator InvulnerabilityRoutine()
+    {
+        isInvulnerable = true;
+        float timer = 0f;
+
+        while (timer < invulnerabilityDuration)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = new Color(1f, 0f, 0f, 0.5f);
+            }
+
+            yield return new WaitForSeconds(flashInterval);
+            timer += flashInterval;
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = originalColor;
+            }
+
+            yield return new WaitForSeconds(flashInterval);
+            timer += flashInterval;
+        }
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+
+        isInvulnerable = false;
+        invulnerabilityCoroutine = null;
     }
 }
