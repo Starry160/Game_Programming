@@ -6,8 +6,8 @@ public class Projectile : MonoBehaviour
     [Tooltip("子弹飞行速度（米/秒）。")]
     public float speed = 10f;
 
-    [Tooltip("命中造成的伤害值。")]
-    public int damage = 10;
+    [Tooltip("命中敌人造成的伤害值。")]
+    public float damage = 20f;
 
     [Tooltip("存活时间（秒），超时自动销毁，防止飞出地图永久残留。")]
     public float lifeTime = 2f;
@@ -34,26 +34,86 @@ public class Projectile : MonoBehaviour
             return;
         }
 
-        if (col.CompareTag("Enemy"))
+        if (col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy"))
         {
-            Debug.Log($"{gameObject.name} 击中了敌人: {col.name}");
-            // TODO: 之后在这里调用敌人扣血接口，例如 col.GetComponent<IDamageable>()?.TakeDamage(damage);
+            EnemyAI enemy = col.GetComponent<EnemyAI>();
+            if (enemy == null)
+            {
+                enemy = col.GetComponentInParent<EnemyAI>();
+            }
+
+            if (enemy != null)
+            {
+                enemy.TakeDamage(damage);
+
+                HitFeedback feedback = enemy.GetComponent<HitFeedback>();
+                if (feedback != null)
+                {
+                    feedback.PlayFeedback();
+                }
+
+                Debug.Log($"{gameObject.name} 击中了敌人: {enemy.name}, damage={damage}");
+            }
+            else
+            {
+                Debug.LogWarning($"[Projectile] 命中疑似敌人对象 {col.name}，但未找到 EnemyAI。");
+            }
+
             if (explosionPrefab != null)
             {
                 Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             }
+
             Destroy(gameObject);
             return;
         }
 
+        if (IsEnvironmentCollider(col))
+        {
+            OnHitEnvironment(col.gameObject);
+        }
+    }
+
+    private void OnHitEnvironment(GameObject environment)
+    {
+        Debug.Log($"{gameObject.name} 击中环境: {environment.name}");
+        if (explosionPrefab != null)
+        {
+            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+        }
+        Destroy(gameObject);
+    }
+
+    private bool IsEnvironmentCollider(Collider2D col)
+    {
+        if (col == null || col.gameObject == null)
+        {
+            return false;
+        }
+
         if (col.CompareTag("Wall"))
         {
-            Debug.Log($"{gameObject.name} 撞墙了！");
-            if (explosionPrefab != null)
-            {
-                Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            }
-            Destroy(gameObject);
+            return true;
         }
+
+        bool looksLikeDoor = col.CompareTag("DungeonDoor") || col.gameObject.name.Contains("Door");
+        if (!looksLikeDoor)
+        {
+            return false;
+        }
+
+        // 门开启时通常会禁用“实体阻挡碰撞体”，但保留触发器做交互。
+        // 只有在门仍有可阻挡的非 Trigger 碰撞体时，才视为环境命中。
+        Collider2D[] sameObjectColliders = col.GetComponents<Collider2D>();
+        for (int i = 0; i < sameObjectColliders.Length; i++)
+        {
+            Collider2D c = sameObjectColliders[i];
+            if (c != null && c.enabled && !c.isTrigger)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

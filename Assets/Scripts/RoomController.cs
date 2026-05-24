@@ -46,6 +46,12 @@ public class RoomController : MonoBehaviour
             if (gate != null)
             {
                 gate.SetActive(true);
+
+                DoorController door = gate.GetComponent<DoorController>();
+                if (door != null)
+                {
+                    door.SetLocked(true);
+                }
             }
         }
 
@@ -105,6 +111,12 @@ public class RoomController : MonoBehaviour
             if (gate != null)
             {
                 gate.SetActive(false);
+
+                DoorController door = gate.GetComponent<DoorController>();
+                if (door != null)
+                {
+                    door.SetLocked(false);
+                }
             }
         }
 

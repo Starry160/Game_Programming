@@ -34,6 +34,12 @@ public class HitFeedback : MonoBehaviour
             canShake = false;
         }
 
+        // 敌人（如 TestEnemy 系列）同样默认禁用位移抖动，避免碰撞体抖动带来物理副作用。
+        if (GetComponent<EnemyAI>() != null)
+        {
+            canShake = false;
+        }
+
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;

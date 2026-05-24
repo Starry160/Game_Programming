@@ -14,6 +14,11 @@ public class DoorController : MonoBehaviour
     [Header("Physics")]
     [Tooltip("阻挡玩家通行的实体碰撞体（不是触发器）。")]
     [SerializeField] private Collider2D _solidCollider;
+    [Header("Animation (Optional)")]
+    [Tooltip("若门有 Animator，可在这里绑定用于开关门动画的控制器。")]
+    [SerializeField] private Animator _doorAnimator;
+    [SerializeField] private string _openTriggerName = "Open";
+    [SerializeField] private string _closeTriggerName = "Close";
 
     [Header("Scene Transition")]
     [Tooltip("勾选后，玩家进入这扇门会触发场景跳转。")]
@@ -21,10 +26,20 @@ public class DoorController : MonoBehaviour
 
     [Tooltip("跳转的目标场景名称（需在 Build Settings 中已添加）。")]
     public string targetSceneName;
+    [Header("Room Lock")]
+    [Tooltip("战斗开始后自动进入锁门逻辑，清怪前无法开门。")]
+    public bool autoLockOnBattleStart = true;
+    [Tooltip("敌人存活检测间隔（秒）。")]
+    public float enemyCheckInterval = 0.5f;
 
     private SpriteRenderer _spriteRenderer;
     private bool _isOpen;
     private bool _hasTransitioned;
+    private bool isLocked = false;
+    private bool isRoomCleared = false;
+    private float nextEnemyCheckTime = 0f;
+    private float _nextLockedLogTime = 0f;
+    private const float LOCKED_LOG_INTERVAL = 1f;
 
     private void Awake()
     {
@@ -42,6 +57,25 @@ public class DoorController : MonoBehaviour
         }
 
         _isOpen = false;
+        nextEnemyCheckTime = 0f;
+    }
+
+    private void Update()
+    {
+        if (!autoLockOnBattleStart)
+        {
+            return;
+        }
+
+        if (Time.time < nextEnemyCheckTime)
+        {
+            return;
+        }
+
+        nextEnemyCheckTime = Time.time + Mathf.Max(0.1f, enemyCheckInterval);
+        bool hasEnemiesAlive = CheckIfEnemiesAlive();
+        isRoomCleared = !hasEnemiesAlive;
+        isLocked = hasEnemiesAlive;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -51,12 +85,40 @@ public class DoorController : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning($"[PortalTrace] DoorController '{name}' trigger entered by '{other.name}' at pos={other.transform.position}");
+        // 铁律：锁死状态下，第一时间拦截，不执行任何开门逻辑与动画逻辑。
+        if (isLocked)
+        {
+            LogLockedMessage();
+            return;
+        }
 
-        OpenDoor();
+        if (!TryOpenForPlayer())
+        {
+            return;
+        }
 
         // 出口门：仅在门成功开启后再触发场景跳转，避免与门的状态冲突。
         if (isExitDoor && _isOpen)
+        {
+            TryLoadTargetScene();
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (!other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        // 铁律：锁死状态下，持续拦截，避免玩家卡门缝时误开门。
+        if (isLocked)
+        {
+            LogLockedMessage();
+            return;
+        }
+
+        if (TryOpenForPlayer() && isExitDoor && _isOpen)
         {
             TryLoadTargetScene();
         }
@@ -74,9 +136,26 @@ public class DoorController : MonoBehaviour
 
     private void OpenDoor()
     {
+        if (isLocked)
+        {
+            return;
+        }
+
         if (_openSprite != null)
         {
             _spriteRenderer.sprite = _openSprite;
+        }
+
+        if (_doorAnimator != null)
+        {
+            if (!string.IsNullOrEmpty(_closeTriggerName))
+            {
+                _doorAnimator.ResetTrigger(_closeTriggerName);
+            }
+            if (!string.IsNullOrEmpty(_openTriggerName))
+            {
+                _doorAnimator.SetTrigger(_openTriggerName);
+            }
         }
 
         if (_solidCollider != null)
@@ -94,12 +173,50 @@ public class DoorController : MonoBehaviour
             _spriteRenderer.sprite = _closedSprite;
         }
 
+        if (_doorAnimator != null)
+        {
+            // 关门时强制清掉开门 Trigger，防止动画状态机后台误触发开门。
+            if (!string.IsNullOrEmpty(_openTriggerName))
+            {
+                _doorAnimator.ResetTrigger(_openTriggerName);
+            }
+            if (!string.IsNullOrEmpty(_closeTriggerName))
+            {
+                _doorAnimator.SetTrigger(_closeTriggerName);
+            }
+        }
+
         if (_solidCollider != null)
         {
             _solidCollider.enabled = true;
         }
 
         _isOpen = false;
+    }
+
+    public void SetLocked(bool locked)
+    {
+        isLocked = locked;
+        if (locked)
+        {
+            isRoomCleared = false;
+            CloseDoor();
+            return;
+        }
+
+        isRoomCleared = true;
+    }
+
+    private bool TryOpenForPlayer()
+    {
+        if (isLocked || !isRoomCleared)
+        {
+            LogLockedMessage();
+            return false;
+        }
+
+        OpenDoor();
+        return true;
     }
 
     private void TryLoadTargetScene()
@@ -126,5 +243,30 @@ public class DoorController : MonoBehaviour
         _hasTransitioned = true;
         Debug.LogWarning($"[PortalTrace] DoorController '{name}' loading scene '{targetSceneName}'. PlayerPos={GameObject.FindWithTag("Player")?.transform.position ?? Vector3.zero}");
         SceneManager.LoadScene(targetSceneName);
+    }
+
+    private bool CheckIfEnemiesAlive()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i] != null && enemies[i].activeInHierarchy)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void LogLockedMessage()
+    {
+        if (Time.time < _nextLockedLogTime)
+        {
+            return;
+        }
+
+        _nextLockedLogTime = Time.time + LOCKED_LOG_INTERVAL;
+        Debug.Log("【地牢结界】房间内还有敌人未消灭，门无法打开！");
     }
 }

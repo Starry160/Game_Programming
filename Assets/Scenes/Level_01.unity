@@ -7613,6 +7613,10 @@ MonoBehaviour:
   shieldFillImage: {fileID: 0}
   healthText: {fileID: 0}
   shieldText: {fileID: 0}
+  enablePostHitTeleportGuard: 0
+  teleportDistanceThreshold: 6
+  teleportDetectWindow: 0.8
+  restoreOnTeleportDetected: 1
 --- !u!114 &599690568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8193,6 +8197,10 @@ PrefabInstance:
     - target: {fileID: 1553606583346058518, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
       propertyPath: m_Name
       value: DungeonDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 1553606583346058518, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6666472483487434216, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
       propertyPath: isExitDoor
@@ -10190,6 +10198,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2124700569123723295, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: attackDamage
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 2679322143068435493, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_Layer
       value: 8

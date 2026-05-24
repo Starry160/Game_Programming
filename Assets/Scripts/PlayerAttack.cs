@@ -76,8 +76,12 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("只检测这些图层上的碰撞体（例如 Enemy），避免误伤自己或环境。")]
     public LayerMask enemyLayers;
 
-    [Tooltip("每次近战攻击造成的伤害值，后续扣血逻辑直接使用此数值。")]
-    public int attackDamage = 10;
+    [Tooltip("大剑每次近战造成的伤害值。")]
+    public int attackDamage = 15;
+    [Tooltip("法师火球每发造成的伤害值。")]
+    public float fireballDamage = 20f;
+    [Tooltip("弓箭每发造成的伤害值。")]
+    public float arrowDamage = 10f;
 
     private bool isAttacking = false;
 
@@ -187,7 +191,7 @@ public class PlayerAttack : MonoBehaviour
         float halfDuration = Mathf.Max(0.0001f, bowRecoilDuration * 0.5f);
 
         // 拉弓瞬间发射箭矢，复用与火球相同的精确瞄准逻辑。
-        SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, "Arrow");
+        SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, "Arrow", arrowDamage);
         PlayAttackSfx(bowSfx);
 
         yield return LerpPosition(startPosition, recoilPosition, halfDuration);
@@ -199,7 +203,7 @@ public class PlayerAttack : MonoBehaviour
 
     private void SpawnFireball()
     {
-        SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball");
+        SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball", fireballDamage);
     }
 
     private void PlayAttackSfx(AudioClip clip)
@@ -214,7 +218,7 @@ public class PlayerAttack : MonoBehaviour
         audioSource.PlayOneShot(clip);
     }
 
-    private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName)
+    private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName, float projectileDamage)
     {
         // 安全检查：预制体或发射点缺失时打印警告，避免运行时静默失效或空引用异常。
         if (prefab == null)
@@ -246,7 +250,12 @@ public class PlayerAttack : MonoBehaviour
         Vector2 aimDir = (Vector2)(mouseWorldPos - spawnPoint.position);
         float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
 
-        Instantiate(prefab, spawnPoint.position, Quaternion.Euler(0f, 0f, angle));
+        GameObject projectileObj = Instantiate(prefab, spawnPoint.position, Quaternion.Euler(0f, 0f, angle));
+        Projectile projectile = projectileObj.GetComponent<Projectile>();
+        if (projectile != null)
+        {
+            projectile.damage = projectileDamage;
+        }
     }
 
     private IEnumerator LerpRotation(Quaternion from, Quaternion to, float duration)
@@ -305,8 +314,20 @@ public class PlayerAttack : MonoBehaviour
 
             if (angle <= halfAngle)
             {
-                Debug.Log($"扇形击中敌人: {enemy.name}", enemy);
-                // TODO: 之后在这里调用敌人扣血接口，例如 enemy.GetComponent<IDamageable>()?.TakeDamage(attackDamage);
+                EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+                if (enemyAI == null)
+                {
+                    enemyAI = enemy.GetComponentInParent<EnemyAI>();
+                }
+
+                if (enemyAI != null)
+                {
+                    enemyAI.TakeDamage(attackDamage);
+                }
+                else
+                {
+                    Debug.LogWarning($"[PlayerAttack] 扇形命中 {enemy.name}，但未找到 EnemyAI。", enemy);
+                }
             }
         }
     }
