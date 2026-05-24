@@ -51,6 +51,8 @@ public class DoorController : MonoBehaviour
             return;
         }
 
+        Debug.LogWarning($"[PortalTrace] DoorController '{name}' trigger entered by '{other.name}' at pos={other.transform.position}");
+
         OpenDoor();
 
         // 出口门：仅在门成功开启后再触发场景跳转，避免与门的状态冲突。
@@ -114,7 +116,15 @@ public class DoorController : MonoBehaviour
             return;
         }
 
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (string.Equals(targetSceneName, currentScene, System.StringComparison.Ordinal))
+        {
+            Debug.LogWarning($"[PortalTrace] DoorController '{name}' blocked self-reload of current scene '{currentScene}'.");
+            return;
+        }
+
         _hasTransitioned = true;
+        Debug.LogWarning($"[PortalTrace] DoorController '{name}' loading scene '{targetSceneName}'. PlayerPos={GameObject.FindWithTag("Player")?.transform.position ?? Vector3.zero}");
         SceneManager.LoadScene(targetSceneName);
     }
 }

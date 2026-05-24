@@ -54,6 +54,7 @@ public class LevelPortal : MonoBehaviour
             return;
         }
 
+        Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' trigger entered by '{other.name}' at pos={other.transform.position}");
         canInteract = true;
         _currentPlayer = other.gameObject;
 
@@ -147,6 +148,16 @@ public class LevelPortal : MonoBehaviour
             yield break;
         }
 
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (string.Equals(targetSceneName, currentScene, System.StringComparison.Ordinal))
+        {
+            Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' blocked self-reload of current scene '{currentScene}'.");
+            yield break;
+        }
+
+        string playerName = _currentPlayer != null ? _currentPlayer.name : "null";
+        Vector3 playerPos = _currentPlayer != null ? _currentPlayer.transform.position : Vector3.zero;
+        Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' loading scene '{targetSceneName}'. TriggerPlayer={playerName}, PlayerPos={playerPos}");
         SceneManager.LoadScene(targetSceneName);
     }
 }

@@ -346,8 +346,9 @@ public class EnemyAI : MonoBehaviour
 
             if (playerStats != null)
             {
-                playerStats.TakeDamage(attackDamage);
-                Debug.Log($"[EnemyAI] {name} Hit Player: {col.name}, damage={attackDamage}");
+                const float debugDamage = 1f;
+                playerStats.TakeDamage(debugDamage);
+                Debug.Log($"[EnemyAI] {name} Hit Player: {col.name}, damage={debugDamage}");
             }
             else
             {

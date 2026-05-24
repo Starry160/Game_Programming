@@ -43,7 +43,10 @@ public class HitFeedback : MonoBehaviour
             Debug.LogWarning($"[HitFeedback] {name} 未找到 SpriteRenderer，只有位移抖动会生效。", this);
         }
 
-        originalLocalPosition = shakeTarget.localPosition;
+        if (canShake && shakeTarget != null)
+        {
+            originalLocalPosition = shakeTarget.localPosition;
+        }
     }
 
     public void PlayFeedback()
@@ -99,7 +102,7 @@ public class HitFeedback : MonoBehaviour
             spriteRenderer.color = originalColor;
         }
 
-        if (shakeTarget != null)
+        if (canShake && shakeTarget != null)
         {
             shakeTarget.localPosition = originalLocalPosition;
         }

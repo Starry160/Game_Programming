@@ -26,6 +26,15 @@ public class PlayerStats : MonoBehaviour
     public Image shieldFillImage;
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI shieldText;
+    [Header("Debug Safety")]
+    [Tooltip("调试期：受击后短时间内检测异常坐标跳变，并打印日志。")]
+    public bool enablePostHitTeleportGuard = false;
+    [Tooltip("判定为异常重置的最小位移距离。")]
+    public float teleportDistanceThreshold = 6f;
+    [Tooltip("受击后监控异常位移的时间窗口。")]
+    public float teleportDetectWindow = 0.8f;
+    [Tooltip("检测到异常位移时是否强制拉回受击前位置。")]
+    public bool restoreOnTeleportDetected = true;
 
     private float nextShieldRegenTime;
     private bool isInvulnerable = false;
@@ -222,6 +231,9 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
+        Vector3 preHitPosition = transform.position;
+        string preHitScene = SceneManager.GetActiveScene().name;
+
         HitFeedback feedback = GetComponent<HitFeedback>();
         if (feedback != null)
         {
@@ -255,7 +267,10 @@ public class PlayerStats : MonoBehaviour
 
         if (currentHealth <= 0f)
         {
-            Debug.Log("玩家已死亡！");
+            Debug.LogWarning("【测试安全阀】玩家理论上死掉了！但为了防止场景重启，现在强行满血复活进行调试！");
+            currentHealth = maxHealth;
+            GlobalData.persistedHealth = currentHealth;
+            UpdateUI();
             return;
         }
 
@@ -315,5 +330,95 @@ public class PlayerStats : MonoBehaviour
 
         isInvulnerable = false;
         invulnerabilityCoroutine = null;
+    }
+
+    private void StartPostHitTeleportGuard(Vector3 preHitPosition, string preHitScene)
+    {
+        if (!enablePostHitTeleportGuard)
+        {
+            return;
+        }
+
+        StartCoroutine(PostHitTeleportGuardRoutine(preHitPosition, preHitScene));
+    }
+
+    private IEnumerator PostHitTeleportGuardRoutine(Vector3 preHitPosition, string preHitScene)
+    {
+        float timer = 0f;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+
+        while (timer < teleportDetectWindow)
+        {
+            timer += Time.deltaTime;
+
+            string currentScene = SceneManager.GetActiveScene().name;
+            if (!string.Equals(currentScene, preHitScene, StringComparison.Ordinal))
+            {
+                Debug.LogWarning($"[HitTeleportGuard] 受击后场景发生变化: {preHitScene} -> {currentScene}");
+                yield break;
+            }
+
+            float movedDistance = Vector3.Distance(transform.position, preHitPosition);
+            if (movedDistance >= teleportDistanceThreshold)
+            {
+                Debug.LogWarning(
+                    $"[HitTeleportGuard] 检测到受击后异常位移，before={preHitPosition}, after={transform.position}, dist={movedDistance:F2}");
+                LogNearestPortalAndDoorHints();
+
+                if (restoreOnTeleportDetected)
+                {
+                    transform.position = preHitPosition;
+                    if (rb != null)
+                    {
+                        rb.velocity = Vector2.zero;
+                        rb.angularVelocity = 0f;
+                    }
+                    Debug.LogWarning("[HitTeleportGuard] 已强制拉回受击前位置（调试保护）。");
+                }
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+    private void LogNearestPortalAndDoorHints()
+    {
+        Vector3 playerPos = transform.position;
+
+        LevelPortal[] portals = FindObjectsOfType<LevelPortal>(true);
+        float nearestPortalDist = float.MaxValue;
+        string nearestPortalName = "none";
+        for (int i = 0; i < portals.Length; i++)
+        {
+            LevelPortal portal = portals[i];
+            if (portal == null) continue;
+            float d = Vector3.Distance(playerPos, portal.transform.position);
+            if (d < nearestPortalDist)
+            {
+                nearestPortalDist = d;
+                nearestPortalName = portal.name;
+            }
+        }
+
+        DoorController[] doors = FindObjectsOfType<DoorController>(true);
+        float nearestDoorDist = float.MaxValue;
+        string nearestDoorName = "none";
+        for (int i = 0; i < doors.Length; i++)
+        {
+            DoorController door = doors[i];
+            if (door == null) continue;
+            float d = Vector3.Distance(playerPos, door.transform.position);
+            if (d < nearestDoorDist)
+            {
+                nearestDoorDist = d;
+                nearestDoorName = door.name;
+            }
+        }
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        bool rbSimulated = rb != null && rb.simulated;
+        Debug.LogWarning(
+            $"[HitTeleportGuard] nearestPortal={nearestPortalName} ({nearestPortalDist:F2}), nearestDoor={nearestDoorName} ({nearestDoorDist:F2}), rb.simulated={rbSimulated}");
     }
 }
