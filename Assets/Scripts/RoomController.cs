@@ -24,6 +24,41 @@ public class RoomController : MonoBehaviour
         AutoBindTriggerZone();
     }
 
+    private void OnValidate()
+    {
+        AutoBindTriggerZone();
+
+        if (roomTriggerZone == null)
+        {
+            Debug.LogWarning("[RoomController] 未找到 roomTriggerZone。请在 Inspector 绑定 RoomTriggerZone 或给当前物体添加 Collider2D。", this);
+        }
+
+        if (roomGates == null || roomGates.Count == 0)
+        {
+            Debug.LogWarning("[RoomController] roomGates 为空，战斗开始时不会锁门。", this);
+        }
+        else
+        {
+            roomGates.RemoveAll(gate => gate == null);
+            for (int i = 0; i < roomGates.Count; i++)
+            {
+                if (roomGates[i].GetComponent<DoorController>() == null)
+                {
+                    Debug.LogWarning($"[RoomController] roomGates[{i}] ({roomGates[i].name}) 没有 DoorController，无法锁门。", roomGates[i]);
+                }
+            }
+        }
+
+        if (enemiesInRoom == null || enemiesInRoom.Count == 0)
+        {
+            Debug.LogWarning("[RoomController] enemiesInRoom 为空，房间会被立即判定为清空。", this);
+        }
+        else
+        {
+            enemiesInRoom.RemoveAll(enemy => enemy == null);
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(playerTag))
@@ -134,6 +169,11 @@ public class RoomController : MonoBehaviour
         if (triggerTransform != null)
         {
             roomTriggerZone = triggerTransform.GetComponent<Collider2D>();
+        }
+
+        if (roomTriggerZone == null)
+        {
+            roomTriggerZone = GetComponent<Collider2D>();
         }
     }
 
