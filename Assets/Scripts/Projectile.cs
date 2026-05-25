@@ -36,27 +36,34 @@ public class Projectile : MonoBehaviour
 
         if (col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy"))
         {
-            EnemyAI enemy = col.GetComponent<EnemyAI>();
-            if (enemy == null)
+            EnemyHealth enemyHealth = col.GetComponent<EnemyHealth>();
+            if (enemyHealth == null)
             {
-                enemy = col.GetComponentInParent<EnemyAI>();
+                enemyHealth = col.GetComponentInParent<EnemyHealth>();
             }
 
-            if (enemy != null)
+            if (enemyHealth != null)
             {
-                enemy.TakeDamage(damage);
-
-                HitFeedback feedback = enemy.GetComponent<HitFeedback>();
-                if (feedback != null)
-                {
-                    feedback.PlayFeedback();
-                }
-
-                Debug.Log($"{gameObject.name} 击中了敌人: {enemy.name}, damage={damage}");
+                enemyHealth.TakeDamage(1);
+                Debug.Log($"{gameObject.name} 击中了敌人: {enemyHealth.name}, damage=1");
             }
             else
             {
-                Debug.LogWarning($"[Projectile] 命中疑似敌人对象 {col.name}，但未找到 EnemyAI。");
+                EnemyAI enemy = col.GetComponent<EnemyAI>();
+                if (enemy == null)
+                {
+                    enemy = col.GetComponentInParent<EnemyAI>();
+                }
+
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(damage);
+                    Debug.Log($"{gameObject.name} 击中了敌人(旧血量系统): {enemy.name}, damage={damage}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[Projectile] 命中疑似敌人对象 {col.name}，但未找到 EnemyHealth/EnemyAI。");
+                }
             }
 
             if (explosionPrefab != null)

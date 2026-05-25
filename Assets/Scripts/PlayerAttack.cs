@@ -314,19 +314,32 @@ public class PlayerAttack : MonoBehaviour
 
             if (angle <= halfAngle)
             {
-                EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
-                if (enemyAI == null)
+                EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+                if (enemyHealth == null)
                 {
-                    enemyAI = enemy.GetComponentInParent<EnemyAI>();
+                    enemyHealth = enemy.GetComponentInParent<EnemyHealth>();
                 }
 
-                if (enemyAI != null)
+                if (enemyHealth != null)
                 {
-                    enemyAI.TakeDamage(attackDamage);
+                    enemyHealth.TakeDamage(1);
                 }
                 else
                 {
-                    Debug.LogWarning($"[PlayerAttack] 扇形命中 {enemy.name}，但未找到 EnemyAI。", enemy);
+                    EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+                    if (enemyAI == null)
+                    {
+                        enemyAI = enemy.GetComponentInParent<EnemyAI>();
+                    }
+
+                    if (enemyAI != null)
+                    {
+                        enemyAI.TakeDamage(attackDamage);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[PlayerAttack] 扇形命中 {enemy.name}，但未找到 EnemyHealth/EnemyAI。", enemy);
+                    }
                 }
             }
         }
