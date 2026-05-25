@@ -11,6 +11,9 @@ public class RoomController : MonoBehaviour
     [SerializeField] private float enemyCheckInterval = 0.2f;
     [SerializeField] private string playerTag = "Player";
 
+    [Header("Treasure Reveal")]
+    [SerializeField] private GameObject _treasureBox;
+
     [Header("Trigger Fallback")]
     [Tooltip("优先使用这个触发区做玩家进入检测（推荐绑定 RoomTriggerZone）。")]
     [SerializeField] private Collider2D roomTriggerZone;
@@ -22,6 +25,27 @@ public class RoomController : MonoBehaviour
     private void Awake()
     {
         AutoBindTriggerZone();
+    }
+
+    private void Start()
+    {
+        if (_treasureBox != null)
+        {
+            _treasureBox.SetActive(false);
+        }
+    }
+
+    [ContextMenu("Sync Room Gates From Children")]
+    private void SyncRoomGatesFromChildren()
+    {
+        DoorController[] childDoors = GetComponentsInChildren<DoorController>(true);
+        roomGates.Clear();
+        for (int i = 0; i < childDoors.Length; i++)
+        {
+            roomGates.Add(childDoors[i].gameObject);
+        }
+
+        Debug.Log($"[RoomController] 已同步 {roomGates.Count} 扇门到 roomGates（仅这些门会被房间逻辑控制）。", this);
     }
 
     private void OnValidate()
@@ -40,11 +64,34 @@ public class RoomController : MonoBehaviour
         else
         {
             roomGates.RemoveAll(gate => gate == null);
+
+            for (int i = roomGates.Count - 1; i >= 0; i--)
+            {
+                for (int j = i - 1; j >= 0; j--)
+                {
+                    if (roomGates[i] == roomGates[j])
+                    {
+                        roomGates.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+
             for (int i = 0; i < roomGates.Count; i++)
             {
                 if (roomGates[i].GetComponent<DoorController>() == null)
                 {
                     Debug.LogWarning($"[RoomController] roomGates[{i}] ({roomGates[i].name}) 没有 DoorController，无法锁门。", roomGates[i]);
+                }
+            }
+
+            DoorController[] childDoors = GetComponentsInChildren<DoorController>(true);
+            for (int i = 0; i < childDoors.Length; i++)
+            {
+                GameObject childDoorObject = childDoors[i].gameObject;
+                if (!roomGates.Contains(childDoorObject))
+                {
+                    Debug.LogWarning($"[RoomController] 检测到未纳入 roomGates 的门：{childDoorObject.name}。它不会被 TestRoom_01 的房间逻辑控制。", childDoorObject);
                 }
             }
         }
@@ -56,6 +103,11 @@ public class RoomController : MonoBehaviour
         else
         {
             enemiesInRoom.RemoveAll(enemy => enemy == null);
+        }
+
+        if (_treasureBox == null)
+        {
+            Debug.LogWarning("[RoomController] _treasureBox 未绑定，清怪后不会显示宝箱。", this);
         }
     }
 
@@ -80,12 +132,17 @@ public class RoomController : MonoBehaviour
         {
             if (gate != null)
             {
+                // Entering battle: make gates appear first, then lock.
                 gate.SetActive(true);
 
                 DoorController door = gate.GetComponent<DoorController>();
                 if (door != null)
                 {
                     door.SetLocked(true);
+                }
+                else
+                {
+                    gate.SetActive(true);
                 }
             }
         }
@@ -145,14 +202,20 @@ public class RoomController : MonoBehaviour
         {
             if (gate != null)
             {
-                gate.SetActive(false);
-
                 DoorController door = gate.GetComponent<DoorController>();
                 if (door != null)
                 {
                     door.SetLocked(false);
                 }
+
+                // Keep old room-flow behavior: hide gates when room is cleared.
+                gate.SetActive(false);
             }
+        }
+
+        if (_treasureBox != null)
+        {
+            _treasureBox.SetActive(true);
         }
 
         Debug.Log("房间已清空，大门打开！");

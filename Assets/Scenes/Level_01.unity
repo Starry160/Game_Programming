@@ -184,8 +184,10 @@ MonoBehaviour:
   roomGates:
   - {fileID: 98015909}
   - {fileID: 442092687}
+  - {fileID: 737537752}
   enemyCheckInterval: 0.2
   playerTag: Player
+  _treasureBox: {fileID: 638614555}
   roomTriggerZone: {fileID: 363522279}
 --- !u!1 &16677714
 GameObject:
@@ -318,6 +320,7 @@ GameObject:
   - component: {fileID: 98015910}
   - component: {fileID: 98015912}
   - component: {fileID: 98015911}
+  - component: {fileID: 98015913}
   m_Layer: 0
   m_Name: EntranceGate
   m_TagString: Untagged
@@ -437,6 +440,28 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &98015913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98015909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 165aac166b04ccb40958303e404f8a4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _closedSprite: {fileID: 0}
+  _openSprite: {fileID: 0}
+  _solidCollider: {fileID: 0}
+  _doorAnimator: {fileID: 0}
+  _openTriggerName: Open
+  _closeTriggerName: Close
+  isExitDoor: 0
+  targetSceneName: 
+  autoLockOnBattleStart: 1
+  enemyCheckInterval: 0.5
 --- !u!4 &168031984 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 906150480251586669, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
@@ -787,6 +812,7 @@ GameObject:
   - component: {fileID: 442092688}
   - component: {fileID: 442092690}
   - component: {fileID: 442092689}
+  - component: {fileID: 442092691}
   m_Layer: 0
   m_Name: ExitGate
   m_TagString: Untagged
@@ -906,6 +932,28 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &442092691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 442092687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 165aac166b04ccb40958303e404f8a4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _closedSprite: {fileID: 0}
+  _openSprite: {fileID: 0}
+  _solidCollider: {fileID: 0}
+  _doorAnimator: {fileID: 0}
+  _openTriggerName: Open
+  _closeTriggerName: Close
+  isExitDoor: 0
+  targetSceneName: 
+  autoLockOnBattleStart: 1
+  enemyCheckInterval: 0.5
 --- !u!1 &477129765
 GameObject:
   m_ObjectHideFlags: 0
@@ -7842,6 +7890,11 @@ Transform:
   - {fileID: 1141351430}
   m_Father: {fileID: 1005990921}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &737537752 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1553606583346058518, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
+  m_PrefabInstance: {fileID: 1277032022}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &741470012
 GameObject:
   m_ObjectHideFlags: 0

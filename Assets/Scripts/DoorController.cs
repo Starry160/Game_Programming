@@ -44,6 +44,18 @@ public class DoorController : MonoBehaviour
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        if (_solidCollider == null)
+        {
+            Collider2D[] colliders = GetComponents<Collider2D>();
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (!colliders[i].isTrigger)
+                {
+                    _solidCollider = colliders[i];
+                    break;
+                }
+            }
+        }
 
         // 初始化为关门状态，确保运行时视觉与碰撞一致。
         if (_closedSprite != null)
