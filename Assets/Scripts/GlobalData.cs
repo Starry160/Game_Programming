@@ -31,6 +31,28 @@ public static class GlobalData
     public static float persistedHealth = 0f;
 
     /// <summary>
+    /// 是否已有跨场景继承的生命上限。
+    /// false 时表示使用 PlayerStats Inspector 默认值。
+    /// </summary>
+    public static bool hasPersistedMaxHealth = false;
+
+    /// <summary>
+    /// 跨场景继承的生命上限（同一次运行内有效）。
+    /// </summary>
+    public static float persistedMaxHealth = 0f;
+
+    /// <summary>
+    /// 是否已有跨场景继承的护盾上限。
+    /// false 时表示使用 PlayerStats Inspector 默认值。
+    /// </summary>
+    public static bool hasPersistedMaxShield = false;
+
+    /// <summary>
+    /// 跨场景继承的护盾上限（同一次运行内有效）。
+    /// </summary>
+    public static float persistedMaxShield = 0f;
+
+    /// <summary>
     /// 清空本局运行时的跨场景状态。
     /// 用于“回到主菜单后重新开始”这种应视为新开一局的场景。
     /// </summary>
@@ -40,5 +62,9 @@ public static class GlobalData
         chosenWeaponIndex = -1;
         hasPersistedHealth = false;
         persistedHealth = 0f;
+        hasPersistedMaxHealth = false;
+        persistedMaxHealth = 0f;
+        hasPersistedMaxShield = false;
+        persistedMaxShield = 0f;
     }
 }

@@ -35,12 +35,29 @@ public class PlayerStats : MonoBehaviour
     public float teleportDetectWindow = 0.8f;
     [Tooltip("检测到异常位移时是否强制拉回受击前位置。")]
     public bool restoreOnTeleportDetected = true;
+    [Header("Invincibility VFX")]
+    [Tooltip("临时无敌期间是否启用金色闪烁效果。")]
+    public bool enableGoldInvincibilityFlash = true;
+    [Tooltip("无敌闪烁时的金色。")]
+    public Color invincibleFlashColor = new Color(1f, 0.85f, 0.2f, 0.85f);
+    [Tooltip("无敌闪烁切换间隔（秒）。")]
+    public float invincibleFlashInterval = 0.08f;
+    [Tooltip("临时无敌期间是否启用轻微缩放呼吸效果。")]
+    public bool enableInvincibleScalePulse = true;
+    [Tooltip("无敌缩放呼吸最小倍率（相对基础缩放）。")]
+    public float invincibleScaleMin = 1f;
+    [Tooltip("无敌缩放呼吸最大倍率（相对基础缩放）。")]
+    public float invincibleScaleMax = 1.05f;
+    [Tooltip("无敌缩放呼吸频率（每秒循环次数）。")]
+    public float invincibleScaleFrequency = 1f;
 
     private float nextShieldRegenTime;
     private bool isInvulnerable = false;
+    private bool isTemporarilyInvincible = false;
     private SpriteRenderer spriteRenderer;
     private Color originalColor = Color.white;
     private Coroutine invulnerabilityCoroutine;
+    private Coroutine temporaryInvincibilityCoroutine;
 
     private void OnEnable()
     {
@@ -63,6 +80,26 @@ public class PlayerStats : MonoBehaviour
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
+        }
+
+        if (GlobalData.hasPersistedMaxHealth)
+        {
+            maxHealth = Mathf.Max(1f, GlobalData.persistedMaxHealth);
+        }
+        else
+        {
+            GlobalData.hasPersistedMaxHealth = true;
+            GlobalData.persistedMaxHealth = maxHealth;
+        }
+
+        if (GlobalData.hasPersistedMaxShield)
+        {
+            maxShield = Mathf.Max(0f, GlobalData.persistedMaxShield);
+        }
+        else
+        {
+            GlobalData.hasPersistedMaxShield = true;
+            GlobalData.persistedMaxShield = maxShield;
         }
 
         if (GlobalData.hasPersistedHealth)
@@ -226,7 +263,7 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
-        if (isInvulnerable)
+        if (isInvulnerable || isTemporarilyInvincible)
         {
             return;
         }
@@ -289,6 +326,62 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    public void GrantTemporaryInvincibility(float duration)
+    {
+        if (duration <= 0f)
+        {
+            return;
+        }
+
+        if (invulnerabilityCoroutine != null)
+        {
+            StopCoroutine(invulnerabilityCoroutine);
+            invulnerabilityCoroutine = null;
+            isInvulnerable = false;
+        }
+
+        if (temporaryInvincibilityCoroutine != null)
+        {
+            StopCoroutine(temporaryInvincibilityCoroutine);
+        }
+
+        temporaryInvincibilityCoroutine = StartCoroutine(TemporaryInvincibilityRoutine(duration));
+    }
+
+    public void IncreaseMaxHealthAndHeal(float amount)
+    {
+        if (amount <= 0f)
+        {
+            return;
+        }
+
+        maxHealth += amount;
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+
+        GlobalData.hasPersistedMaxHealth = true;
+        GlobalData.persistedMaxHealth = maxHealth;
+        GlobalData.hasPersistedHealth = true;
+        GlobalData.persistedHealth = currentHealth;
+
+        UpdateUI();
+    }
+
+    public void IncreaseMaxShieldAndFill(float amount)
+    {
+        if (amount <= 0f)
+        {
+            return;
+        }
+
+        maxShield += amount;
+        currentShield = Mathf.Min(maxShield, currentShield + amount);
+
+        GlobalData.hasPersistedMaxShield = true;
+        GlobalData.persistedMaxShield = maxShield;
+
+        UpdateUI();
+    }
+
     private void StartInvulnerability()
     {
         if (invulnerabilityCoroutine != null)
@@ -330,6 +423,84 @@ public class PlayerStats : MonoBehaviour
 
         isInvulnerable = false;
         invulnerabilityCoroutine = null;
+    }
+
+    private IEnumerator TemporaryInvincibilityRoutine(float duration)
+    {
+        isTemporarilyInvincible = true;
+        float timer = 0f;
+        float flashTimer = 0f;
+        bool showFlashColor = false;
+        Transform visualTarget = spriteRenderer != null ? spriteRenderer.transform : transform;
+        Vector3 initialScale = visualTarget.localScale;
+        Vector3 baseAbsScale = new Vector3(
+            Mathf.Abs(initialScale.x),
+            Mathf.Abs(initialScale.y),
+            Mathf.Abs(initialScale.z));
+        float minScale = Mathf.Max(0.01f, Mathf.Min(invincibleScaleMin, invincibleScaleMax));
+        float maxScale = Mathf.Max(minScale, Mathf.Max(invincibleScaleMin, invincibleScaleMax));
+        float scaleFreq = Mathf.Max(0.01f, invincibleScaleFrequency);
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+
+        while (timer < duration)
+        {
+            float dt = Time.deltaTime;
+            timer += dt;
+
+            if (enableGoldInvincibilityFlash && spriteRenderer != null)
+            {
+                flashTimer += dt;
+                if (flashTimer >= Mathf.Max(0.01f, invincibleFlashInterval))
+                {
+                    flashTimer = 0f;
+                    showFlashColor = !showFlashColor;
+                    spriteRenderer.color = showFlashColor ? invincibleFlashColor : originalColor;
+                }
+            }
+
+            if (enableInvincibleScalePulse && visualTarget != null)
+            {
+                float wave = (Mathf.Sin(timer * (Mathf.PI * 2f) * scaleFreq) + 1f) * 0.5f;
+                float scaleMul = Mathf.Lerp(minScale, maxScale, wave);
+                float facingSignX = Mathf.Sign(visualTarget.localScale.x);
+                if (Mathf.Approximately(facingSignX, 0f))
+                {
+                    facingSignX = 1f;
+                }
+
+                visualTarget.localScale = new Vector3(
+                    facingSignX * baseAbsScale.x * scaleMul,
+                    baseAbsScale.y * scaleMul,
+                    baseAbsScale.z);
+            }
+
+            yield return null;
+        }
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+        if (visualTarget != null)
+        {
+            float facingSignX = Mathf.Sign(visualTarget.localScale.x);
+            if (Mathf.Approximately(facingSignX, 0f))
+            {
+                facingSignX = 1f;
+            }
+
+            visualTarget.localScale = new Vector3(
+                facingSignX * baseAbsScale.x,
+                baseAbsScale.y,
+                baseAbsScale.z);
+        }
+
+        isTemporarilyInvincible = false;
+        temporaryInvincibilityCoroutine = null;
     }
 
     private void StartPostHitTeleportGuard(Vector3 preHitPosition, string preHitScene)
