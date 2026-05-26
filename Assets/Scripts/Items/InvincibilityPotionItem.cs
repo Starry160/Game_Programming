@@ -44,6 +44,12 @@ public class InvincibilityPotionItem : ChestDropItem
         }
 
         PlayPickupSfx();
+
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddPotion();
+        }
+
         base.OnPickedByPlayer(player);
     }
 

@@ -86,6 +86,24 @@ public class PlayerAttack : MonoBehaviour
 
     private bool isAttacking = false;
 
+    // 自动补齐攻击音源：优先 Inspector 引用，其次当前物体组件，最后运行时自动添加。
+    private void Awake()
+    {
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
+        audioSource.loop = false;
+    }
+
     // 左键按下时按 GlobalData.chosenWeaponIndex 分发攻击协程。
     private void Update()
     {

@@ -94,6 +94,11 @@ public class EnemyHealth : MonoBehaviour
     {
         _isDead = true;
 
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddKill();
+        }
+
         if (_enemyAI != null)
         {
             _enemyAI.enabled = false;

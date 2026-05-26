@@ -44,6 +44,12 @@ public class PotionItem : ChestDropItem
         }
 
         PlayPickupSfx();
+
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddPotion();
+        }
+
         base.OnPickedByPlayer(player);
     }
 

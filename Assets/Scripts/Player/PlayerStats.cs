@@ -55,10 +55,13 @@ public class PlayerStats : MonoBehaviour
     private float nextShieldRegenTime;
     private bool isInvulnerable = false;
     private bool isTemporarilyInvincible = false;
+    private bool _isDead = false;
     private SpriteRenderer spriteRenderer;
     private Color originalColor = Color.white;
     private Coroutine invulnerabilityCoroutine;
     private Coroutine temporaryInvincibilityCoroutine;
+    private Coroutine _showGameOverCoroutine;
+    private GameOverPanel _gameOverPanel;
 
     // 订阅场景加载以重新绑定 UI。
     private void OnEnable()
@@ -76,6 +79,7 @@ public class PlayerStats : MonoBehaviour
     private void Start()
     {
         TryAutoBindUIReferences();
+        _gameOverPanel = FindObjectOfType<GameOverPanel>(true);
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
@@ -269,6 +273,11 @@ public class PlayerStats : MonoBehaviour
     // 受到伤害：先扣护盾再扣血，触发无敌与受击反馈。
     public void TakeDamage(float amount)
     {
+        if (_isDead)
+        {
+            return;
+        }
+
         if (amount <= 0f)
         {
             return;
@@ -320,10 +329,10 @@ public class PlayerStats : MonoBehaviour
 
         if (currentHealth <= 0f)
         {
-            Debug.LogWarning("【测试安全阀】玩家理论上死掉了！但为了防止场景重启，现在强行满血复活进行调试！");
-            currentHealth = maxHealth;
+            currentHealth = 0f;
             GlobalData.persistedHealth = currentHealth;
             UpdateUI();
+            HandlePlayerDeath();
             return;
         }
 
@@ -333,6 +342,11 @@ public class PlayerStats : MonoBehaviour
     // 治疗并同步 GlobalData 与 UI。
     public void Heal(float amount)
     {
+        if (_isDead)
+        {
+            return;
+        }
+
         if (amount <= 0f)
         {
             return;
@@ -346,6 +360,11 @@ public class PlayerStats : MonoBehaviour
     // 授予临时无敌（金闪 + 缩放呼吸，不覆盖朝向符号）。
     public void GrantTemporaryInvincibility(float duration)
     {
+        if (_isDead)
+        {
+            return;
+        }
+
         if (duration <= 0f)
         {
             return;
@@ -369,6 +388,11 @@ public class PlayerStats : MonoBehaviour
     // 生命药水：提升上限并回复等量生命。
     public void IncreaseMaxHealthAndHeal(float amount)
     {
+        if (_isDead)
+        {
+            return;
+        }
+
         if (amount <= 0f)
         {
             return;
@@ -388,6 +412,11 @@ public class PlayerStats : MonoBehaviour
     // 护盾药水：提升护盾上限并填满增量。
     public void IncreaseMaxShieldAndFill(float amount)
     {
+        if (_isDead)
+        {
+            return;
+        }
+
         if (amount <= 0f)
         {
             return;
@@ -524,6 +553,82 @@ public class PlayerStats : MonoBehaviour
 
         isTemporarilyInvincible = false;
         temporaryInvincibilityCoroutine = null;
+    }
+
+    private void HandlePlayerDeath()
+    {
+        if (_isDead)
+        {
+            return;
+        }
+
+        _isDead = true;
+        isInvulnerable = false;
+        isTemporarilyInvincible = false;
+
+        if (invulnerabilityCoroutine != null)
+        {
+            StopCoroutine(invulnerabilityCoroutine);
+            invulnerabilityCoroutine = null;
+        }
+
+        if (temporaryInvincibilityCoroutine != null)
+        {
+            StopCoroutine(temporaryInvincibilityCoroutine);
+            temporaryInvincibilityCoroutine = null;
+        }
+
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.StopTimer();
+        }
+
+        DisablePlayerControl();
+
+        if (_showGameOverCoroutine != null)
+        {
+            StopCoroutine(_showGameOverCoroutine);
+        }
+        _showGameOverCoroutine = StartCoroutine(ShowGameOverAfterDelay());
+    }
+
+    private void DisablePlayerControl()
+    {
+        PlayerController controller = GetComponent<PlayerController>();
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+
+        PlayerAttack attack = GetComponent<PlayerAttack>();
+        if (attack != null)
+        {
+            attack.enabled = false;
+        }
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+    }
+
+    private IEnumerator ShowGameOverAfterDelay()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        if (_gameOverPanel == null)
+        {
+            _gameOverPanel = FindObjectOfType<GameOverPanel>(true);
+        }
+
+        if (_gameOverPanel != null)
+        {
+            _gameOverPanel.ShowPanel();
+        }
+
+        _showGameOverCoroutine = null;
     }
 
     // 调试：受击后监测异常位移。
