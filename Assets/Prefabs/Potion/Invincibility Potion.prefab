@@ -180,8 +180,8 @@ MonoBehaviour:
   pulseMaxAlpha: 1
   pulseFrequency: 1.6
   invincibilityDuration: 10
-  pickupSfx: {fileID: 0}
-  pickupSfxVolume: 0.9
+  pickupSfx: {fileID: 8300000, guid: 1fc32e31c84af48469c1568a0b11b1b5, type: 3}
+  pickupSfxVolume: 1
   popupText: Invincible 10s
   popupFontAsset: {fileID: 11400000, guid: 5a7e1e5600ae592478fcece35976a58c, type: 2}
   popupColor: {r: 1, g: 0.85, b: 0.25, a: 1}
