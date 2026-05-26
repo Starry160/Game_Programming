@@ -183,7 +183,7 @@ MonoBehaviour:
   pickupSfx: {fileID: 0}
   pickupSfxVolume: 0.9
   popupText: Invincible 10s
-  popupFontAsset: {fileID: 0}
+  popupFontAsset: {fileID: 11400000, guid: 5a7e1e5600ae592478fcece35976a58c, type: 2}
   popupColor: {r: 1, g: 0.85, b: 0.25, a: 1}
   popupOutlineColor: {r: 0.2, g: 0.1, b: 0, a: 1}
   popupOffset: {x: 0, y: 0.9, z: 0}
