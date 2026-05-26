@@ -282,6 +282,11 @@ public class PlayerStats : MonoBehaviour
         Vector3 preHitPosition = transform.position;
         string preHitScene = SceneManager.GetActiveScene().name;
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayPlayerHit();
+        }
+
         HitFeedback feedback = GetComponent<HitFeedback>();
         if (feedback != null)
         {

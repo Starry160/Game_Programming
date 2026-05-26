@@ -241,6 +241,12 @@ public class EnemyAI : MonoBehaviour
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayEnemyHit();
+        }
+
         HitFeedback feedback = GetComponent<HitFeedback>();
         if (feedback != null)
         {

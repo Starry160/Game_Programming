@@ -50,6 +50,11 @@ public class EnemyHealth : MonoBehaviour
         _currentHealth = Mathf.Max(0, _currentHealth - amount);
         RefreshHeartSprite();
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayEnemyHit();
+        }
+
         HitFeedback feedback = GetComponent<HitFeedback>();
         if (feedback != null)
         {
