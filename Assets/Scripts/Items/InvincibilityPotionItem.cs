@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>无敌药水：授予限时无敌并显示飘字。</summary>
 public class InvincibilityPotionItem : ChestDropItem
 {
     [Header("Invincibility Effect")]
@@ -22,6 +23,7 @@ public class InvincibilityPotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.8f;
     [SerializeField] private int popupSortingOrder = 200;
 
+    // 拾取：GrantTemporaryInvincibility + 飘字 + 音效。
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -45,6 +47,7 @@ public class InvincibilityPotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
+    // 播放拾取音效。
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -55,6 +58,7 @@ public class InvincibilityPotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
+    // 创建无敌飘字。
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("InvincibilityPotionPopup");

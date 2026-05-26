@@ -1,5 +1,6 @@
 using UnityEngine;
 
+/// <summary>投射物：沿朝向飞行，命中敌人/环境后爆炸销毁。</summary>
 public class Projectile : MonoBehaviour
 {
     [Header("Stats")]
@@ -15,17 +16,20 @@ public class Projectile : MonoBehaviour
     [Tooltip("命中敌人或墙壁时生成的爆炸特效预制体（通常挂 AutoDestroy 脚本）。")]
     public GameObject explosionPrefab;
 
+    // 超时自动销毁。
     private void Start()
     {
         Destroy(gameObject, lifeTime);
     }
 
+    // 沿 transform.right 方向移动。
     private void Update()
     {
         // 沿自身 +X 方向匀速前进；方向由发射时的 rotation 决定。
         transform.position += transform.right * (speed * Time.deltaTime);
     }
 
+    // 触发碰撞：敌人伤害或环境阻挡。
     private void OnTriggerEnter2D(Collider2D col)
     {
         // 防误伤：刚出生就可能擦到法师自身的触发器，直接忽略。
@@ -81,6 +85,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    // 击中墙/关闭的门：生成特效并销毁。
     private void OnHitEnvironment(GameObject environment)
     {
         Debug.Log($"{gameObject.name} 击中环境: {environment.name}");
@@ -91,6 +96,7 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject);
     }
 
+    // 判断是否为墙或仍有关闭碰撞体的门。
     private bool IsEnvironmentCollider(Collider2D col)
     {
         if (col == null || col.gameObject == null)

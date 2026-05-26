@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>敌人生命值（心形 UI）、受击与死亡淡出销毁。</summary>
 [DisallowMultipleComponent]
 public class EnemyHealth : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class EnemyHealth : MonoBehaviour
     private Collider2D[] _allColliders;
     private SpriteRenderer[] _allSpriteRenderers;
 
+    // 缓存 AI、刚体与所有碰撞体/渲染器。
     private void Awake()
     {
         _enemyAI = GetComponent<EnemyAI>();
@@ -30,12 +32,14 @@ public class EnemyHealth : MonoBehaviour
         _allSpriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
     }
 
+    // 初始化血量并显示心形精灵。
     private void Start()
     {
         _currentHealth = Mathf.Max(1, maxHealth);
         RefreshHeartSprite();
     }
 
+    // 扣血、播放受击反馈，血量为 0 时进入死亡流程。
     public void TakeDamage(int amount = 1)
     {
         if (_isDead || amount <= 0)
@@ -58,6 +62,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    // 根据当前血量切换满/半/空心精灵。
     private void RefreshHeartSprite()
     {
         if (_heartSpriteRenderer == null)
@@ -79,6 +84,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    // 禁用 AI/碰撞，淡出后销毁。
     private IEnumerator DieAfterDelay()
     {
         _isDead = true;
@@ -119,6 +125,7 @@ public class EnemyHealth : MonoBehaviour
         Destroy(gameObject);
     }
 
+    // 设置敌人所有子 Sprite 的透明度。
     private void SetAllSpritesAlpha(float alpha)
     {
         for (int i = 0; i < _allSpriteRenderers.Length; i++)

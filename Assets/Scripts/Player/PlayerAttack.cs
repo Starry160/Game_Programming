@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>玩家攻击：按当前武器执行剑/杖/弓攻击与伤害判定。</summary>
 public class PlayerAttack : MonoBehaviour
 {
     // 武器索引常量，与 GlobalData.chosenWeaponIndex 以及各祭坛的 weaponIndex 对齐。
@@ -85,6 +86,7 @@ public class PlayerAttack : MonoBehaviour
 
     private bool isAttacking = false;
 
+    // 左键按下时按 GlobalData.chosenWeaponIndex 分发攻击协程。
     private void Update()
     {
         if (isAttacking)
@@ -116,6 +118,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    // 大剑挥砍：旋转武器 + 扇形近战伤害。
     private IEnumerator SwordAttack()
     {
         isAttacking = true;
@@ -147,6 +150,7 @@ public class PlayerAttack : MonoBehaviour
         isAttacking = false;
     }
 
+    // 法杖小幅挥动并发射火球。
     private IEnumerator StaffAttack()
     {
         isAttacking = true;
@@ -174,6 +178,7 @@ public class PlayerAttack : MonoBehaviour
         isAttacking = false;
     }
 
+    // 弓拉弦后坐并发射箭矢。
     private IEnumerator BowAttack()
     {
         isAttacking = true;
@@ -201,11 +206,13 @@ public class PlayerAttack : MonoBehaviour
         isAttacking = false;
     }
 
+    // 在法杖发射点生成朝向鼠标的火球。
     private void SpawnFireball()
     {
         SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball", fireballDamage);
     }
 
+    // 播放攻击音效（随机音高）。
     private void PlayAttackSfx(AudioClip clip)
     {
         if (audioSource == null || clip == null)
@@ -218,6 +225,7 @@ public class PlayerAttack : MonoBehaviour
         audioSource.PlayOneShot(clip);
     }
 
+    // 实例化投射物并朝向鼠标世界坐标旋转。
     private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName, float projectileDamage)
     {
         // 安全检查：预制体或发射点缺失时打印警告，避免运行时静默失效或空引用异常。
@@ -258,6 +266,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    // 武器 pivot 旋转插值。
     private IEnumerator LerpRotation(Quaternion from, Quaternion to, float duration)
     {
         float elapsed = 0f;
@@ -271,6 +280,7 @@ public class PlayerAttack : MonoBehaviour
         weaponPivot.localRotation = to;
     }
 
+    // 武器 pivot 位移插值（弓后坐）。
     private IEnumerator LerpPosition(Vector3 from, Vector3 to, float duration)
     {
         float elapsed = 0f;
@@ -284,6 +294,7 @@ public class PlayerAttack : MonoBehaviour
         weaponPivot.localPosition = to;
     }
 
+    // 扇形范围内对敌人造成伤害（优先 EnemyHealth）。
     private void PerformDamage()
     {
         if (attackPoint == null)
@@ -345,6 +356,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    // 编辑器中绘制近战扇形范围 Gizmo。
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null)

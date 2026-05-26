@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>主菜单：开始游戏与退出。</summary>
 public class MainMenuManager : MonoBehaviour
 {
     [Header("Scene")]

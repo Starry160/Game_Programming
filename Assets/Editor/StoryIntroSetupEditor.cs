@@ -6,10 +6,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>编辑器工具：一键生成剧情界面 Canvas 与 StoryIntroManager。</summary>
 public static class StoryIntroSetupEditor
 {
     private const string MENU_PATH = "Tools/一键生成剧情界面 (Auto Setup)";
 
+    // 菜单入口：创建完整剧情 UI 层级。
     [MenuItem(MENU_PATH)]
     public static void AutoSetup()
     {
@@ -36,6 +38,7 @@ public static class StoryIntroSetupEditor
             "剧情界面已生成完毕。\n请在 StoryManager 上配置 storyPages 文本即可。", "OK");
     }
 
+    // 创建全屏 Overlay Canvas。
     private static Canvas CreateCanvas()
     {
         GameObject canvasGo = new GameObject("StoryCanvas",
@@ -55,6 +58,7 @@ public static class StoryIntroSetupEditor
         return canvas;
     }
 
+    // 场景中无 EventSystem 时创建一个。
     private static void EnsureEventSystem()
     {
         if (Object.FindObjectOfType<EventSystem>() != null)
@@ -67,6 +71,7 @@ public static class StoryIntroSetupEditor
         Undo.RegisterCreatedObjectUndo(esGo, "Create EventSystem");
     }
 
+    // 全屏黑色背景。
     private static void CreateFullscreenBackground(Transform parent)
     {
         GameObject bgGo = new GameObject("Background", typeof(Image));
@@ -80,6 +85,7 @@ public static class StoryIntroSetupEditor
         StretchFullscreen(bgGo.GetComponent<RectTransform>());
     }
 
+    // 居中剧情 TMP 文本区域。
     private static TextMeshProUGUI CreateCenteredStoryText(Transform parent)
     {
         GameObject textGo = new GameObject("StoryText", typeof(TextMeshProUGUI));
@@ -105,6 +111,7 @@ public static class StoryIntroSetupEditor
         return tmp;
     }
 
+    // 全屏透明按钮用于翻页点击。
     private static Button CreateFullscreenInvisibleButton(Transform parent)
     {
         GameObject btnGo = new GameObject("NextPageButton", typeof(Image), typeof(Button));
@@ -128,6 +135,7 @@ public static class StoryIntroSetupEditor
         return button;
     }
 
+    // 创建 StoryIntroManager 并填入示例剧情页。
     private static StoryIntroManager CreateStoryManager(TextMeshProUGUI storyText)
     {
         GameObject mgrGo = new GameObject("StoryManager", typeof(StoryIntroManager));
@@ -145,6 +153,7 @@ public static class StoryIntroSetupEditor
         return manager;
     }
 
+    // RectTransform 拉满父级。
     private static void StretchFullscreen(RectTransform rect)
     {
         rect.anchorMin = Vector2.zero;

@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>生命药水：提升生命上限并治疗，显示拾取飘字。</summary>
 public class PotionItem : ChestDropItem
 {
     [Header("Life Potion Effect")]
@@ -22,6 +23,7 @@ public class PotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.7f;
     [SerializeField] private int popupSortingOrder = 200;
 
+    // 拾取：IncreaseMaxHealthAndHeal + 飘字 + 音效。
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -45,6 +47,7 @@ public class PotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
+    // 在拾取点播放音效。
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -55,6 +58,7 @@ public class PotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
+    // 动态创建 TMP 飘字并挂 PopupMotion。
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("LifePotionPopup");
@@ -80,6 +84,7 @@ public class PotionItem : ChestDropItem
     }
 }
 
+/// <summary>拾取飘字：上移并淡出后销毁。</summary>
 public class PopupMotion : MonoBehaviour
 {
     private TextMeshPro _tmp;
@@ -89,6 +94,7 @@ public class PopupMotion : MonoBehaviour
     private Vector3 _startPos;
     private Color _startColor;
 
+    // 配置飘字时长与上浮距离。
     public void Initialize(TextMeshPro tmp, float duration, float floatDistance)
     {
         _tmp = tmp;
@@ -98,6 +104,7 @@ public class PopupMotion : MonoBehaviour
         _startColor = _tmp != null ? _tmp.color : Color.white;
     }
 
+    // 每帧上移并降低 alpha，结束销毁。
     private void Update()
     {
         if (_tmp == null)

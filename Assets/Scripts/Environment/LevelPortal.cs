@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+/// <summary>关卡传送门：按 E 播放吸入动画后加载目标场景。</summary>
 [RequireComponent(typeof(Collider2D))]
 public class LevelPortal : MonoBehaviour
 {
@@ -24,6 +25,7 @@ public class LevelPortal : MonoBehaviour
     private bool canInteract;
     private GameObject _currentPlayer;
 
+    // 默认隐藏交互提示。
     private void Awake()
     {
         // 默认隐藏交互提示，只有玩家靠近时才出现。
@@ -33,6 +35,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
+    // 玩家在范围内时检测 E 键传送。
     private void Update()
     {
         if (!canInteract || _currentPlayer == null)
@@ -47,6 +50,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
+    // 玩家进入，显示提示。
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -64,6 +68,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
+    // 玩家离开，隐藏提示。
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -84,6 +89,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
+    // 开始传送：播动画、冻结玩家刚体。
     private void BeginTeleport()
     {
         // 上锁 + 关闭提示，防止延迟期间被狂按或误操作。
@@ -112,6 +118,7 @@ public class LevelPortal : MonoBehaviour
         StartCoroutine(SuckInRoutine());
     }
 
+    // 将玩家拉向门心并缩小，延时后 LoadScene。
     private IEnumerator SuckInRoutine()
     {
         // 缓存玩家 Transform 与初始状态，保证整段插值稳定。

@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>剧情翻页：逐页显示文本，结束后加载游戏场景。</summary>
 public class StoryIntroManager : MonoBehaviour
 {
     [Header("Story")]
@@ -19,6 +20,7 @@ public class StoryIntroManager : MonoBehaviour
 
     private int _currentPage;
 
+    // 显示第一页剧情。
     private void Start()
     {
         _currentPage = 0;
@@ -41,6 +43,7 @@ public class StoryIntroManager : MonoBehaviour
         ShowCurrentPage();
     }
 
+    // 将当前页文字写入 TMP。
     private void ShowCurrentPage()
     {
         if (storyText == null || storyPages == null || storyPages.Length == 0)

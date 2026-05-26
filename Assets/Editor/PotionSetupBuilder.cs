@@ -1,12 +1,14 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>编辑器工具：创建带 PotionItem 的药水预制体。</summary>
 public static class PotionSetupBuilder
 {
     private const string MenuPath = "Tools/Create Potion Prefab";
     private const string PotionPrefabPath = "Assets/Prefabs/Potion_241.prefab";
     private const string TilesetPath = "Assets/Sprites/Tile/0x72_DungeonTilesetII_v1.7.png";
 
+    // 菜单入口：生成 Potion_241 预制体。
     [MenuItem(MenuPath)]
     public static void CreatePotionPrefab()
     {
@@ -47,6 +49,7 @@ public static class PotionSetupBuilder
         Debug.Log($"[PotionSetupBuilder] 药水预制体已创建：{PotionPrefabPath}");
     }
 
+    // 从图集按帧后缀查找药水 Sprite。
     private static Sprite FindPotionSpriteByFrame(int frameIndex)
     {
         string suffix = "_" + frameIndex;
@@ -74,6 +77,7 @@ public static class PotionSetupBuilder
         return null;
     }
 
+    // 若不存在则创建 Asset 子文件夹。
     private static void EnsureFolder(string parent, string child)
     {
         string fullPath = $"{parent}/{child}";

@@ -1,11 +1,13 @@
 using UnityEngine;
 
+/// <summary>管理多把武器子物体，按索引显示/隐藏。</summary>
 public class WeaponManager : MonoBehaviour
 {
     [Header("Weapons")]
     [Tooltip("玩家可用的武器物体数组，索引与祭坛的 weaponIndex 对应。")]
     public GameObject[] weapons;
 
+    // 隐藏全部武器，若有全局记录则装备对应索引。
     private void Start()
     {
         // 默认进入关卡时先全部隐藏，避免多把武器同时显示。
@@ -37,6 +39,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    // 关闭 weapons 数组中所有子物体。
     private void HideAllWeapons()
     {
         if (weapons == null)

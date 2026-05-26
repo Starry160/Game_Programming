@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>玩家移动与瞄准：WASD/摇杆移动，鼠标/右摇杆瞄准。</summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerController : MonoBehaviour
@@ -33,6 +34,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public Vector2 AimDirection { get; private set; }
 
+    // 初始化组件、刚体参数与输入 Action。
     private void Awake()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
@@ -52,6 +54,7 @@ public class PlayerController : MonoBehaviour
         CreateInputActions();
     }
 
+    // 订阅并启用输入。
     private void OnEnable()
     {
         _moveAction.performed += OnMovePerformed;
@@ -63,6 +66,7 @@ public class PlayerController : MonoBehaviour
         _aimAction.Enable();
     }
 
+    // 禁用输入并取消订阅。
     private void OnDisable()
     {
         _moveAction.Disable();
@@ -74,18 +78,21 @@ public class PlayerController : MonoBehaviour
         _aimAction.canceled -= OnAimCanceled;
     }
 
+    // 释放 InputAction 资源。
     private void OnDestroy()
     {
         _moveAction?.Dispose();
         _aimAction?.Dispose();
     }
 
+    // 物理帧：按输入设置刚体速度。
     private void FixedUpdate()
     {
         // 通过 Rigidbody2D.velocity 驱动物理移动，不直接操作 Transform。
         _rigidbody2D.velocity = _moveInput * _moveSpeed;
     }
 
+    // 逻辑帧：更新瞄准方向与移动动画。
     private void Update()
     {
         UpdateAimDirection();
@@ -94,6 +101,7 @@ public class PlayerController : MonoBehaviour
         UpdateAnimation();
     }
 
+    // 创建移动与瞄准的 Input System 绑定。
     private void CreateInputActions()
     {
         _moveAction = new InputAction("Move", InputActionType.Value, expectedControlType: "Vector2");
@@ -110,27 +118,32 @@ public class PlayerController : MonoBehaviour
         _aimAction.AddBinding("<Gamepad>/rightStick");
     }
 
+    // 移动输入开始/变化。
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
         _moveInput = context.ReadValue<Vector2>();
     }
 
+    // 移动输入松开。
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
         _moveInput = Vector2.zero;
     }
 
+    // 瞄准输入更新，区分鼠标与手柄。
     private void OnAimPerformed(InputAction.CallbackContext context)
     {
         _rawAimInput = context.ReadValue<Vector2>();
         _aimControlIsPointer = context.control.device is Pointer;
     }
 
+    // 瞄准输入取消。
     private void OnAimCanceled(InputAction.CallbackContext context)
     {
         _rawAimInput = Vector2.zero;
     }
 
+    // 将原始瞄准输入转为归一化世界方向。
     private void UpdateAimDirection()
     {
         if (_aimControlIsPointer)
@@ -157,6 +170,7 @@ public class PlayerController : MonoBehaviour
         AimDirection = _rawAimInput.normalized;
     }
 
+    // （已弃用）按移动方向翻转 Sprite，现由 PlayerFacing 处理。
     private void UpdateFacingByAim()
     {
         if (_spriteRenderer == null || Mathf.Approximately(_moveInput.x, 0f))
@@ -167,6 +181,7 @@ public class PlayerController : MonoBehaviour
         _spriteRenderer.flipX = _moveInput.x < 0f;
     }
 
+    // 根据是否在移动切换 Animator 的 isMoving。
     private void UpdateAnimation()
     {
         if (_animator == null)

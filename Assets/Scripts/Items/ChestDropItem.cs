@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+/// <summary>宝箱掉落物基类：脚本位移、 idle 浮动/闪烁、触发拾取。</summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(SpriteRenderer))]
@@ -29,6 +30,7 @@ public class ChestDropItem : MonoBehaviour
     private Vector3 idleAnchorPosition;
     private SpriteRenderer spriteRenderer;
 
+    // 缓存组件并关闭物理模拟（保留 trigger）。
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -37,6 +39,7 @@ public class ChestDropItem : MonoBehaviour
         DisablePhysicsSimulation();
     }
 
+    // 由宝箱调用：沿 moveVector 平滑移动后允许拾取。
     public virtual void PopOut(Vector2 moveVector)
     {
         canBePicked = false;
@@ -55,6 +58,7 @@ public class ChestDropItem : MonoBehaviour
         moveRoutine = StartCoroutine(SmoothMoveThenEnablePickup(targetPosition));
     }
 
+    // 缓动到目标点，结束后开 trigger 与 idle 动画。
     protected virtual IEnumerator SmoothMoveThenEnablePickup(Vector3 targetPosition)
     {
         Vector3 start = transform.position;
@@ -81,6 +85,7 @@ public class ChestDropItem : MonoBehaviour
         moveRoutine = null;
     }
 
+    // 进入触发区尝试拾取。
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (!canBePicked)
@@ -91,6 +96,7 @@ public class ChestDropItem : MonoBehaviour
         TryPickup(other);
     }
 
+    // 停留在触发区内继续尝试拾取。
     protected virtual void OnTriggerStay2D(Collider2D other)
     {
         if (!canBePicked)
@@ -101,12 +107,14 @@ public class ChestDropItem : MonoBehaviour
         TryPickup(other);
     }
 
+    // 拾取成功：子类先应用效果，再销毁自身。
     protected virtual void OnPickedByPlayer(Collider2D player)
     {
         StopIdleFloat();
         Destroy(gameObject);
     }
 
+    // 设为 Kinematic 且 simulated=true 以接收 Trigger。
     protected void DisablePhysicsSimulation()
     {
         if (rb == null)
@@ -123,6 +131,7 @@ public class ChestDropItem : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
     }
 
+    // 启动上下浮动与透明度脉冲。
     private void StartIdleFloat()
     {
         if (enableIdleFloat && floatRoutine == null)
@@ -136,6 +145,7 @@ public class ChestDropItem : MonoBehaviour
         }
     }
 
+    // 停止 idle 效果并复位位置/透明度。
     private void StopIdleFloat()
     {
         if (floatRoutine == null)
@@ -158,6 +168,7 @@ public class ChestDropItem : MonoBehaviour
         ResetSpriteAlpha();
     }
 
+    // 正弦上下浮动。
     private IEnumerator IdleFloatRoutine()
     {
         while (canBePicked)
@@ -170,6 +181,7 @@ public class ChestDropItem : MonoBehaviour
         floatRoutine = null;
     }
 
+    // 透明度周期性变化。
     private IEnumerator AlphaPulseRoutine()
     {
         float minA = Mathf.Clamp01(Mathf.Min(pulseMinAlpha, pulseMaxAlpha));
@@ -187,6 +199,7 @@ public class ChestDropItem : MonoBehaviour
         pulseRoutine = null;
     }
 
+    // 设置 Sprite 透明度。
     private void SetSpriteAlpha(float alpha)
     {
         if (spriteRenderer == null)
@@ -199,11 +212,13 @@ public class ChestDropItem : MonoBehaviour
         spriteRenderer.color = c;
     }
 
+    // 恢复完全不透明。
     private void ResetSpriteAlpha()
     {
         SetSpriteAlpha(1f);
     }
 
+    // 检测 Player 标签或 PlayerStats 后调用 OnPickedByPlayer。
     private void TryPickup(Collider2D other)
     {
         if (other == null)

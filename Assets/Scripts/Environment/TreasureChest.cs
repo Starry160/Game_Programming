@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
+/// <summary>宝箱：玩家触碰打开动画并水平弹出掉落物。</summary>
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Animator))]
 public class TreasureChest : MonoBehaviour
@@ -17,6 +18,7 @@ public class TreasureChest : MonoBehaviour
     private Animator _animator;
     private bool _isOpened = false;
 
+    // 确保碰撞体为 Trigger。
     private void Start()
     {
         _triggerCollider = GetComponent<BoxCollider2D>();
@@ -28,6 +30,7 @@ public class TreasureChest : MonoBehaviour
         }
     }
 
+    // 玩家首次触碰时开箱。
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_isOpened)
@@ -44,6 +47,7 @@ public class TreasureChest : MonoBehaviour
         OpenChest();
     }
 
+    // 触发 open 动画并生成掉落。
     private void OpenChest()
     {
         if (_animator != null)
@@ -54,6 +58,7 @@ public class TreasureChest : MonoBehaviour
         SpawnDrop();
     }
 
+    // 在宝箱左右生成掉落并调用 PopOut 水平飞出。
     private void SpawnDrop()
     {
         if (_dropPrefab == null)
@@ -90,6 +95,7 @@ public class TreasureChest : MonoBehaviour
         dropItem.PopOut(moveVector);
     }
 
+    // 编辑器 Gizmo：生成点与水平飞出方向。
     private void OnDrawGizmosSelected()
     {
         Vector3 center = transform.position + new Vector3(0f, _spawnVerticalOffset, 0f);

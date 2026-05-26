@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>门开关：精灵切换、碰撞阻挡、可选出口切场景与房间锁。</summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
 {
@@ -41,6 +42,7 @@ public class DoorController : MonoBehaviour
     private float _nextLockedLogTime = 0f;
     private const float LOCKED_LOG_INTERVAL = 1f;
 
+    // 初始化为关门状态并绑定实体碰撞体。
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -72,6 +74,7 @@ public class DoorController : MonoBehaviour
         nextEnemyCheckTime = 0f;
     }
 
+    // 可选：按全局 Enemy 标签自动更新锁门状态。
     private void Update()
     {
         if (!autoLockOnBattleStart)
@@ -90,6 +93,7 @@ public class DoorController : MonoBehaviour
         isLocked = hasEnemiesAlive;
     }
 
+    // 玩家进入：未锁则开门，出口门可切场景。
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -116,6 +120,7 @@ public class DoorController : MonoBehaviour
         }
     }
 
+    // 玩家停留：持续尝试开门/传送。
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -136,6 +141,7 @@ public class DoorController : MonoBehaviour
         }
     }
 
+    // 玩家离开：关门。
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -146,6 +152,7 @@ public class DoorController : MonoBehaviour
         CloseDoor();
     }
 
+    // 切换开门精灵、动画并禁用阻挡碰撞体。
     private void OpenDoor()
     {
         if (isLocked)
@@ -178,6 +185,7 @@ public class DoorController : MonoBehaviour
         _isOpen = true;
     }
 
+    // 恢复关门精灵、动画并启用阻挡碰撞体。
     private void CloseDoor()
     {
         if (_closedSprite != null)
@@ -206,6 +214,7 @@ public class DoorController : MonoBehaviour
         _isOpen = false;
     }
 
+    /// <summary>房间系统调用：设置锁门并强制关门。</summary>
     public void SetLocked(bool locked)
     {
         isLocked = locked;
@@ -219,6 +228,7 @@ public class DoorController : MonoBehaviour
         isRoomCleared = true;
     }
 
+    // 未锁且房间已清才允许开门。
     private bool TryOpenForPlayer()
     {
         if (isLocked || !isRoomCleared)
@@ -231,6 +241,7 @@ public class DoorController : MonoBehaviour
         return true;
     }
 
+    // 加载 targetSceneName（防重复、防自加载）。
     private void TryLoadTargetScene()
     {
         // 防止 LoadScene 期间触发器多次回调导致重复加载。
@@ -257,6 +268,7 @@ public class DoorController : MonoBehaviour
         SceneManager.LoadScene(targetSceneName);
     }
 
+    // 场景中是否仍有激活的 Enemy。
     private bool CheckIfEnemiesAlive()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -271,6 +283,7 @@ public class DoorController : MonoBehaviour
         return false;
     }
 
+    // 限频打印“房间未清空”提示。
     private void LogLockedMessage()
     {
         if (Time.time < _nextLockedLogTime)

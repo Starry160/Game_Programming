@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>游戏内暂停菜单：Esc 暂停、返回主菜单确认。</summary>
 public class PauseMenuController : MonoBehaviour
 {
     [Header("Panels")]
@@ -20,6 +21,7 @@ public class PauseMenuController : MonoBehaviour
 
     private bool isPaused;
 
+    // 自动绑定 UI 引用并注册按钮事件。
     private void Awake()
     {
         AutoBindReferences();
@@ -38,6 +40,7 @@ public class PauseMenuController : MonoBehaviour
         isPaused = false;
     }
 
+    // 按层级路径查找暂停/确认面板与按钮。
     private void AutoBindReferences()
     {
         if (pausePanel == null)
@@ -78,6 +81,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 绑定各按钮 OnClick。
     private void WireButtons()
     {
         if (pauseButton != null)
@@ -111,6 +115,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 检测 Esc 键。
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -119,6 +124,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // Esc：关闭确认框 / 恢复游戏 / 打开暂停。
     private void HandleEscPressed()
     {
         if (confirmPanel != null && confirmPanel.activeSelf)
@@ -137,6 +143,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 切换暂停（timeScale=0，显示面板）。
     public void TogglePause()
     {
         if (isPaused)
@@ -159,6 +166,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 恢复游戏时间并隐藏面板。
     public void ResumeGame()
     {
         isPaused = false;
@@ -175,6 +183,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 显示返回主菜单确认框。
     public void ShowQuitConfirm()
     {
         if (!isPaused)
@@ -188,6 +197,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 取消退出，关闭确认框。
     public void CancelQuit()
     {
         if (confirmPanel != null)
@@ -196,6 +206,7 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    // 确认退出：ResetRunState 并加载主菜单。
     public void ConfirmQuitToMainMenu()
     {
         // 返回主菜单即视为放弃当前 run，清空跨场景职业/武器/生命等运行态。

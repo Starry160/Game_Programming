@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>职业祭坛：按 E 换职业动画、武器，并解锁传送门。</summary>
 [RequireComponent(typeof(Collider2D))]
 public class CharacterTransformPedestal : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class CharacterTransformPedestal : MonoBehaviour
     private GameObject _currentPlayer;
     private Collider2D _triggerCollider;
 
+    // 缓存触发器，默认隐藏交互提示。
     private void Awake()
     {
         _triggerCollider = GetComponent<Collider2D>();
@@ -38,6 +40,7 @@ public class CharacterTransformPedestal : MonoBehaviour
         }
     }
 
+    // 玩家在范围内时检测 E 键变身。
     private void Update()
     {
         if (!canInteract || _currentPlayer == null)
@@ -52,6 +55,7 @@ public class CharacterTransformPedestal : MonoBehaviour
         }
     }
 
+    // 玩家进入触发区，显示提示。
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -68,6 +72,7 @@ public class CharacterTransformPedestal : MonoBehaviour
         }
     }
 
+    // 玩家离开触发区，隐藏提示。
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -88,6 +93,7 @@ public class CharacterTransformPedestal : MonoBehaviour
         }
     }
 
+    // 执行变身：写 GlobalData、换武器、开传送门。
     private void PerformTransform()
     {
         Animator playerAnimator = _currentPlayer.GetComponent<Animator>();

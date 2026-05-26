@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>护盾药水：提升护盾上限并填满增量。</summary>
 public class ShieldPotionItem : ChestDropItem
 {
     [Header("Shield Potion Effect")]
@@ -22,6 +23,7 @@ public class ShieldPotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.7f;
     [SerializeField] private int popupSortingOrder = 200;
 
+    // 拾取：IncreaseMaxShieldAndFill + 飘字 + 音效。
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -45,6 +47,7 @@ public class ShieldPotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
+    // 播放拾取音效。
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -55,6 +58,7 @@ public class ShieldPotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
+    // 创建护盾飘字。
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("ShieldPotionPopup");

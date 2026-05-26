@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>房间战斗：玩家进入锁门、清怪后开门并显示宝箱。</summary>
 public class RoomController : MonoBehaviour
 {
     [Header("Room Data")]
@@ -22,11 +23,13 @@ public class RoomController : MonoBehaviour
     private bool isBattleStarted = false;
     private float nextCheckTime = 0f;
 
+    // 自动绑定房间触发区。
     private void Awake()
     {
         AutoBindTriggerZone();
     }
 
+    // 开局隐藏宝箱。
     private void Start()
     {
         if (_treasureBox != null)
@@ -35,6 +38,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
+    // 编辑器菜单：从子物体 DoorController 同步 roomGates 列表。
     [ContextMenu("Sync Room Gates From Children")]
     private void SyncRoomGatesFromChildren()
     {
@@ -48,6 +52,7 @@ public class RoomController : MonoBehaviour
         Debug.Log($"[RoomController] 已同步 {roomGates.Count} 扇门到 roomGates（仅这些门会被房间逻辑控制）。", this);
     }
 
+    // Inspector 变更时校验引用并去重。
     private void OnValidate()
     {
         AutoBindTriggerZone();
@@ -111,6 +116,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
+    // 玩家进入房间触发区时开始战斗。
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(playerTag))
@@ -124,6 +130,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
+    // 锁门、激活敌人并开启 canChase。
     private void StartRoomBattle()
     {
         isBattleStarted = true;
@@ -171,6 +178,7 @@ public class RoomController : MonoBehaviour
         nextCheckTime = Time.time + enemyCheckInterval;
     }
 
+    // 轮询清怪状态；备用：玩家已在 bounds 内则开战。
     private void Update()
     {
         TryStartBattleByBoundsFallback();
@@ -194,6 +202,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
+    // 清怪完成：解锁/隐藏门，显示宝箱。
     private void ClearRoom()
     {
         isRoomCleared = true;
@@ -221,6 +230,7 @@ public class RoomController : MonoBehaviour
         Debug.Log("房间已清空，大门打开！");
     }
 
+    // 查找 RoomTriggerZone 或自身 Collider2D。
     private void AutoBindTriggerZone()
     {
         if (roomTriggerZone != null)
@@ -240,6 +250,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
+    // 无 OnTrigger 时，玩家已在触发 bounds 内则开战。
     private void TryStartBattleByBoundsFallback()
     {
         if (isBattleStarted || isRoomCleared)

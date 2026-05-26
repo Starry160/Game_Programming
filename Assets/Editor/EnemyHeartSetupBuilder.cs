@@ -1,12 +1,14 @@
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>编辑器工具：为选中敌人配置 EnemyHealth 与悬浮心形 UI。</summary>
 public static class EnemyHeartSetupBuilder
 {
     private const string MenuPath = "Tools/Setup Enemy Floating Heart";
     private const string HeartName = "FloatingHeart";
     private const string TilesetPath = "Assets/Sprites/Tile/0x72_DungeonTilesetII_v1.7.png";
 
+    // 菜单入口：配置选中敌人的血量与心形精灵。
     [MenuItem(MenuPath)]
     public static void SetupEnemyFloatingHeart()
     {
@@ -69,6 +71,7 @@ public static class EnemyHeartSetupBuilder
         Debug.Log($"[EnemyHeartSetupBuilder] {enemy.name} 的悬浮爱心配置完成。");
     }
 
+    // 从图集按帧后缀查找心形 Sprite。
     private static Sprite FindHeartSpriteByFrame(int frameIndex)
     {
         string suffix = "_" + frameIndex;

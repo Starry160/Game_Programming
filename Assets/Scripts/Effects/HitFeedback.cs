@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>受击反馈：闪色 + 可选位移抖动（玩家/敌人默认不抖根节点）。</summary>
 public class HitFeedback : MonoBehaviour
 {
     [Header("Feedback Settings")]
@@ -16,6 +17,7 @@ public class HitFeedback : MonoBehaviour
     private bool canShake = true;
     private Coroutine feedbackCoroutine;
 
+    // 初始化渲染器、抖动目标及是否允许位移。
     private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -55,6 +57,7 @@ public class HitFeedback : MonoBehaviour
         }
     }
 
+    // 播放受击反馈（可打断上一次）。
     public void PlayFeedback()
     {
         if (feedbackCoroutine != null)
@@ -66,6 +69,7 @@ public class HitFeedback : MonoBehaviour
         feedbackCoroutine = StartCoroutine(HitRoutine());
     }
 
+    // 协程：闪红 + 限时抖动。
     private IEnumerator HitRoutine()
     {
         if (spriteRenderer != null)
@@ -101,6 +105,7 @@ public class HitFeedback : MonoBehaviour
         feedbackCoroutine = null;
     }
 
+    // 恢复颜色与本地位置。
     private void RestoreState()
     {
         if (spriteRenderer != null)

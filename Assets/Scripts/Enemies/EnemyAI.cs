@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>敌人 AI：追击、包抄、挥砍攻击与旧版血量（可被 EnemyHealth 替代）。</summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {
@@ -51,6 +52,7 @@ public class EnemyAI : MonoBehaviour
     private Vector3 randomOffset;
     private float nextStateChangeTime = 0f;
 
+    // 查找玩家、缓存组件与武器初始姿态。
     private void Start()
     {
         currentHealth = maxHealth;
@@ -79,6 +81,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 物理帧：追击/待机/发起攻击。
     private void FixedUpdate()
     {
         if (!canChase || playerTransform == null || rb == null)
@@ -144,6 +147,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 贴身时清零速度，避免推挤玩家。
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (rb == null)
@@ -170,6 +174,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 按移动方向翻转 Sprite 与武器 pivot。
     private void UpdateFacing(Vector2 direction)
     {
         if (spriteRenderer == null)
@@ -190,6 +195,7 @@ public class EnemyAI : MonoBehaviour
         UpdateWeaponFacing(direction.x);
     }
 
+    // 同步武器 pivot 的 scale 与本地 X 偏移。
     private void UpdateWeaponFacing(float dirX)
     {
         if (weaponPivot == null)
@@ -220,6 +226,7 @@ public class EnemyAI : MonoBehaviour
         weaponPivot.localScale = scale;
     }
 
+    // 设置 Animator 的 isRunning 参数。
     private void UpdateRunAnimation(bool isRunning)
     {
         if (animator == null)
@@ -230,6 +237,7 @@ public class EnemyAI : MonoBehaviour
         animator.SetBool("isRunning", isRunning);
     }
 
+    // 旧版受击扣血（无 EnemyHealth 时使用）。
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
@@ -246,12 +254,14 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 旧版死亡：直接销毁。
     private void Die()
     {
         Debug.Log(gameObject.name + " 已死亡！");
         Destroy(gameObject);
     }
 
+    // 计算包抄目标点（玩家左右侧面偏移）。
     private Vector3 CalculateSmartTargetPosition()
     {
         Vector3 playerPos = playerTransform.position;
@@ -259,6 +269,7 @@ public class EnemyAI : MonoBehaviour
         return new Vector3(playerPos.x + xOffset, playerPos.y, playerPos.z);
     }
 
+    // 挥砍协程：前摇 → 下劈（命中帧）→ 收招。
     private IEnumerator AttackRoutine()
     {
         if (weaponPivot == null)
@@ -288,6 +299,7 @@ public class EnemyAI : MonoBehaviour
         isAttacking = false;
     }
 
+    // 武器旋转插值，可选在归一化时间点触发伤害。
     private IEnumerator LerpWeaponRotation(Quaternion from, Quaternion to, float duration, bool applyHitFrame)
     {
         float elapsed = 0f;
@@ -316,6 +328,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 在 hitPoint 圆形范围内对玩家造成伤害。
     private void DoHitCheck()
     {
         if (hitPoint == null)
@@ -357,6 +370,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    // 编辑器绘制攻击判定圆。
     private void OnDrawGizmosSelected()
     {
         if (hitPoint == null)

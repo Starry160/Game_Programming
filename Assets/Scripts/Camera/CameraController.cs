@@ -1,5 +1,6 @@
 using UnityEngine;
 
+/// <summary>2D 相机平滑跟随玩家，可外部切换目标。</summary>
 [RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour
 {
@@ -17,12 +18,14 @@ public class CameraController : MonoBehaviour
     private float _lockedZ;
     private Vector3 _currentVelocity;
 
+    // 缓存初始 Z，防止 2D 正交相机深度漂移。
     private void Awake()
     {
         // 锁定初始 Z 轴深度，避免跟随导致 2D 画面丢失。
         _lockedZ = transform.position.z;
     }
 
+    // 查找场景中的玩家作为跟随目标。
     private void Start()
     {
         // 纯代码定位跟随目标，无需 Inspector 手动拖拽。
@@ -37,6 +40,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    // 每帧平滑插值到目标位置（LateUpdate 减少抖动）。
     private void LateUpdate()
     {
         // 在 LateUpdate 中处理跟随，避免与玩家的 Update/FixedUpdate 移动产生抖动。

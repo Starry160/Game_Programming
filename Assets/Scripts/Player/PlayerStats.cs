@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 
+/// <summary>玩家生命/护盾、受击无敌、药水增益与 HUD 同步。</summary>
 public class PlayerStats : MonoBehaviour
 {
     [Header("Health")]
@@ -59,16 +60,19 @@ public class PlayerStats : MonoBehaviour
     private Coroutine invulnerabilityCoroutine;
     private Coroutine temporaryInvincibilityCoroutine;
 
+    // 订阅场景加载以重新绑定 UI。
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    // 取消场景加载订阅。
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    // 从 GlobalData 恢复生命/护盾并初始化 UI。
     private void Start()
     {
         TryAutoBindUIReferences();
@@ -118,17 +122,20 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    // 切场景后重新查找 HUD 引用。
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         TryAutoBindUIReferences();
         UpdateUI();
     }
 
+    // 每帧处理护盾自动恢复。
     private void Update()
     {
         HandleShieldRegeneration();
     }
 
+    // 受伤冷却后按间隔恢复护盾。
     private void HandleShieldRegeneration()
     {
         if (currentShield >= maxShield)
@@ -146,6 +153,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    // 刷新血条/盾条填充与数值文本。
     public void UpdateUI()
     {
         if (healthText == null || shieldText == null || healthFillImage == null || shieldFillImage == null)
@@ -174,6 +182,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // 按路径或名称自动查找 HUD 组件。
     private void TryAutoBindUIReferences()
     {
         if (healthText == null)
@@ -229,6 +238,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // 在场景中按 GameObject 名称查找激活的组件。
     private T FindActiveComponentByName<T>(string objectName) where T : Component
     {
         T[] components = FindObjectsOfType<T>(true);
@@ -256,6 +266,7 @@ public class PlayerStats : MonoBehaviour
         return null;
     }
 
+    // 受到伤害：先扣护盾再扣血，触发无敌与受击反馈。
     public void TakeDamage(float amount)
     {
         if (amount <= 0f)
@@ -314,6 +325,7 @@ public class PlayerStats : MonoBehaviour
         StartInvulnerability();
     }
 
+    // 治疗并同步 GlobalData 与 UI。
     public void Heal(float amount)
     {
         if (amount <= 0f)
@@ -326,6 +338,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    // 授予临时无敌（金闪 + 缩放呼吸，不覆盖朝向符号）。
     public void GrantTemporaryInvincibility(float duration)
     {
         if (duration <= 0f)
@@ -348,6 +361,7 @@ public class PlayerStats : MonoBehaviour
         temporaryInvincibilityCoroutine = StartCoroutine(TemporaryInvincibilityRoutine(duration));
     }
 
+    // 生命药水：提升上限并回复等量生命。
     public void IncreaseMaxHealthAndHeal(float amount)
     {
         if (amount <= 0f)
@@ -366,6 +380,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    // 护盾药水：提升护盾上限并填满增量。
     public void IncreaseMaxShieldAndFill(float amount)
     {
         if (amount <= 0f)
@@ -382,6 +397,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
+    // 启动受击后短暂红闪无敌。
     private void StartInvulnerability()
     {
         if (invulnerabilityCoroutine != null)
@@ -392,6 +408,7 @@ public class PlayerStats : MonoBehaviour
         invulnerabilityCoroutine = StartCoroutine(InvulnerabilityRoutine());
     }
 
+    // 受击无敌协程：红白闪烁。
     private IEnumerator InvulnerabilityRoutine()
     {
         isInvulnerable = true;
@@ -425,6 +442,7 @@ public class PlayerStats : MonoBehaviour
         invulnerabilityCoroutine = null;
     }
 
+    // 药水无敌协程：金闪 + 缩放脉冲。
     private IEnumerator TemporaryInvincibilityRoutine(float duration)
     {
         isTemporarilyInvincible = true;
@@ -503,6 +521,7 @@ public class PlayerStats : MonoBehaviour
         temporaryInvincibilityCoroutine = null;
     }
 
+    // 调试：受击后监测异常位移。
     private void StartPostHitTeleportGuard(Vector3 preHitPosition, string preHitScene)
     {
         if (!enablePostHitTeleportGuard)
@@ -513,6 +532,7 @@ public class PlayerStats : MonoBehaviour
         StartCoroutine(PostHitTeleportGuardRoutine(preHitPosition, preHitScene));
     }
 
+    // 调试协程：超阈值则拉回受击前位置。
     private IEnumerator PostHitTeleportGuardRoutine(Vector3 preHitPosition, string preHitScene)
     {
         float timer = 0f;
@@ -553,6 +573,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // 调试：打印最近传送门/门距离。
     private void LogNearestPortalAndDoorHints()
     {
         Vector3 playerPos = transform.position;
