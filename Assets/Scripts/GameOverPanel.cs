@@ -6,6 +6,8 @@ using System.Collections;
 /// <summary>战绩结算面板：展示数据并返回主菜单。</summary>
 public class GameOverPanel : MonoBehaviour
 {
+    public static bool IsShowing { get; private set; }
+
     [Header("Texts")]
     [SerializeField] private TextMeshProUGUI _killsText;
     [SerializeField] private TextMeshProUGUI _potionsText;
@@ -19,15 +21,24 @@ public class GameOverPanel : MonoBehaviour
 
     private void Awake()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
-        if (_canvasGroup != null)
+        EnsureCanvasGroup();
+        HideImmediately();
+        IsShowing = false;
+    }
+
+    /// <summary>
+    /// 运行时准备：即使场景里默认 Inactive，也会自动启用并保持隐藏待命。
+    /// </summary>
+    public void PrepareForRuntime()
+    {
+        if (!gameObject.activeSelf)
         {
-            _canvasGroup.alpha = 0f;
-            _canvasGroup.interactable = false;
-            _canvasGroup.blocksRaycasts = false;
+            gameObject.SetActive(true);
         }
 
-        gameObject.SetActive(false);
+        EnsureCanvasGroup();
+        HideImmediately();
+        IsShowing = false;
     }
 
     public void ShowPanel()
@@ -38,7 +49,9 @@ public class GameOverPanel : MonoBehaviour
     public void ShowPanel(float fadeDuration)
     {
         gameObject.SetActive(true);
+        EnsureCanvasGroup();
         FillTexts();
+        IsShowing = true;
 
         if (_canvasGroup != null)
         {
@@ -57,6 +70,7 @@ public class GameOverPanel : MonoBehaviour
 
     public void OnMainMenuButtonPressed()
     {
+        IsShowing = false;
         GlobalData.ResetRunState();
         Time.timeScale = 1f;
         SceneManager.LoadScene(_mainMenuSceneName);
@@ -114,5 +128,26 @@ public class GameOverPanel : MonoBehaviour
         _canvasGroup.interactable = true;
         _canvasGroup.blocksRaycasts = true;
         _fadeCoroutine = null;
+    }
+
+    private void EnsureCanvasGroup()
+    {
+        _canvasGroup = GetComponent<CanvasGroup>();
+        if (_canvasGroup == null)
+        {
+            _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+    }
+
+    private void HideImmediately()
+    {
+        if (_canvasGroup == null)
+        {
+            return;
+        }
+
+        _canvasGroup.alpha = 0f;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
     }
 }

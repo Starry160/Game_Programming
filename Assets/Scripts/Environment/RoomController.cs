@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,12 @@ public class RoomController : MonoBehaviour
 
     [Header("Treasure Reveal")]
     [SerializeField] private GameObject _treasureBox;
+
+    [Header("Gate Hide Timing")]
+    [Tooltip("清怪后，DungeonDoor 延迟隐藏时间（秒）。")]
+    [SerializeField] private float dungeonDoorHideDelay = 0.8f;
+    [Tooltip("DungeonDoor 渐隐时长（秒）。")]
+    [SerializeField] private float dungeonDoorFadeDuration = 0.35f;
 
     [Header("Trigger Fallback")]
     [Tooltip("优先使用这个触发区做玩家进入检测（推荐绑定 RoomTriggerZone）。")]
@@ -218,7 +225,15 @@ public class RoomController : MonoBehaviour
                 }
 
                 // Keep old room-flow behavior: hide gates when room is cleared.
-                gate.SetActive(false);
+                // Entrance/Exit DungeonDoor 支持延迟隐藏，让清怪反馈更自然。
+                if (IsDungeonDoorWithDelay(gate))
+                {
+                    StartCoroutine(FadeOutGateAfterDelay(gate, dungeonDoorHideDelay, dungeonDoorFadeDuration));
+                }
+                else
+                {
+                    gate.SetActive(false);
+                }
             }
         }
 
@@ -228,6 +243,67 @@ public class RoomController : MonoBehaviour
         }
 
         Debug.Log("房间已清空，大门打开！");
+    }
+
+    private IEnumerator FadeOutGateAfterDelay(GameObject gate, float delay, float fadeDuration)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (gate == null)
+        {
+            yield break;
+        }
+
+        SpriteRenderer[] renderers = gate.GetComponentsInChildren<SpriteRenderer>(true);
+        float duration = Mathf.Max(0.01f, fadeDuration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float alpha = Mathf.Lerp(1f, 0f, t);
+            SetRenderersAlpha(renderers, alpha);
+            yield return null;
+        }
+
+        SetRenderersAlpha(renderers, 0f);
+        gate.SetActive(false);
+        // 复位为不透明，避免未来再次激活时仍是 0 透明度。
+        SetRenderersAlpha(renderers, 1f);
+    }
+
+    private static bool IsDungeonDoorWithDelay(GameObject gate)
+    {
+        if (gate == null)
+        {
+            return false;
+        }
+
+        string gateName = gate.name;
+        return gateName.Contains("EntranceDungeonDoor") || gateName.Contains("ExitDungeonDoor");
+    }
+
+    private static void SetRenderersAlpha(SpriteRenderer[] renderers, float alpha)
+    {
+        if (renderers == null)
+        {
+            return;
+        }
+
+        float a = Mathf.Clamp01(alpha);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer sr = renderers[i];
+            if (sr == null)
+            {
+                continue;
+            }
+
+            Color c = sr.color;
+            c.a = a;
+            sr.color = c;
+        }
     }
 
     // 查找 RoomTriggerZone 或自身 Collider2D。

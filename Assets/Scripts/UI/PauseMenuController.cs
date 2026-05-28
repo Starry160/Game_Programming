@@ -118,6 +118,11 @@ public class PauseMenuController : MonoBehaviour
     // 检测 Esc 键。
     private void Update()
     {
+        if (GameOverPanel.IsShowing)
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             HandleEscPressed();
@@ -146,6 +151,11 @@ public class PauseMenuController : MonoBehaviour
     // 切换暂停（timeScale=0，显示面板）。
     public void TogglePause()
     {
+        if (GameOverPanel.IsShowing)
+        {
+            return;
+        }
+
         if (isPaused)
         {
             ResumeGame();
@@ -186,6 +196,11 @@ public class PauseMenuController : MonoBehaviour
     // 显示返回主菜单确认框。
     public void ShowQuitConfirm()
     {
+        if (GameOverPanel.IsShowing)
+        {
+            return;
+        }
+
         if (!isPaused)
         {
             TogglePause();

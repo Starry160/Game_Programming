@@ -80,6 +80,10 @@ public class PlayerStats : MonoBehaviour
     {
         TryAutoBindUIReferences();
         _gameOverPanel = FindObjectOfType<GameOverPanel>(true);
+        if (_gameOverPanel != null)
+        {
+            _gameOverPanel.PrepareForRuntime();
+        }
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
