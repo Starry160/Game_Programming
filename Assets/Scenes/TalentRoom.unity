@@ -871,6 +871,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 3
   currentHealth: 3
+  invulnerabilityDuration: 1.5
+  flashInterval: 0.1
   maxShield: 2
   currentShield: 2
   shieldRegenDelay: 5
@@ -879,6 +881,17 @@ MonoBehaviour:
   shieldFillImage: {fileID: 0}
   healthText: {fileID: 0}
   shieldText: {fileID: 0}
+  enablePostHitTeleportGuard: 0
+  teleportDistanceThreshold: 6
+  teleportDetectWindow: 0.8
+  restoreOnTeleportDetected: 1
+  enableGoldInvincibilityFlash: 1
+  invincibleFlashColor: {r: 1, g: 0.85, b: 0.2, a: 0.85}
+  invincibleFlashInterval: 0.08
+  enableInvincibleScalePulse: 1
+  invincibleScaleMin: 1
+  invincibleScaleMax: 1.05
+  invincibleScaleFrequency: 1
 --- !u!1 &553869434
 GameObject:
   m_ObjectHideFlags: 0
