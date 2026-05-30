@@ -37,7 +37,7 @@ public class HitFeedback : MonoBehaviour
         }
 
         // 敌人（如 TestEnemy 系列）同样默认禁用位移抖动，避免碰撞体抖动带来物理副作用。
-        if (GetComponent<EnemyAI>() != null)
+        if (GetComponent<EnemyAI>() != null || GetComponent<MonsterAI>() != null)
         {
             canShake = false;
         }

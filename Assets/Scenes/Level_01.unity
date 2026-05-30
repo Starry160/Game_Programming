@@ -13237,6 +13237,7 @@ MonoBehaviour:
   maxHealth: 2
   destroyDelay: 1
   _heartSpriteRenderer: {fileID: 1169347855}
+  _heartSpriteRenderers: []
   fullHeartSprite: {fileID: -1727825285, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   halfHeartSprite: {fileID: 1340906261, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   emptyHeartSprite: {fileID: 425390554, guid: 4da732814a17cae46842b518f8127a58, type: 3}
@@ -21084,6 +21085,7 @@ MonoBehaviour:
   maxHealth: 2
   destroyDelay: 1
   _heartSpriteRenderer: {fileID: 667441577}
+  _heartSpriteRenderers: []
   fullHeartSprite: {fileID: -1727825285, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   halfHeartSprite: {fileID: 1340906261, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   emptyHeartSprite: {fileID: 425390554, guid: 4da732814a17cae46842b518f8127a58, type: 3}
@@ -21203,7 +21205,7 @@ PrefabInstance:
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
       propertyPath: _dropPrefab
       value: 
-      objectReference: {fileID: 3740624061549214576, guid: b4a38eeb296e3da4ba8664e36d515a08, type: 3}
+      objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
       propertyPath: _potionPrefab
       value: 

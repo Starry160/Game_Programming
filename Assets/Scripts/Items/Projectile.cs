@@ -3,6 +3,12 @@ using UnityEngine;
 /// <summary>投射物：沿朝向飞行，命中敌人/环境后爆炸销毁。</summary>
 public class Projectile : MonoBehaviour
 {
+    public enum TargetSide
+    {
+        Enemy,
+        Player
+    }
+
     [Header("Stats")]
     [Tooltip("子弹飞行速度（米/秒）。")]
     public float speed = 10f;
@@ -15,6 +21,14 @@ public class Projectile : MonoBehaviour
 
     [Tooltip("命中敌人或墙壁时生成的爆炸特效预制体（通常挂 AutoDestroy 脚本）。")]
     public GameObject explosionPrefab;
+
+    [Header("Targeting")]
+    [Tooltip("该投射物命中的目标阵营。")]
+    public TargetSide targetSide = TargetSide.Enemy;
+    [Tooltip("发射者 Tag（用于忽略同阵营发射者自身碰撞）。")]
+    public string ownerTag = "Player";
+    [Tooltip("发射者根节点（用于忽略出生后与自己碰撞）。")]
+    public Transform ownerTransform;
 
     // 超时自动销毁。
     private void Start()
@@ -32,50 +46,33 @@ public class Projectile : MonoBehaviour
     // 触发碰撞：敌人伤害或环境阻挡。
     private void OnTriggerEnter2D(Collider2D col)
     {
-        // 防误伤：刚出生就可能擦到法师自身的触发器，直接忽略。
-        if (col.CompareTag("Player"))
+        if (col == null)
         {
             return;
         }
 
-        if (col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy"))
+        if (!string.IsNullOrEmpty(ownerTag) && col.CompareTag(ownerTag))
         {
-            EnemyHealth enemyHealth = col.GetComponent<EnemyHealth>();
-            if (enemyHealth == null)
-            {
-                enemyHealth = col.GetComponentInParent<EnemyHealth>();
-            }
+            return;
+        }
 
-            if (enemyHealth != null)
-            {
-                enemyHealth.TakeDamage(1);
-                Debug.Log($"{gameObject.name} 击中了敌人: {enemyHealth.name}, damage=1");
-            }
-            else
-            {
-                EnemyAI enemy = col.GetComponent<EnemyAI>();
-                if (enemy == null)
-                {
-                    enemy = col.GetComponentInParent<EnemyAI>();
-                }
+        if (ownerTransform != null &&
+            (col.transform == ownerTransform || col.transform.IsChildOf(ownerTransform)))
+        {
+            return;
+        }
 
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(damage);
-                    Debug.Log($"{gameObject.name} 击中了敌人(旧血量系统): {enemy.name}, damage={damage}");
-                }
-                else
-                {
-                    Debug.LogWarning($"[Projectile] 命中疑似敌人对象 {col.name}，但未找到 EnemyHealth/EnemyAI。");
-                }
-            }
+        if (targetSide == TargetSide.Enemy && IsEnemyCollider(col))
+        {
+            DamageEnemy(col);
+            SpawnExplosionAndDestroy();
+            return;
+        }
 
-            if (explosionPrefab != null)
-            {
-                Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            }
-
-            Destroy(gameObject);
+        if (targetSide == TargetSide.Player && IsPlayerCollider(col))
+        {
+            DamagePlayer(col);
+            SpawnExplosionAndDestroy();
             return;
         }
 
@@ -85,15 +82,75 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    // 击中墙/关闭的门：生成特效并销毁。
-    private void OnHitEnvironment(GameObject environment)
+    private bool IsEnemyCollider(Collider2D col)
     {
-        Debug.Log($"{gameObject.name} 击中环境: {environment.name}");
+        return col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy");
+    }
+
+    private bool IsPlayerCollider(Collider2D col)
+    {
+        return col.CompareTag("Player");
+    }
+
+    private void DamageEnemy(Collider2D col)
+    {
+        EnemyHealth enemyHealth = col.GetComponent<EnemyHealth>();
+        if (enemyHealth == null)
+        {
+            enemyHealth = col.GetComponentInParent<EnemyHealth>();
+        }
+
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(1);
+            return;
+        }
+
+        EnemyAI enemy = col.GetComponent<EnemyAI>();
+        if (enemy == null)
+        {
+            enemy = col.GetComponentInParent<EnemyAI>();
+        }
+
+        if (enemy != null)
+        {
+            enemy.TakeDamage(damage);
+        }
+        else
+        {
+            Debug.LogWarning($"[Projectile] 命中疑似敌人对象 {col.name}，但未找到 EnemyHealth/EnemyAI。");
+        }
+    }
+
+    private void DamagePlayer(Collider2D col)
+    {
+        PlayerStats playerStats = col.GetComponent<PlayerStats>();
+        if (playerStats == null)
+        {
+            playerStats = col.GetComponentInParent<PlayerStats>();
+        }
+
+        if (playerStats != null)
+        {
+            playerStats.TakeDamage(damage);
+        }
+    }
+
+    private void SpawnExplosionAndDestroy()
+    {
         if (explosionPrefab != null)
         {
             Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         }
+
         Destroy(gameObject);
+    }
+
+    // 击中墙/关闭的门：生成特效并销毁。
+    private void OnHitEnvironment(GameObject environment)
+    {
+        Debug.Log($"{gameObject.name} 击中环境: {environment.name}");
+        SpawnExplosionAndDestroy();
     }
 
     // 判断是否为墙或仍有关闭碰撞体的门。

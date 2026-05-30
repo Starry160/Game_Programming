@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>敌人生命值（心形 UI）、受击与死亡淡出销毁。</summary>
@@ -11,6 +12,7 @@ public class EnemyHealth : MonoBehaviour
 
     [Header("Floating Heart")]
     public SpriteRenderer _heartSpriteRenderer;
+    [SerializeField] private List<SpriteRenderer> _heartSpriteRenderers = new List<SpriteRenderer>();
     [SerializeField] private Sprite fullHeartSprite; // 262
     [SerializeField] private Sprite halfHeartSprite; // 263
     [SerializeField] private Sprite emptyHeartSprite; // 264
@@ -18,7 +20,7 @@ public class EnemyHealth : MonoBehaviour
     private int _currentHealth;
     private bool _isDead;
 
-    private EnemyAI _enemyAI;
+    private MonoBehaviour _enemyAI;
     private Rigidbody2D _rb;
     private Collider2D[] _allColliders;
     private SpriteRenderer[] _allSpriteRenderers;
@@ -27,9 +29,14 @@ public class EnemyHealth : MonoBehaviour
     private void Awake()
     {
         _enemyAI = GetComponent<EnemyAI>();
+        if (_enemyAI == null)
+        {
+            _enemyAI = GetComponent<MonsterAI>();
+        }
         _rb = GetComponent<Rigidbody2D>();
         _allColliders = GetComponentsInChildren<Collider2D>(true);
         _allSpriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        CacheHeartRenderers();
     }
 
     // 初始化血量并显示心形精灵。
@@ -70,22 +77,32 @@ public class EnemyHealth : MonoBehaviour
     // 根据当前血量切换满/半/空心精灵。
     private void RefreshHeartSprite()
     {
-        if (_heartSpriteRenderer == null)
+        if (_heartSpriteRenderers == null || _heartSpriteRenderers.Count == 0)
         {
             return;
         }
 
-        if (_currentHealth >= 2)
+        for (int i = 0; i < _heartSpriteRenderers.Count; i++)
         {
-            _heartSpriteRenderer.sprite = fullHeartSprite;
-        }
-        else if (_currentHealth == 1)
-        {
-            _heartSpriteRenderer.sprite = halfHeartSprite;
-        }
-        else
-        {
-            _heartSpriteRenderer.sprite = emptyHeartSprite;
+            SpriteRenderer heartRenderer = _heartSpriteRenderers[i];
+            if (heartRenderer == null)
+            {
+                continue;
+            }
+
+            int heartHealth = Mathf.Clamp(_currentHealth - (i * 2), 0, 2);
+            if (heartHealth >= 2)
+            {
+                heartRenderer.sprite = fullHeartSprite;
+            }
+            else if (heartHealth == 1)
+            {
+                heartRenderer.sprite = halfHeartSprite;
+            }
+            else
+            {
+                heartRenderer.sprite = emptyHeartSprite;
+            }
         }
     }
 
@@ -150,5 +167,48 @@ public class EnemyHealth : MonoBehaviour
             c.a = alpha;
             sr.color = c;
         }
+    }
+
+    private void CacheHeartRenderers()
+    {
+        if (_heartSpriteRenderers == null)
+        {
+            _heartSpriteRenderers = new List<SpriteRenderer>();
+        }
+
+        _heartSpriteRenderers.RemoveAll(item => item == null);
+
+        if (_heartSpriteRenderer != null && !_heartSpriteRenderers.Contains(_heartSpriteRenderer))
+        {
+            _heartSpriteRenderers.Add(_heartSpriteRenderer);
+        }
+
+        SpriteRenderer[] childRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < childRenderers.Length; i++)
+        {
+            SpriteRenderer sr = childRenderers[i];
+            if (sr == null || sr.gameObject == gameObject)
+            {
+                continue;
+            }
+
+            if (!sr.gameObject.name.Contains("FloatingHeart"))
+            {
+                continue;
+            }
+
+            if (!_heartSpriteRenderers.Contains(sr))
+            {
+                _heartSpriteRenderers.Add(sr);
+            }
+        }
+
+        _heartSpriteRenderers.Sort((a, b) =>
+        {
+            if (a == null && b == null) return 0;
+            if (a == null) return 1;
+            if (b == null) return -1;
+            return a.transform.localPosition.x.CompareTo(b.transform.localPosition.x);
+        });
     }
 }
