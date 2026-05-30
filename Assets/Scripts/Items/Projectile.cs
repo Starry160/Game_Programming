@@ -84,7 +84,32 @@ public class Projectile : MonoBehaviour
 
     private bool IsEnemyCollider(Collider2D col)
     {
-        return col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy");
+        if (col == null)
+        {
+            return false;
+        }
+
+        if (col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy"))
+        {
+            return true;
+        }
+
+        if (col.GetComponent<EnemyHealth>() != null || col.GetComponentInParent<EnemyHealth>() != null)
+        {
+            return true;
+        }
+
+        if (col.GetComponent<EnemyAI>() != null || col.GetComponentInParent<EnemyAI>() != null)
+        {
+            return true;
+        }
+
+        if (col.GetComponent<MonsterAI>() != null || col.GetComponentInParent<MonsterAI>() != null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private bool IsPlayerCollider(Collider2D col)

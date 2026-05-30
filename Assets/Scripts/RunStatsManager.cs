@@ -11,6 +11,7 @@ public class RunStatsManager : MonoBehaviour
     public float survivalTime;
 
     private bool _isCounting;
+    private static bool _hasInitializedThisRun;
 
     private void Awake()
     {
@@ -21,11 +22,14 @@ public class RunStatsManager : MonoBehaviour
         }
 
         Instance = this;
-    }
+        DontDestroyOnLoad(gameObject);
 
-    private void Start()
-    {
-        ResetStats();
+        if (!_hasInitializedThisRun)
+        {
+            ResetStats();
+            _hasInitializedThisRun = true;
+        }
+
         _isCounting = true;
     }
 
@@ -59,5 +63,33 @@ public class RunStatsManager : MonoBehaviour
         killCount = 0;
         potionCollected = 0;
         survivalTime = 0f;
+    }
+
+    /// <summary>
+    /// 回到主菜单时调用：清空战绩并停止计时，等待下一局开始。
+    /// </summary>
+    public static void ResetForMenu()
+    {
+        if (Instance != null)
+        {
+            Instance.ResetStats();
+            Instance._isCounting = false;
+        }
+
+        _hasInitializedThisRun = false;
+    }
+
+    /// <summary>
+    /// 点击开始新游戏时调用：确保新一局从 0 开始并重新计时。
+    /// </summary>
+    public static void BeginNewRun()
+    {
+        if (Instance != null)
+        {
+            Instance.ResetStats();
+            Instance._isCounting = true;
+        }
+
+        _hasInitializedThisRun = true;
     }
 }

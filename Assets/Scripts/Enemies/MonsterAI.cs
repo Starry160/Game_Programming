@@ -43,6 +43,7 @@ public class MonsterAI : MonoBehaviour
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     private Transform _playerTransform;
+    private PlayerStats _playerStats;
     private bool _hasLoggedMissingRoomController = false;
     private Collider2D _cachedRoomTriggerZone;
 
@@ -71,6 +72,11 @@ public class MonsterAI : MonoBehaviour
         if (player != null)
         {
             _playerTransform = player.transform;
+            _playerStats = player.GetComponent<PlayerStats>();
+            if (_playerStats == null)
+            {
+                _playerStats = player.GetComponentInParent<PlayerStats>();
+            }
         }
 
         _wanderTargetPos = _rb.position;
@@ -82,6 +88,22 @@ public class MonsterAI : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!IsPlayerAlive())
+        {
+            if (_rb != null)
+            {
+                _rb.velocity = Vector2.zero;
+                _rb.angularVelocity = 0f;
+            }
+
+            if (_animator != null)
+            {
+                _animator.SetBool("isRunning", false);
+            }
+
+            return;
+        }
+
         Vector2 nextVelocity;
         bool playerInRoom = IsPlayerInSameRoom();
         bool hasClearShot = playerInRoom && HasClearShotToPlayer();
@@ -144,6 +166,30 @@ public class MonsterAI : MonoBehaviour
 
         bool isRunning = Mathf.Abs(_rb.velocity.x) > runThreshold;
         _animator.SetBool("isRunning", isRunning);
+    }
+
+    private bool IsPlayerAlive()
+    {
+        if (_playerTransform == null)
+        {
+            return false;
+        }
+
+        if (_playerStats == null)
+        {
+            _playerStats = _playerTransform.GetComponent<PlayerStats>();
+            if (_playerStats == null)
+            {
+                _playerStats = _playerTransform.GetComponentInParent<PlayerStats>();
+            }
+        }
+
+        if (_playerStats == null)
+        {
+            return true;
+        }
+
+        return _playerStats.currentHealth > 0f;
     }
 
     private bool IsPlayerInSameRoom()

@@ -71,6 +71,7 @@ public class GameOverPanel : MonoBehaviour
     public void OnMainMenuButtonPressed()
     {
         IsShowing = false;
+        RunStatsManager.ResetForMenu();
         GlobalData.ResetRunState();
         Time.timeScale = 1f;
         SceneManager.LoadScene(_mainMenuSceneName);
