@@ -191,24 +191,32 @@ public class Projectile : MonoBehaviour
             return true;
         }
 
-        bool looksLikeDoor = col.CompareTag("DungeonDoor") || col.gameObject.name.Contains("Door");
-        if (!looksLikeDoor)
+        bool hasDoorController = col.GetComponent<DoorController>() != null || col.GetComponentInParent<DoorController>() != null;
+        bool looksLikeDoorOrGate =
+            col.CompareTag("DungeonDoor") ||
+            col.gameObject.name.Contains("Door") ||
+            col.gameObject.name.Contains("Gate") ||
+            hasDoorController;
+
+        if (looksLikeDoorOrGate)
         {
+            // 门开启时通常会禁用“实体阻挡碰撞体”，但保留触发器做交互。
+            // 只有在门仍有可阻挡的非 Trigger 碰撞体时，才视为环境命中。
+            Collider2D[] sameObjectColliders = col.GetComponents<Collider2D>();
+            for (int i = 0; i < sameObjectColliders.Length; i++)
+            {
+                Collider2D c = sameObjectColliders[i];
+                if (c != null && c.enabled && !c.isTrigger)
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 
-        // 门开启时通常会禁用“实体阻挡碰撞体”，但保留触发器做交互。
-        // 只有在门仍有可阻挡的非 Trigger 碰撞体时，才视为环境命中。
-        Collider2D[] sameObjectColliders = col.GetComponents<Collider2D>();
-        for (int i = 0; i < sameObjectColliders.Length; i++)
-        {
-            Collider2D c = sameObjectColliders[i];
-            if (c != null && c.enabled && !c.isTrigger)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        // 通用兜底：除敌人/玩家以外，任何实体非 Trigger 碰撞体都可阻挡投射物。
+        // 这样可覆盖 TestCorridor_01 这类未打 Tag/无 DoorController 的普通阻挡体。
+        return col.enabled && !col.isTrigger;
     }
 }
