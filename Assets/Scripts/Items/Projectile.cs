@@ -62,6 +62,12 @@ public class Projectile : MonoBehaviour
             return;
         }
 
+        // 敌方投射物（target=Player）应穿过所有敌人，避免 Monster/Skeleton 互相挡弹。
+        if (targetSide == TargetSide.Player && IsEnemyCollider(col))
+        {
+            return;
+        }
+
         if (targetSide == TargetSide.Enemy && IsEnemyCollider(col))
         {
             DamageEnemy(col);
