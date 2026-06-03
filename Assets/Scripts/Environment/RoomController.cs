@@ -5,6 +5,9 @@ using UnityEngine;
 /// <summary>房间战斗：玩家进入锁门、清怪后开门并显示宝箱。</summary>
 public class RoomController : MonoBehaviour
 {
+    public System.Action<RoomController> RoomCleared;
+    public bool IsRoomCleared => isRoomCleared;
+
     [Header("Room Data")]
     public List<GameObject> enemiesInRoom = new List<GameObject>();
     public List<GameObject> roomGates = new List<GameObject>();
@@ -242,6 +245,7 @@ public class RoomController : MonoBehaviour
             _treasureBox.SetActive(true);
         }
 
+        RoomCleared?.Invoke(this);
         Debug.Log("房间已清空，大门打开！");
     }
 

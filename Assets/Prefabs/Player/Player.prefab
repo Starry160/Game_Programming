@@ -521,8 +521,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponPivot: {fileID: 2463929770410093525}
   attackPoint: {fileID: 7660329859895387763}
+  audioSource: {fileID: 0}
+  swordSfx: {fileID: 0}
+  staffSfx: {fileID: 0}
+  bowSfx: {fileID: 0}
   swordSwingDuration: 0.2
   swordSwingAngle: -120
+  swordWavePrefab: {fileID: 2683771245454303140, guid: e80294943b961154e9c0382c8e454694, type: 3}
+  swordWaveFirePoint: {fileID: 7660329859895387763}
+  swordWaveDamage: 12
+  swordWaveSpeed: 9
+  swordWaveLifeTime: 0.7
   staffSwingDuration: 0.1
   staffSwingAngle: 25
   fireballPrefab: {fileID: 7251361255885995030, guid: 6d9c2eefda4935540ba0e1395fb97a76, type: 3}
@@ -538,6 +547,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   attackDamage: 25
+  fireballDamage: 20
+  arrowDamage: 10
 --- !u!114 &500024848357451423
 MonoBehaviour:
   m_ObjectHideFlags: 0

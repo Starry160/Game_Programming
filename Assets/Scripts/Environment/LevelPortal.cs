@@ -7,6 +7,13 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Collider2D))]
 public class LevelPortal : MonoBehaviour
 {
+    [Header("Unlock Condition (Optional)")]
+    [Tooltip("绑定房间控制器后，传送门会在该房间清怪前保持隐藏。")]
+    [SerializeField] private RoomController _requiredRoomController;
+
+    [Tooltip("需要房间清空后才显示该传送门。")]
+    [SerializeField] private bool _showAfterRoomCleared = false;
+
     [Header("Scene")]
     [Tooltip("要跳转到的目标场景名称（需在 Build Settings 中已添加）。")]
     public string targetSceneName;
@@ -24,14 +31,36 @@ public class LevelPortal : MonoBehaviour
 
     private bool canInteract;
     private GameObject _currentPlayer;
+    private bool _isUnlocked = true;
 
     // 默认隐藏交互提示。
     private void Awake()
     {
+        _isUnlocked = !_showAfterRoomCleared;
+
+        if (_showAfterRoomCleared)
+        {
+            if (_requiredRoomController != null)
+            {
+                _requiredRoomController.RoomCleared += HandleRequiredRoomCleared;
+                _isUnlocked = _requiredRoomController.IsRoomCleared;
+            }
+
+            SetPortalVisibility(_isUnlocked);
+        }
+
         // 默认隐藏交互提示，只有玩家靠近时才出现。
         if (interactHint != null)
         {
             interactHint.SetActive(false);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_requiredRoomController != null)
+        {
+            _requiredRoomController.RoomCleared -= HandleRequiredRoomCleared;
         }
     }
 
@@ -53,6 +82,11 @@ public class LevelPortal : MonoBehaviour
     // 玩家进入，显示提示。
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!_isUnlocked)
+        {
+            return;
+        }
+
         if (!other.CompareTag("Player"))
         {
             return;
@@ -71,6 +105,11 @@ public class LevelPortal : MonoBehaviour
     // 玩家离开，隐藏提示。
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (!_isUnlocked)
+        {
+            return;
+        }
+
         if (!other.CompareTag("Player"))
         {
             return;
@@ -166,5 +205,41 @@ public class LevelPortal : MonoBehaviour
         Vector3 playerPos = _currentPlayer != null ? _currentPlayer.transform.position : Vector3.zero;
         Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' loading scene '{targetSceneName}'. TriggerPlayer={playerName}, PlayerPos={playerPos}");
         SceneManager.LoadScene(targetSceneName);
+    }
+
+    private void HandleRequiredRoomCleared(RoomController clearedRoom)
+    {
+        if (clearedRoom != _requiredRoomController)
+        {
+            return;
+        }
+
+        _isUnlocked = true;
+        SetPortalVisibility(true);
+    }
+
+    private void SetPortalVisibility(bool visible)
+    {
+        Collider2D triggerCollider = GetComponent<Collider2D>();
+        if (triggerCollider != null)
+        {
+            triggerCollider.enabled = visible;
+        }
+
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].enabled = visible;
+        }
+
+        if (portalAnimator != null)
+        {
+            portalAnimator.gameObject.SetActive(visible);
+        }
+
+        if (!visible && interactHint != null)
+        {
+            interactHint.SetActive(false);
+        }
     }
 }

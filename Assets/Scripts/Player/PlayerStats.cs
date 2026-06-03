@@ -18,7 +18,7 @@ public class PlayerStats : MonoBehaviour
     public float maxShield = 50f;
     public float currentShield;
     [Tooltip("受到伤害后，至少经过这段时间未再受伤，护盾才会开始恢复。")]
-    public float shieldRegenDelay = 5f;
+    public float shieldRegenDelay = 3f;
     [Tooltip("护盾每次恢复 1 点之间的时间间隔。")]
     public float shieldRegenInterval = 5f;
 
@@ -306,7 +306,7 @@ public class PlayerStats : MonoBehaviour
             feedback.PlayFeedback();
         }
 
-        // 任何受伤都会打断护盾恢复计时，重新等待 5 秒（可在 Inspector 调整）。
+        // 任何受伤都会打断护盾恢复计时，重新等待 shieldRegenDelay（可在 Inspector 调整）。
         nextShieldRegenTime = Time.time + shieldRegenDelay;
 
         // 优先扣除护盾；仅当护盾不足时，剩余伤害才会扣生命值。
