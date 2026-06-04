@@ -95,6 +95,11 @@ public class Projectile : MonoBehaviour
             return false;
         }
 
+        if (col.GetComponent<FinalBossController>() != null || col.GetComponentInParent<FinalBossController>() != null)
+        {
+            return true;
+        }
+
         if (col.CompareTag("Enemy") || col.gameObject.name.Contains("Enemy"))
         {
             return true;

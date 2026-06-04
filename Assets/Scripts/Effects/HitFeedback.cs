@@ -66,6 +66,12 @@ public class HitFeedback : MonoBehaviour
             RestoreState();
         }
 
+        // 关键修复：每次受击前都记录当前局部位置，避免对象移动后仍回到开局位置抖动。
+        if (canShake && shakeTarget != null)
+        {
+            originalLocalPosition = shakeTarget.localPosition;
+        }
+
         feedbackCoroutine = StartCoroutine(HitRoutine());
     }
 

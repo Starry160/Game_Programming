@@ -109,6 +109,7 @@ public class FinalBossController : MonoBehaviour
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     private Rigidbody2D _rb;
+    private HitFeedback _hitFeedback;
     private Transform _playerTransform;
     private Collider2D _bossBodyCollider;
     private Collider2D _playerBodyCollider;
@@ -139,6 +140,7 @@ public class FinalBossController : MonoBehaviour
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _rb = GetComponent<Rigidbody2D>();
+        _hitFeedback = GetComponent<HitFeedback>();
         _bossBodyCollider = GetPrimarySolidCollider(GetComponentsInChildren<Collider2D>(true));
 
         if (moveAnchor == null)
@@ -253,6 +255,17 @@ public class FinalBossController : MonoBehaviour
 
         _currentHealth = Mathf.Max(0f, _currentHealth - amount);
         HealthChanged?.Invoke(_currentHealth, maxHealth);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayEnemyHit();
+        }
+
+        if (_hitFeedback != null)
+        {
+            _hitFeedback.PlayFeedback();
+        }
+
         if (_currentHealth <= 0f)
         {
             HandleDefeated();

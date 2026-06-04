@@ -79,6 +79,8 @@ public class PlayerAttack : MonoBehaviour
 
     [Tooltip("大剑每次近战造成的伤害值。")]
     public int attackDamage = 15;
+    [Tooltip("对 Final Boss 的近战单次伤害（按心值设计，默认 1 点）。")]
+    public float bossMeleeDamagePerHit = 1f;
     [Tooltip("法师火球每发造成的伤害值。")]
     public float fireballDamage = 20f;
     [Tooltip("弓箭每发造成的伤害值。")]
@@ -343,6 +345,18 @@ public class PlayerAttack : MonoBehaviour
 
             if (angle <= halfAngle)
             {
+                FinalBossController bossController = enemy.GetComponent<FinalBossController>();
+                if (bossController == null)
+                {
+                    bossController = enemy.GetComponentInParent<FinalBossController>();
+                }
+
+                if (bossController != null)
+                {
+                    bossController.TakeDamage(Mathf.Max(0f, bossMeleeDamagePerHit));
+                    continue;
+                }
+
                 EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
                 if (enemyHealth == null)
                 {
