@@ -19,6 +19,7 @@ public class FinalBossArmLauncher : MonoBehaviour
 
     [Header("Aim")]
     [SerializeField] private bool autoAimAtPlayer = true;
+    [SerializeField] private bool facePlayerWhenFiring = true;
     [SerializeField] private Vector2 fallbackDirection = Vector2.right;
 
     private readonly Queue<FinalBossArmProjectile> _pool = new Queue<FinalBossArmProjectile>();
@@ -69,6 +70,7 @@ public class FinalBossArmLauncher : MonoBehaviour
 
         Vector3 spawnPosition = launchPoint != null ? launchPoint.position : transform.position;
         Vector2 shootDirection = GetShootDirection(spawnPosition);
+        ApplyFacingByShootDirection(shootDirection);
 
         FinalBossArmProjectile projectile = GetProjectileFromPool();
         projectile.transform.position = spawnPosition;
@@ -106,6 +108,29 @@ public class FinalBossArmLauncher : MonoBehaviour
         }
 
         return fallbackDirection.normalized;
+    }
+
+    private void ApplyFacingByShootDirection(Vector2 shootDirection)
+    {
+        if (!facePlayerWhenFiring)
+        {
+            return;
+        }
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            return;
+        }
+
+        if (shootDirection.x > 0.001f)
+        {
+            spriteRenderer.flipX = false;
+        }
+        else if (shootDirection.x < -0.001f)
+        {
+            spriteRenderer.flipX = true;
+        }
     }
 
     private FinalBossArmProjectile GetProjectileFromPool()

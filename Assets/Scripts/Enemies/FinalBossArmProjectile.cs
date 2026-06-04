@@ -6,6 +6,9 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class FinalBossArmProjectile : MonoBehaviour
 {
+    [Header("Impact")]
+    [SerializeField] private GameObject impactEffectPrefab;
+
     private Vector2 _moveDirection = Vector2.right;
     private float _speed;
     private float _damage;
@@ -14,6 +17,7 @@ public class FinalBossArmProjectile : MonoBehaviour
     private bool _isActive;
     private LayerMask _hitMask;
     private FinalBossArmLauncher _owner;
+    private Transform _ownerTransform;
 
     private Collider2D _projectileCollider;
 
@@ -57,6 +61,7 @@ public class FinalBossArmProjectile : MonoBehaviour
         LayerMask hitMask)
     {
         _owner = owner;
+        _ownerTransform = owner != null ? owner.transform : null;
         _moveDirection = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
         _speed = Mathf.Max(0f, speed);
         _damage = Mathf.Max(0f, damage);
@@ -78,7 +83,8 @@ public class FinalBossArmProjectile : MonoBehaviour
             return;
         }
 
-        if ((_hitMask.value & (1 << other.gameObject.layer)) == 0)
+        if (_ownerTransform != null &&
+            (other.transform == _ownerTransform || other.transform.IsChildOf(_ownerTransform)))
         {
             return;
         }
@@ -91,10 +97,20 @@ public class FinalBossArmProjectile : MonoBehaviour
 
         if (playerStats != null)
         {
-            playerStats.TakeDamage(_damage);
+            if ((_hitMask.value & (1 << other.gameObject.layer)) != 0)
+            {
+                playerStats.TakeDamage(_damage);
+                SpawnImpactEffect();
+                ReturnToPool();
+            }
+            return;
         }
 
-        ReturnToPool();
+        if (IsObstacleCollider(other))
+        {
+            SpawnImpactEffect();
+            ReturnToPool();
+        }
     }
 
     public void ReturnToPool()
@@ -112,5 +128,55 @@ public class FinalBossArmProjectile : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+    }
+
+    private bool IsObstacleCollider(Collider2D col)
+    {
+        if (col == null || !col.enabled || col.isTrigger)
+        {
+            return false;
+        }
+
+        if (col.CompareTag("Player"))
+        {
+            return false;
+        }
+
+        if (col.CompareTag("Enemy"))
+        {
+            return false;
+        }
+
+        if (col.GetComponent<FinalBossController>() != null || col.GetComponentInParent<FinalBossController>() != null)
+        {
+            return false;
+        }
+
+        if (col.GetComponent<EnemyAI>() != null || col.GetComponentInParent<EnemyAI>() != null)
+        {
+            return false;
+        }
+
+        if (col.GetComponent<MonsterAI>() != null || col.GetComponentInParent<MonsterAI>() != null)
+        {
+            return false;
+        }
+
+        if (col.GetComponent<EnemyHealth>() != null || col.GetComponentInParent<EnemyHealth>() != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void SpawnImpactEffect()
+    {
+        if (impactEffectPrefab == null)
+        {
+            return;
+        }
+
+        Instantiate(impactEffectPrefab, transform.position, Quaternion.identity);
     }
 }
