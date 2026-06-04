@@ -125,6 +125,18 @@ public class Projectile : MonoBehaviour
 
     private void DamageEnemy(Collider2D col)
     {
+        FinalBossController finalBoss = col.GetComponent<FinalBossController>();
+        if (finalBoss == null)
+        {
+            finalBoss = col.GetComponentInParent<FinalBossController>();
+        }
+
+        if (finalBoss != null)
+        {
+            finalBoss.TakeDamage(damage);
+            return;
+        }
+
         EnemyHealth enemyHealth = col.GetComponent<EnemyHealth>();
         if (enemyHealth == null)
         {
