@@ -44,9 +44,15 @@ public class FinalBossController : MonoBehaviour
     }
 
     [Header("Health / Phase")]
-    [SerializeField] private float maxHealth = 40f;
-    [SerializeField] private float phase2ThresholdRatio = 0.5f;
+    [SerializeField] private float maxHealth = 6f;
+    [SerializeField] private float phase1MaxHealth = 6f;
+    [SerializeField] private float phase2MaxHealth = 10f;
     [SerializeField] private float phaseTransitionDuration = 1.2f;
+    [SerializeField] private int phase2RegenSteps = 5;
+    [SerializeField] private float phase2RegenStepInterval = 0.8f;
+    [SerializeField] private float postHitInvulnerableDuration = 0.55f;
+    [SerializeField] private float closeRangeInvulnerableBonus = 0.25f;
+    [SerializeField] private float closeRangeCheckDistance = 1.6f;
 
     [Header("Arena Movement")]
     [SerializeField] private float orbitRadius = 2.8f;
@@ -118,9 +124,11 @@ public class FinalBossController : MonoBehaviour
     private BossPhase _phase = BossPhase.Phase1;
     private bool _isImmune;
     private bool _isBusy;
+    private bool _isPhaseTransitionRunning;
     private bool _movementActive;
     private Vector2 _moveTarget;
     private float _nextRetargetTime;
+    private float _nextDamageAllowedTime;
 
     private BossAction _lastAction;
     private int _sameActionStreak;
@@ -196,7 +204,8 @@ public class FinalBossController : MonoBehaviour
 
     private void Start()
     {
-        _currentHealth = Mathf.Max(1f, maxHealth);
+        maxHealth = Mathf.Max(1f, phase1MaxHealth);
+        _currentHealth = maxHealth;
         _playerTransform = GameObject.FindWithTag("Player")?.transform;
         if (_playerTransform != null)
         {
@@ -253,8 +262,14 @@ public class FinalBossController : MonoBehaviour
             return;
         }
 
+        if (Time.time < _nextDamageAllowedTime)
+        {
+            return;
+        }
+
         _currentHealth = Mathf.Max(0f, _currentHealth - amount);
         HealthChanged?.Invoke(_currentHealth, maxHealth);
+        _nextDamageAllowedTime = Time.time + GetHitInvulnerableDuration();
 
         if (AudioManager.Instance != null)
         {
@@ -268,13 +283,18 @@ public class FinalBossController : MonoBehaviour
 
         if (_currentHealth <= 0f)
         {
-            HandleDefeated();
+            if (_phase == BossPhase.Phase1)
+            {
+                if (!_isPhaseTransitionRunning)
+                {
+                    StartCoroutine(PhaseTransitionRoutine());
+                }
+            }
+            else
+            {
+                HandleDefeated();
+            }
             return;
-        }
-
-        if (_phase == BossPhase.Phase1 && _currentHealth <= maxHealth * Mathf.Clamp01(phase2ThresholdRatio))
-        {
-            StartCoroutine(PhaseTransitionRoutine());
         }
     }
 
@@ -400,11 +420,12 @@ public class FinalBossController : MonoBehaviour
 
     private IEnumerator PhaseTransitionRoutine()
     {
-        if (_phase != BossPhase.Phase1)
+        if (_phase != BossPhase.Phase1 || _isPhaseTransitionRunning)
         {
             yield break;
         }
 
+        _isPhaseTransitionRunning = true;
         _phase = BossPhase.Transition;
         _isBusy = true;
         _isImmune = true;
@@ -412,12 +433,45 @@ public class FinalBossController : MonoBehaviour
         _rb.velocity = Vector2.zero;
         SetAnimatorRunning(false);
 
-        PlayState("Glowing");
-        yield return new WaitForSeconds(Mathf.Max(0.1f, phaseTransitionDuration));
+        // Enter defensive pose and freeze on last frame.
+        PlayState("Immune");
+        yield return new WaitForSeconds(Mathf.Max(0.05f, phaseTransitionDuration));
+        if (_animator != null)
+        {
+            _animator.Play("Immune", 0, 0.99f);
+            _animator.Update(0f);
+            _animator.speed = 0f;
+        }
+
+        _currentHealth = 0f;
+        HealthChanged?.Invoke(_currentHealth, maxHealth);
+
+        maxHealth = Mathf.Max(1f, phase2MaxHealth);
+        HealthChanged?.Invoke(_currentHealth, maxHealth);
+
+        int autoStepByHeart = Mathf.Max(1, Mathf.RoundToInt(maxHealth * 0.5f));
+        int steps = Mathf.Max(autoStepByHeart, phase2RegenSteps);
+        float interval = Mathf.Max(0.05f, phase2RegenStepInterval);
+        for (int i = 1; i <= steps; i++)
+        {
+            _currentHealth = maxHealth * (i / (float)steps);
+            HealthChanged?.Invoke(_currentHealth, maxHealth);
+            yield return new WaitForSeconds(interval);
+        }
 
         _phase = BossPhase.Phase2;
         _isImmune = false;
         _isBusy = false;
+        _isPhaseTransitionRunning = false;
+        _actionsSinceImmuneShow = 0;
+        _sameActionStreak = 0;
+        _nextImmuneShowCount = Random.Range(
+            Mathf.Max(1, immuneShowEveryMinActions),
+            Mathf.Max(immuneShowEveryMinActions, immuneShowEveryMaxActions) + 1);
+        if (_animator != null)
+        {
+            _animator.speed = 1f;
+        }
         PlayState("Idle");
     }
 
@@ -431,9 +485,14 @@ public class FinalBossController : MonoBehaviour
         _phase = BossPhase.Defeated;
         _isImmune = true;
         _isBusy = true;
+        _isPhaseTransitionRunning = false;
         _movementActive = false;
         _rb.velocity = Vector2.zero;
         SetAnimatorRunning(false);
+        if (_animator != null)
+        {
+            _animator.speed = 1f;
+        }
 
         if (laserLauncher != null)
         {
@@ -703,6 +762,24 @@ public class FinalBossController : MonoBehaviour
 
         float radius = Mathf.Max(0.1f, phase1DetectionRadius);
         return Vector2.Distance(transform.position, _playerTransform.position) <= radius;
+    }
+
+    private float GetHitInvulnerableDuration()
+    {
+        float baseDuration = Mathf.Max(0f, postHitInvulnerableDuration);
+        if (_playerTransform == null)
+        {
+            return baseDuration;
+        }
+
+        float closeDist = Mathf.Max(0.1f, closeRangeCheckDistance);
+        float distToPlayer = Vector2.Distance(transform.position, _playerTransform.position);
+        if (distToPlayer <= closeDist)
+        {
+            return baseDuration + Mathf.Max(0f, closeRangeInvulnerableBonus);
+        }
+
+        return baseDuration;
     }
 
     private void OnDrawGizmos()

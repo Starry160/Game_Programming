@@ -16,9 +16,12 @@ public class BossHealthUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI bossNameText;
     [SerializeField] private string bossDisplayName = "Mecha-stone Golem";
     [SerializeField] private List<Image> heartImages = new List<Image>();
+    [SerializeField] private bool autoExpandHeartSlots = true;
     [SerializeField] private Sprite fullHeartSprite;
     [SerializeField] private Sprite halfHeartSprite;
     [SerializeField] private Sprite emptyHeartSprite;
+
+    private readonly List<Image> runtimeHeartImages = new List<Image>();
 
     private void OnEnable()
     {
@@ -30,6 +33,11 @@ public class BossHealthUI : MonoBehaviour
     private void OnDisable()
     {
         UnsubscribeBossEvents();
+    }
+
+    private void OnDestroy()
+    {
+        CleanupRuntimeHearts();
     }
 
     private void Start()
@@ -79,6 +87,7 @@ public class BossHealthUI : MonoBehaviour
 
     private void HandleHealthChanged(float current, float max)
     {
+        RefreshHeartSlotsByMax(max);
         RefreshHearts(current);
     }
 
@@ -90,6 +99,7 @@ public class BossHealthUI : MonoBehaviour
             return;
         }
 
+        RefreshHeartSlotsByMax(targetBoss.MaxHealth);
         RefreshHearts(targetBoss.CurrentHealth);
     }
 
@@ -123,5 +133,105 @@ public class BossHealthUI : MonoBehaviour
                 img.sprite = emptyHeartSprite;
             }
         }
+    }
+
+    private void RefreshHeartSlotsByMax(float maxHealth)
+    {
+        if (heartImages == null || heartImages.Count == 0)
+        {
+            return;
+        }
+
+        int expectedHearts = Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(0f, maxHealth) * 0.5f));
+        EnsureHeartSlots(expectedHearts);
+
+        int slotCount = heartImages.Count;
+        for (int i = 0; i < heartImages.Count; i++)
+        {
+            Image img = heartImages[i];
+            if (img == null)
+            {
+                continue;
+            }
+
+            img.enabled = i < Mathf.Min(expectedHearts, slotCount);
+        }
+    }
+
+    private void EnsureHeartSlots(int requiredHearts)
+    {
+        if (!autoExpandHeartSlots)
+        {
+            return;
+        }
+
+        if (requiredHearts <= heartImages.Count || heartImages.Count == 0)
+        {
+            return;
+        }
+
+        Image template = heartImages[heartImages.Count - 1];
+        if (template == null)
+        {
+            return;
+        }
+
+        RectTransform templateRect = template.rectTransform;
+        float spacing = GetHeartSpacing();
+        int missing = requiredHearts - heartImages.Count;
+
+        for (int i = 0; i < missing; i++)
+        {
+            Image clone = Instantiate(template, template.transform.parent);
+            clone.name = $"{template.name}_Auto_{runtimeHeartImages.Count + 1}";
+
+            RectTransform cloneRect = clone.rectTransform;
+            Vector2 basePos = templateRect.anchoredPosition;
+            float offsetX = spacing * (i + 1);
+            cloneRect.anchoredPosition = new Vector2(basePos.x + offsetX, basePos.y);
+
+            clone.enabled = true;
+            heartImages.Add(clone);
+            runtimeHeartImages.Add(clone);
+        }
+    }
+
+    private float GetHeartSpacing()
+    {
+        if (heartImages.Count >= 2 && heartImages[0] != null && heartImages[1] != null)
+        {
+            float spacingByLayout = heartImages[1].rectTransform.anchoredPosition.x
+                - heartImages[0].rectTransform.anchoredPosition.x;
+            if (Mathf.Abs(spacingByLayout) > 0.01f)
+            {
+                return spacingByLayout;
+            }
+        }
+
+        Image fallback = heartImages[heartImages.Count - 1];
+        if (fallback != null)
+        {
+            float width = fallback.rectTransform.rect.width;
+            if (width > 0.01f)
+            {
+                return width;
+            }
+        }
+
+        return 48f;
+    }
+
+    private void CleanupRuntimeHearts()
+    {
+        for (int i = 0; i < runtimeHeartImages.Count; i++)
+        {
+            Image img = runtimeHeartImages[i];
+            if (img != null)
+            {
+                Destroy(img.gameObject);
+            }
+        }
+
+        runtimeHeartImages.Clear();
     }
 }
