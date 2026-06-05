@@ -40,6 +40,11 @@ public class LevelPortal : MonoBehaviour
 
         if (_showAfterRoomCleared)
         {
+            if (_requiredRoomController == null)
+            {
+                _requiredRoomController = GetComponentInParent<RoomController>();
+            }
+
             if (_requiredRoomController != null)
             {
                 _requiredRoomController.RoomCleared += HandleRequiredRoomCleared;

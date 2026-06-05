@@ -190,6 +190,7 @@ MonoBehaviour:
   - {fileID: 1978024448}
   enemyCheckInterval: 0.2
   playerTag: Player
+  enableTreasureReveal: 1
   _treasureBox: {fileID: 638614555}
   dungeonDoorHideDelay: 0.8
   dungeonDoorFadeDuration: 0.35
@@ -1795,6 +1796,15 @@ MonoBehaviour:
   _smoothTime: 0.15
   _maxSpeed: -1
   _offset: {x: 0, y: 0}
+  _enableIntroCinematic: 1
+  _introSceneName: Finally Boss
+  _bossObjectName: FinalBoss
+  _holdOnPlayerDuration: 0.8
+  _moveToBossDuration: 1.2
+  _holdOnBossDuration: 1.5
+  _moveBackToPlayerDuration: 1
+  _cinematicSmoothTime: 0.32
+  _disablePlayerControlDuringIntro: 1
 --- !u!1 &567682933
 GameObject:
   m_ObjectHideFlags: 0
@@ -15000,6 +15010,7 @@ MonoBehaviour:
   - {fileID: 704379435}
   enemyCheckInterval: 0.2
   playerTag: Player
+  enableTreasureReveal: 1
   _treasureBox: {fileID: 178612078}
   dungeonDoorHideDelay: 0.8
   dungeonDoorFadeDuration: 0.35
@@ -21489,7 +21500,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -10
   m_Sprite: {fileID: -1591054483, guid: f466996cf20e64e49b9800d482a5728f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
