@@ -14,6 +14,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
     [SerializeField] private float damagePerTick = 1f;
     [SerializeField] private float tickInterval = 0.2f;
     [SerializeField] private bool lockDirectionOnCast = true;
+    [SerializeField] private bool followBossFacingDirection = true;
     [SerializeField] private bool matchOriginScale = true;
     [SerializeField] private int sortingOrderOffset = 8;
 
@@ -72,7 +73,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
 
         FinalBossLaserBeam beam = GetLaserFromPool();
         Transform firePoint = laserOrigin != null ? laserOrigin : transform;
-        Quaternion castRotation = firePoint.rotation;
+        Quaternion castRotation = ResolveCastRotation(firePoint);
         Vector3 spawnPosition = firePoint.position + firePoint.TransformDirection(_laserVisualOffset);
         beam.transform.position = spawnPosition;
         beam.transform.rotation = castRotation;
@@ -93,6 +94,23 @@ public class FinalBossLaserLauncher : MonoBehaviour
         beam.gameObject.SetActive(true);
         beam.Activate(this, firePoint, _laserVisualOffset, damagePerTick, tickInterval, laserDuration, lockDirectionOnCast, castRotation);
         _activeLaser = beam;
+    }
+
+    private Quaternion ResolveCastRotation(Transform firePoint)
+    {
+        Quaternion baseRotation = firePoint != null ? firePoint.rotation : transform.rotation;
+        if (!followBossFacingDirection)
+        {
+            return baseRotation;
+        }
+
+        SpriteRenderer bossRenderer = GetComponent<SpriteRenderer>();
+        if (bossRenderer == null)
+        {
+            return baseRotation;
+        }
+
+        return bossRenderer.flipX ? Quaternion.Euler(0f, 0f, 180f) : Quaternion.identity;
     }
 
     public void StopLaser()

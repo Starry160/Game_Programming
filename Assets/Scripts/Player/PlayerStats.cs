@@ -343,6 +343,56 @@ public class PlayerStats : MonoBehaviour
         StartInvulnerability();
     }
 
+    // 真实伤害：无视护盾，直接扣除生命值（用于激光等穿透护盾的伤害）。
+    public void TakeTrueDamage(float amount)
+    {
+        if (_isDead)
+        {
+            return;
+        }
+
+        if (amount <= 0f)
+        {
+            return;
+        }
+
+        if (isInvulnerable || isTemporarilyInvincible)
+        {
+            return;
+        }
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayPlayerHit();
+        }
+
+        HitFeedback feedback = GetComponent<HitFeedback>();
+        if (feedback != null)
+        {
+            feedback.PlayFeedback();
+        }
+
+        // 真实伤害同样打断护盾恢复计时，但不会扣减护盾值。
+        nextShieldRegenTime = Time.time + shieldRegenDelay;
+
+        currentHealth = Mathf.Max(0f, currentHealth - amount);
+        GlobalData.persistedHealth = currentHealth;
+        Debug.Log("玩家受到真实伤害，当前血量：" + currentHealth);
+
+        UpdateUI();
+
+        if (currentHealth <= 0f)
+        {
+            currentHealth = 0f;
+            GlobalData.persistedHealth = currentHealth;
+            UpdateUI();
+            HandlePlayerDeath();
+            return;
+        }
+
+        StartInvulnerability();
+    }
+
     // 治疗并同步 GlobalData 与 UI。
     public void Heal(float amount)
     {

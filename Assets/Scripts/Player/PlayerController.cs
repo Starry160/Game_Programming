@@ -155,7 +155,19 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(_rawAimInput);
+            // 防御：输入设备在某些帧可能给出 NaN/无穷大的屏幕坐标，
+            // 直接传给 ScreenToWorldPoint 会触发 "out of view frustum" 报错。
+            if (!IsFiniteVector(_rawAimInput))
+            {
+                AimDirection = Vector2.zero;
+                return;
+            }
+
+            Vector3 screenPos = new Vector3(
+                _rawAimInput.x,
+                _rawAimInput.y,
+                Mathf.Abs(mainCamera.transform.position.z - transform.position.z));
+            Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(screenPos);
             Vector2 aim = (Vector2)(mouseWorld - transform.position);
             AimDirection = aim.sqrMagnitude > 0.0001f ? aim.normalized : Vector2.zero;
             return;
@@ -168,6 +180,13 @@ public class PlayerController : MonoBehaviour
         }
 
         AimDirection = _rawAimInput.normalized;
+    }
+
+    // 校验向量是否为有限值（排除 NaN / Infinity）。
+    private static bool IsFiniteVector(Vector2 value)
+    {
+        return !float.IsNaN(value.x) && !float.IsNaN(value.y) &&
+               !float.IsInfinity(value.x) && !float.IsInfinity(value.y);
     }
 
     // （已弃用）按移动方向翻转 Sprite，现由 PlayerFacing 处理。

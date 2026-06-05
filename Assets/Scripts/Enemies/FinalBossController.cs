@@ -406,6 +406,7 @@ public class FinalBossController : MonoBehaviour
         }
         else
         {
+            FacePlayerHorizontally();
             PlayState("LaserBeam");
             yield return new WaitForSeconds(Mathf.Max(minTelegraphTime, castLaserAnimDuration));
         }
@@ -770,6 +771,31 @@ public class FinalBossController : MonoBehaviour
         }
 
         meleeAttack.TryApplyDamageToTarget(_playerTransform);
+    }
+
+    private void FacePlayerHorizontally()
+    {
+        if (_spriteRenderer == null)
+        {
+            return;
+        }
+
+        if (_playerTransform == null)
+        {
+            _playerTransform = GameObject.FindWithTag("Player")?.transform;
+            if (_playerTransform == null)
+            {
+                return;
+            }
+        }
+
+        float deltaX = _playerTransform.position.x - transform.position.x;
+        if (Mathf.Abs(deltaX) <= 0.01f)
+        {
+            return;
+        }
+
+        _spriteRenderer.flipX = deltaX < 0f;
     }
 
     private void SetAnimatorRunning(bool value)

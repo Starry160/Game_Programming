@@ -9384,6 +9384,7 @@ MonoBehaviour:
   damagePerTick: 1
   tickInterval: 0.2
   lockDirectionOnCast: 1
+  followBossFacingDirection: 1
   matchOriginScale: 0
   sortingOrderOffset: 12
   prewarmCount: 2
@@ -10703,6 +10704,22 @@ PrefabInstance:
     - target: {fileID: 1553606583346058518, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2681862429676986371, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
+      propertyPath: m_Size.y
+      value: 2.5044694
+      objectReference: {fileID: 0}
+    - target: {fileID: 2681862429676986371, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.1477654
+      objectReference: {fileID: 0}
+    - target: {fileID: 4640319625871287068, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
+      propertyPath: m_Size.y
+      value: 0.0001
+      objectReference: {fileID: 0}
+    - target: {fileID: 4640319625871287068, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
+      propertyPath: m_Offset.y
+      value: -1.1063817
       objectReference: {fileID: 0}
     - target: {fileID: 6666472483487434216, guid: 0496950ec1d844743b8974cc45f2964d, type: 3}
       propertyPath: isExitDoor

@@ -25,7 +25,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private string _bossObjectName = "FinalBoss";
     [SerializeField] private float _holdOnPlayerDuration = 0.8f;
     [SerializeField] private float _moveToBossDuration = 1.2f;
-    [SerializeField] private float _holdOnBossDuration = 1f;
+    [SerializeField] private float _holdOnBossDuration = 1.5f;
     [SerializeField] private float _moveBackToPlayerDuration = 1.0f;
     [SerializeField] private float _cinematicSmoothTime = 0.32f;
     [Tooltip("开场期间临时禁用玩家移动/攻击。")]
