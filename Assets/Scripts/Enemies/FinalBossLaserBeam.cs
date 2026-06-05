@@ -160,7 +160,8 @@ public class FinalBossLaserBeam : MonoBehaviour
     private Vector3 ComputeAlignedPosition()
     {
         Quaternion offsetRotation = ResolveOffsetRotation();
-        Vector3 basePosition = _origin.position + (offsetRotation * _visualOffsetLocal);
+        Vector3 originPosition = ResolveOriginPosition();
+        Vector3 basePosition = originPosition + (offsetRotation * _visualOffsetLocal);
         if (!_alignSpriteLeftEdgeToOrigin || _spriteRenderer == null || _spriteRenderer.sprite == null)
         {
             return basePosition;
@@ -170,6 +171,25 @@ public class FinalBossLaserBeam : MonoBehaviour
         float leftEdgeLocalX = _spriteRenderer.sprite.bounds.min.x;
         float worldShift = -leftEdgeLocalX * Mathf.Abs(transform.lossyScale.x);
         return basePosition + transform.right * worldShift;
+    }
+
+    private Vector3 ResolveOriginPosition()
+    {
+        if (_origin == null)
+        {
+            return transform.position;
+        }
+
+        // Keep right-facing as authored position; when facing left, mirror origin local X
+        // so the muzzle point stays centered/symmetric around the boss head.
+        if (_lockDirectionOnCast && IsFacingLeft() && _origin.parent != null)
+        {
+            Vector3 mirroredLocal = _origin.localPosition;
+            mirroredLocal.x = -mirroredLocal.x;
+            return _origin.parent.TransformPoint(mirroredLocal);
+        }
+
+        return _origin.position;
     }
 
     private Quaternion ResolveOffsetRotation()

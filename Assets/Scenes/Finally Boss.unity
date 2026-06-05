@@ -9293,7 +9293,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4095186250113860996, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_fontSize
-      value: 30
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 4095186250113860996, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_fontColor.b
@@ -9309,7 +9309,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4095186250113860996, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_fontSizeBase
-      value: 30
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 4095186250113860996, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_fontColor32.rgba
@@ -9317,7 +9317,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4746772245810005875, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 3.6
+      value: 12.2
       objectReference: {fileID: 0}
     - target: {fileID: 4746772245810005875, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -9342,6 +9342,10 @@ PrefabInstance:
     - target: {fileID: 6488106488951099832, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
       propertyPath: m_Offset.y
       value: -0.0056390762
+      objectReference: {fileID: 0}
+    - target: {fileID: 7802090013191123090, guid: daed7e6a75d34de48d57f03f011bb095, type: 3}
+      propertyPath: targetSceneName
+      value: InitialRoom
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
