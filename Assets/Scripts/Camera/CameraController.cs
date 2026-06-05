@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>2D 相机平滑跟随玩家，可外部切换目标。</summary>
 [RequireComponent(typeof(Camera))]
@@ -14,9 +16,27 @@ public class CameraController : MonoBehaviour
     [Tooltip("相机与目标的本地偏移（XY 平面）。")]
     [SerializeField] private Vector2 _offset = Vector2.zero;
 
+    [Header("Intro Cinematic")]
+    [Tooltip("进入场景时播放 Boss 开场镜头。")]
+    [SerializeField] private bool _enableIntroCinematic = true;
+    [Tooltip("仅在该场景名生效，避免影响其它关卡。")]
+    [SerializeField] private string _introSceneName = "Finally Boss";
+    [Tooltip("Boss 对象名。")]
+    [SerializeField] private string _bossObjectName = "FinalBoss";
+    [SerializeField] private float _holdOnPlayerDuration = 0.8f;
+    [SerializeField] private float _moveToBossDuration = 1.2f;
+    [SerializeField] private float _holdOnBossDuration = 2.0f;
+    [SerializeField] private float _moveBackToPlayerDuration = 1.0f;
+    [SerializeField] private float _cinematicSmoothTime = 0.32f;
+    [Tooltip("开场期间临时禁用玩家移动/攻击。")]
+    [SerializeField] private bool _disablePlayerControlDuringIntro = true;
+
     private Transform _target;
     private float _lockedZ;
     private Vector3 _currentVelocity;
+    private PlayerController _playerController;
+    private PlayerAttack _playerAttack;
+    private PlayerFacing _playerFacing;
 
     // 缓存初始 Z，防止 2D 正交相机深度漂移。
     private void Awake()
@@ -32,7 +52,11 @@ public class CameraController : MonoBehaviour
         PlayerController player = FindObjectOfType<PlayerController>();
         if (player != null)
         {
+            _playerController = player;
+            _playerAttack = player.GetComponent<PlayerAttack>();
+            _playerFacing = player.GetComponent<PlayerFacing>();
             _target = player.transform;
+            TryPlayIntroCinematic(player.transform);
         }
         else
         {
@@ -73,5 +97,77 @@ public class CameraController : MonoBehaviour
     public void SetTarget(Transform newTarget)
     {
         _target = newTarget;
+    }
+
+    private void TryPlayIntroCinematic(Transform playerTransform)
+    {
+        if (!_enableIntroCinematic)
+        {
+            return;
+        }
+
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        if (!string.Equals(activeSceneName, _introSceneName, System.StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        GameObject bossObject = GameObject.Find(_bossObjectName);
+        if (bossObject == null)
+        {
+            return;
+        }
+
+        StartCoroutine(IntroCinematicRoutine(playerTransform, bossObject.transform));
+    }
+
+    private IEnumerator IntroCinematicRoutine(Transform playerTransform, Transform bossTransform)
+    {
+        if (_disablePlayerControlDuringIntro)
+        {
+            SetPlayerControlEnabled(false);
+        }
+
+        float originalSmoothTime = _smoothTime;
+        _smoothTime = Mathf.Max(0.01f, _cinematicSmoothTime);
+
+        // Hold on player first to build tension before camera move.
+        yield return new WaitForSeconds(Mathf.Max(0f, _holdOnPlayerDuration));
+
+        SetTarget(bossTransform);
+        yield return new WaitForSeconds(Mathf.Max(0.05f, _moveToBossDuration));
+        yield return new WaitForSeconds(Mathf.Max(0f, _holdOnBossDuration));
+
+        SetTarget(playerTransform);
+        yield return new WaitForSeconds(Mathf.Max(0.05f, _moveBackToPlayerDuration));
+
+        _smoothTime = originalSmoothTime;
+        if (_disablePlayerControlDuringIntro)
+        {
+            SetPlayerControlEnabled(true);
+        }
+    }
+
+    private void SetPlayerControlEnabled(bool enabled)
+    {
+        if (_playerController != null)
+        {
+            _playerController.enabled = enabled;
+            Rigidbody2D rb = _playerController.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero;
+            }
+        }
+
+        if (_playerAttack != null)
+        {
+            _playerAttack.enabled = enabled;
+        }
+
+        if (_playerFacing != null)
+        {
+            _playerFacing.enabled = enabled;
+        }
     }
 }
