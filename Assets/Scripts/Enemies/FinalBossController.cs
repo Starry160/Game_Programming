@@ -65,6 +65,8 @@ public class FinalBossController : MonoBehaviour
     [Header("Action Timing")]
     [SerializeField] private float castArmAnimDuration = 0.85f;
     [SerializeField] private float castLaserAnimDuration = 0.75f;
+    [SerializeField] private float defeatedAnimDuration = 1.1f;
+    [SerializeField, Range(0.1f, 1.5f)] private float defeatedAnimSpeed = 0.65f;
     [SerializeField] private float armComboGap = 0.3f;
     [SerializeField] private float minTelegraphTime = 0.25f;
     [SerializeField, Tooltip("近战后恢复时间倍率（<1 更快接招）。")] private float meleeRecoverMultiplier = 0.65f;
@@ -135,6 +137,7 @@ public class FinalBossController : MonoBehaviour
     private int _actionsSinceImmuneShow;
     private int _nextImmuneShowCount;
     private bool _hasIsRunningParam;
+    private Coroutine _defeatedRoutine;
 
     private static readonly int IsRunningHash = Animator.StringToHash("isRunning");
     public event Action<float, float> HealthChanged;
@@ -499,7 +502,35 @@ public class FinalBossController : MonoBehaviour
             laserLauncher.StopLaser();
         }
 
+        if (_defeatedRoutine != null)
+        {
+            StopCoroutine(_defeatedRoutine);
+        }
+
+        _defeatedRoutine = StartCoroutine(DefeatedFreezeRoutine());
+    }
+
+    private IEnumerator DefeatedFreezeRoutine()
+    {
+        float speed = Mathf.Max(0.05f, defeatedAnimSpeed);
+        if (_animator != null)
+        {
+            _animator.speed = speed;
+        }
+
         PlayState("Defeated");
+        float realPlayTime = Mathf.Max(0.05f, defeatedAnimDuration) / speed;
+        yield return new WaitForSeconds(realPlayTime);
+
+        if (_animator != null)
+        {
+            _animator.Play("Defeated", 0, 0.99f);
+            _animator.Update(0f);
+            _animator.speed = 0f;
+            _animator.enabled = false;
+        }
+
+        _defeatedRoutine = null;
     }
 
     private BossAction SelectAction()
