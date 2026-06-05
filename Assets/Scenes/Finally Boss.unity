@@ -177,7 +177,7 @@ MonoBehaviour:
   - {fileID: 737537752}
   enemyCheckInterval: 0.2
   playerTag: Player
-  _treasureBox: {fileID: 0}
+  enableTreasureReveal: 0
   dungeonDoorHideDelay: 0.8
   dungeonDoorFadeDuration: 0.35
   roomTriggerZone: {fileID: 363522279}
@@ -393,15 +393,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetBoss: {fileID: 655925031}
   bossObjectName: FinalBoss
+  targetRoom: {fileID: 0}
+  roomObjectName: TestRoom_01
   bossNameText: {fileID: 858691428}
   bossDisplayName: Mecha-stone Golem
   heartImages:
   - {fileID: 1036935832}
   - {fileID: 1122775253}
   - {fileID: 1914443424}
+  autoExpandHeartSlots: 1
   fullHeartSprite: {fileID: -1727825285, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   halfHeartSprite: {fileID: 1340906261, guid: 4da732814a17cae46842b518f8127a58, type: 3}
   emptyHeartSprite: {fileID: 425390554, guid: 4da732814a17cae46842b518f8127a58, type: 3}
+  hideFadeDuration: 0.25
 --- !u!114 &283595647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9319,7 +9323,7 @@ Transform:
   m_GameObject: {fileID: 655925025}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.16, y: 16.07, z: 0}
+  m_LocalPosition: {x: -0.13, y: -1, z: 0}
   m_LocalScale: {x: 2.872369, y: 4.0015783, z: 0.78030777}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9386,6 +9390,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 6
+  phase1MaxHealth: 6
+  phase2MaxHealth: 10
   phaseTransitionDuration: 1
   phase2RegenSteps: 5
   phase2RegenStepInterval: 0.8
@@ -9400,6 +9406,8 @@ MonoBehaviour:
   phase1MeleeApproachDistance: 0.9
   castArmAnimDuration: 0.86
   castLaserAnimDuration: 0.75
+  defeatedAnimDuration: 1.1
+  defeatedAnimSpeed: 0.65
   armComboGap: 0.32
   minTelegraphTime: 0.25
   meleeRecoverMultiplier: 0.65
@@ -9435,6 +9443,7 @@ MonoBehaviour:
   armLauncher: {fileID: 655925029}
   laserLauncher: {fileID: 655925030}
   meleeAttack: {fileID: 655925035}
+  waitForBattleStart: 1
 --- !u!50 &655925032
 Rigidbody2D:
   serializedVersion: 4

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -11,6 +12,8 @@ public class BossHealthUI : MonoBehaviour
     [Header("Binding")]
     [SerializeField] private FinalBossController targetBoss;
     [SerializeField] private string bossObjectName = "FinalBoss";
+    [SerializeField] private RoomController targetRoom;
+    [SerializeField] private string roomObjectName = "TestRoom_01";
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI bossNameText;
@@ -20,11 +23,18 @@ public class BossHealthUI : MonoBehaviour
     [SerializeField] private Sprite fullHeartSprite;
     [SerializeField] private Sprite halfHeartSprite;
     [SerializeField] private Sprite emptyHeartSprite;
+    [SerializeField] private float hideFadeDuration = 0.25f;
 
     private readonly List<Image> runtimeHeartImages = new List<Image>();
+    private CanvasGroup _canvasGroup;
+    private Coroutine _hideFadeRoutine;
 
     private void OnEnable()
     {
+        EnsureCanvasGroup();
+        SetPanelVisible(false);
+        TryBindRoom();
+        SubscribeRoomEvents();
         TryBindBoss();
         SubscribeBossEvents();
         RefreshImmediate();
@@ -32,6 +42,8 @@ public class BossHealthUI : MonoBehaviour
 
     private void OnDisable()
     {
+        StopHideFadeRoutine();
+        UnsubscribeRoomEvents();
         UnsubscribeBossEvents();
     }
 
@@ -47,6 +59,7 @@ public class BossHealthUI : MonoBehaviour
             bossNameText.text = bossDisplayName;
         }
 
+        UpdateVisibilityByRoomState();
         RefreshImmediate();
     }
 
@@ -91,6 +104,13 @@ public class BossHealthUI : MonoBehaviour
         RefreshHearts(current);
     }
 
+    private void HandleRoomBattleStarted(RoomController room)
+    {
+        StopHideFadeRoutine();
+        SetPanelVisible(true);
+        RefreshImmediate();
+    }
+
     private void RefreshImmediate()
     {
         TryBindBoss();
@@ -101,6 +121,111 @@ public class BossHealthUI : MonoBehaviour
 
         RefreshHeartSlotsByMax(targetBoss.MaxHealth);
         RefreshHearts(targetBoss.CurrentHealth);
+    }
+
+    private void TryBindRoom()
+    {
+        if (targetRoom != null)
+        {
+            return;
+        }
+
+        GameObject roomObject = GameObject.Find(roomObjectName);
+        if (roomObject != null)
+        {
+            targetRoom = roomObject.GetComponent<RoomController>();
+        }
+    }
+
+    private void SubscribeRoomEvents()
+    {
+        if (targetRoom == null)
+        {
+            return;
+        }
+
+        targetRoom.RoomBattleStarted -= HandleRoomBattleStarted;
+        targetRoom.RoomBattleStarted += HandleRoomBattleStarted;
+        targetRoom.RoomCleared -= HandleRoomCleared;
+        targetRoom.RoomCleared += HandleRoomCleared;
+    }
+
+    private void UnsubscribeRoomEvents()
+    {
+        if (targetRoom == null)
+        {
+            return;
+        }
+
+        targetRoom.RoomBattleStarted -= HandleRoomBattleStarted;
+        targetRoom.RoomCleared -= HandleRoomCleared;
+    }
+
+    private void HandleRoomCleared(RoomController room)
+    {
+        StopHideFadeRoutine();
+        _hideFadeRoutine = StartCoroutine(FadeOutAndHideRoutine());
+    }
+
+    private void UpdateVisibilityByRoomState()
+    {
+        TryBindRoom();
+        bool shouldShow = targetRoom != null && targetRoom.IsBattleStarted;
+        SetPanelVisible(shouldShow);
+    }
+
+    private void EnsureCanvasGroup()
+    {
+        if (_canvasGroup != null)
+        {
+            return;
+        }
+
+        _canvasGroup = GetComponent<CanvasGroup>();
+        if (_canvasGroup == null)
+        {
+            _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+    }
+
+    private void SetPanelVisible(bool visible)
+    {
+        EnsureCanvasGroup();
+        _canvasGroup.alpha = visible ? 1f : 0f;
+        _canvasGroup.interactable = visible;
+        _canvasGroup.blocksRaycasts = visible;
+    }
+
+    private IEnumerator FadeOutAndHideRoutine()
+    {
+        EnsureCanvasGroup();
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
+
+        float duration = Mathf.Max(0.01f, hideFadeDuration);
+        float startAlpha = _canvasGroup.alpha;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            _canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+            yield return null;
+        }
+
+        _canvasGroup.alpha = 0f;
+        _hideFadeRoutine = null;
+    }
+
+    private void StopHideFadeRoutine()
+    {
+        if (_hideFadeRoutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(_hideFadeRoutine);
+        _hideFadeRoutine = null;
     }
 
     private void RefreshHearts(float currentHealth)

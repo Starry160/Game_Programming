@@ -6,7 +6,9 @@ using UnityEngine;
 public class RoomController : MonoBehaviour
 {
     public System.Action<RoomController> RoomCleared;
+    public System.Action<RoomController> RoomBattleStarted;
     public bool IsRoomCleared => isRoomCleared;
+    public bool IsBattleStarted => isBattleStarted;
 
     [Header("Room Data")]
     public List<GameObject> enemiesInRoom = new List<GameObject>();
@@ -17,6 +19,8 @@ public class RoomController : MonoBehaviour
     [SerializeField] private string playerTag = "Player";
 
     [Header("Treasure Reveal")]
+    [Tooltip("开启后，清怪时会显示宝箱；关闭则忽略宝箱绑定并不提示警告。")]
+    [SerializeField] private bool enableTreasureReveal = true;
     [SerializeField] private GameObject _treasureBox;
 
     [Header("Gate Hide Timing")]
@@ -42,7 +46,7 @@ public class RoomController : MonoBehaviour
     // 开局隐藏宝箱。
     private void Start()
     {
-        if (_treasureBox != null)
+        if (enableTreasureReveal && _treasureBox != null)
         {
             _treasureBox.SetActive(false);
         }
@@ -120,7 +124,7 @@ public class RoomController : MonoBehaviour
             enemiesInRoom.RemoveAll(enemy => enemy == null);
         }
 
-        if (_treasureBox == null)
+        if (enableTreasureReveal && _treasureBox == null)
         {
             Debug.LogWarning("[RoomController] _treasureBox 未绑定，清怪后不会显示宝箱。", this);
         }
@@ -144,6 +148,7 @@ public class RoomController : MonoBehaviour
     private void StartRoomBattle()
     {
         isBattleStarted = true;
+        RoomBattleStarted?.Invoke(this);
 
         foreach (GameObject gate in roomGates)
         {
@@ -179,7 +184,18 @@ public class RoomController : MonoBehaviour
             {
                 enemyAI.canChase = true;
             }
-            else
+
+            FinalBossController finalBoss = enemy.GetComponent<FinalBossController>();
+            if (finalBoss == null)
+            {
+                finalBoss = enemy.GetComponentInParent<FinalBossController>();
+            }
+
+            if (finalBoss != null)
+            {
+                finalBoss.ActivateBattle();
+            }
+            else if (enemyAI == null)
             {
                 Debug.LogWarning($"[RoomController] 房间内的物体 {enemy.name} 没有挂载 EnemyAI 组件，已自动跳过。");
             }
@@ -204,7 +220,7 @@ public class RoomController : MonoBehaviour
         }
 
         nextCheckTime = Time.time + enemyCheckInterval;
-        enemiesInRoom.RemoveAll(item => item == null);
+        enemiesInRoom.RemoveAll(IsEnemyCleared);
 
         if (enemiesInRoom.Count == 0)
         {
@@ -240,7 +256,7 @@ public class RoomController : MonoBehaviour
             }
         }
 
-        if (_treasureBox != null)
+        if (enableTreasureReveal && _treasureBox != null)
         {
             _treasureBox.SetActive(true);
         }
@@ -308,6 +324,27 @@ public class RoomController : MonoBehaviour
             c.a = a;
             sr.color = c;
         }
+    }
+
+    private static bool IsEnemyCleared(GameObject enemyObject)
+    {
+        if (enemyObject == null)
+        {
+            return true;
+        }
+
+        FinalBossController finalBoss = enemyObject.GetComponent<FinalBossController>();
+        if (finalBoss == null)
+        {
+            finalBoss = enemyObject.GetComponentInParent<FinalBossController>();
+        }
+
+        if (finalBoss != null)
+        {
+            return finalBoss.IsDefeated;
+        }
+
+        return false;
     }
 
     // 查找 RoomTriggerZone 或自身 Collider2D。

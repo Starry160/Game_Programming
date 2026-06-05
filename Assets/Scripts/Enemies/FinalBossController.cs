@@ -114,6 +114,9 @@ public class FinalBossController : MonoBehaviour
     [SerializeField] private FinalBossLaserLauncher laserLauncher;
     [SerializeField] private FinalBossMeleeAttack meleeAttack;
 
+    [Header("Battle Start")]
+    [SerializeField] private bool waitForBattleStart = true;
+
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     private Rigidbody2D _rb;
@@ -138,13 +141,15 @@ public class FinalBossController : MonoBehaviour
     private int _nextImmuneShowCount;
     private bool _hasIsRunningParam;
     private Coroutine _defeatedRoutine;
+    private bool _battleStarted;
+    private bool _isDefeatFinalized;
 
     private static readonly int IsRunningHash = Animator.StringToHash("isRunning");
     public event Action<float, float> HealthChanged;
 
     public float CurrentHealth => _currentHealth;
     public float MaxHealth => maxHealth;
-    public bool IsDefeated => _phase == BossPhase.Defeated;
+    public bool IsDefeated => _isDefeatFinalized;
 
     private void Awake()
     {
@@ -209,6 +214,8 @@ public class FinalBossController : MonoBehaviour
     {
         maxHealth = Mathf.Max(1f, phase1MaxHealth);
         _currentHealth = maxHealth;
+        _battleStarted = !waitForBattleStart;
+        _isDefeatFinalized = false;
         _playerTransform = GameObject.FindWithTag("Player")?.transform;
         if (_playerTransform != null)
         {
@@ -305,6 +312,15 @@ public class FinalBossController : MonoBehaviour
     {
         while (_phase != BossPhase.Defeated)
         {
+            if (!_battleStarted)
+            {
+                _movementActive = false;
+                _rb.velocity = Vector2.zero;
+                SetAnimatorRunning(false);
+                yield return null;
+                continue;
+            }
+
             if (_phase == BossPhase.Transition || _isBusy)
             {
                 yield return null;
@@ -486,6 +502,7 @@ public class FinalBossController : MonoBehaviour
         }
 
         _phase = BossPhase.Defeated;
+        _isDefeatFinalized = false;
         _isImmune = true;
         _isBusy = true;
         _isPhaseTransitionRunning = false;
@@ -530,7 +547,38 @@ public class FinalBossController : MonoBehaviour
             _animator.enabled = false;
         }
 
+        DisableBossCollision();
+        _isDefeatFinalized = true;
         _defeatedRoutine = null;
+    }
+
+    public void ActivateBattle()
+    {
+        if (_phase == BossPhase.Defeated)
+        {
+            return;
+        }
+
+        _battleStarted = true;
+    }
+
+    private void DisableBossCollision()
+    {
+        Collider2D[] colliders = GetComponentsInChildren<Collider2D>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D col = colliders[i];
+            if (col != null)
+            {
+                col.enabled = false;
+            }
+        }
+
+        if (_rb != null)
+        {
+            _rb.velocity = Vector2.zero;
+            _rb.simulated = false;
+        }
     }
 
     private BossAction SelectAction()

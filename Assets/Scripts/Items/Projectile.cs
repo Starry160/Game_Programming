@@ -15,6 +15,8 @@ public class Projectile : MonoBehaviour
 
     [Tooltip("命中敌人造成的伤害值。")]
     public float damage = 20f;
+    [Tooltip("命中 Final Boss 时固定伤害（1 点 = 半颗心）。")]
+    public float bossDamagePerHit = 1f;
 
     [Tooltip("存活时间（秒），超时自动销毁，防止飞出地图永久残留。")]
     public float lifeTime = 2f;
@@ -138,7 +140,7 @@ public class Projectile : MonoBehaviour
 
         if (finalBoss != null)
         {
-            finalBoss.TakeDamage(damage);
+            finalBoss.TakeDamage(Mathf.Max(0f, bossDamagePerHit));
             return;
         }
 
