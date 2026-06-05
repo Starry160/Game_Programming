@@ -12,6 +12,7 @@ public class FinalBossLaserBeam : MonoBehaviour
     [Header("Damage Area")]
     [SerializeField] private Vector2 _damageBoxOffset = new Vector2(1.1f, 0f);
     [SerializeField] private Vector2 _damageBoxSize = new Vector2(2.2f, 0.45f);
+    [SerializeField] private float _damageStartDelay = 0.1f;
     [Header("Debug")]
     [SerializeField] private bool _showDamageGizmo = true;
     [SerializeField] private Color _damageGizmoColor = new Color(1f, 0.15f, 0.15f, 0.65f);
@@ -23,6 +24,7 @@ public class FinalBossLaserBeam : MonoBehaviour
     private float _maxDuration;
     private float _elapsed;
     private float _nextTickTime;
+    private float _damageEnableTime;
     private bool _active;
     private bool _lockDirectionOnCast;
     private Quaternion _lockedRotation;
@@ -41,7 +43,9 @@ public class FinalBossLaserBeam : MonoBehaviour
     {
         _elapsed = 0f;
         _nextTickTime = 0f;
+        _damageEnableTime = 0f;
         SyncDamageColliderShape();
+        SetDamageColliderEnabled(false);
     }
 
     private void LateUpdate()
@@ -49,6 +53,11 @@ public class FinalBossLaserBeam : MonoBehaviour
         if (!_active)
         {
             return;
+        }
+
+        if (Time.time >= _damageEnableTime)
+        {
+            SetDamageColliderEnabled(true);
         }
 
         _elapsed += Time.deltaTime;
@@ -89,7 +98,9 @@ public class FinalBossLaserBeam : MonoBehaviour
         _lockedRotation = castRotation;
         _elapsed = 0f;
         _nextTickTime = 0f;
+        _damageEnableTime = Time.time + Mathf.Max(0f, _damageStartDelay);
         _active = true;
+        SetDamageColliderEnabled(false);
 
         if (_origin != null)
         {
@@ -136,6 +147,7 @@ public class FinalBossLaserBeam : MonoBehaviour
     public void ReturnToPool()
     {
         _active = false;
+        SetDamageColliderEnabled(false);
         if (_owner != null)
         {
             _owner.ReleaseLaser(this);
@@ -147,7 +159,8 @@ public class FinalBossLaserBeam : MonoBehaviour
 
     private Vector3 ComputeAlignedPosition()
     {
-        Vector3 basePosition = _origin.position + _origin.TransformDirection(_visualOffsetLocal);
+        Quaternion offsetRotation = ResolveOffsetRotation();
+        Vector3 basePosition = _origin.position + (offsetRotation * _visualOffsetLocal);
         if (!_alignSpriteLeftEdgeToOrigin || _spriteRenderer == null || _spriteRenderer.sprite == null)
         {
             return basePosition;
@@ -157,6 +170,21 @@ public class FinalBossLaserBeam : MonoBehaviour
         float leftEdgeLocalX = _spriteRenderer.sprite.bounds.min.x;
         float worldShift = -leftEdgeLocalX * Mathf.Abs(transform.lossyScale.x);
         return basePosition + transform.right * worldShift;
+    }
+
+    private Quaternion ResolveOffsetRotation()
+    {
+        if (_origin == null)
+        {
+            return transform.rotation;
+        }
+
+        if (_lockDirectionOnCast)
+        {
+            return _lockedRotation;
+        }
+
+        return _origin.rotation;
     }
 
     private void OnDrawGizmosSelected()
@@ -205,7 +233,49 @@ public class FinalBossLaserBeam : MonoBehaviour
         }
 
         box.isTrigger = true;
-        box.offset = _damageBoxOffset;
+        box.offset = GetDirectionalDamageOffset();
         box.size = _damageBoxSize;
+    }
+
+    private Vector2 GetDirectionalDamageOffset()
+    {
+        // z=180° 时局部 Y 轴也会翻转；为保证左右发射在世界空间上下对齐一致，
+        // 左向时对 offset.y 做反向补偿。
+        if (IsFacingLeft())
+        {
+            return new Vector2(_damageBoxOffset.x, -_damageBoxOffset.y);
+        }
+
+        return _damageBoxOffset;
+    }
+
+    private bool IsFacingLeft()
+    {
+        Vector3 dir;
+        if (_lockDirectionOnCast)
+        {
+            dir = _lockedRotation * Vector3.right;
+        }
+        else if (_origin != null)
+        {
+            dir = _origin.rotation * Vector3.right;
+        }
+        else
+        {
+            dir = transform.right;
+        }
+
+        return dir.x < 0f;
+    }
+
+    private void SetDamageColliderEnabled(bool enabled)
+    {
+        BoxCollider2D box = GetDamageCollider();
+        if (box == null)
+        {
+            return;
+        }
+
+        box.enabled = enabled;
     }
 }

@@ -170,5 +170,6 @@ MonoBehaviour:
   _alignSpriteLeftEdgeToOrigin: 1
   _damageBoxOffset: {x: 0.4234518, y: -0.2}
   _damageBoxSize: {x: 16.53286, y: 1.583155}
+  _damageStartDelay: 0.55
   _showDamageGizmo: 1
   _damageGizmoColor: {r: 1, g: 0.15, b: 0.15, a: 0.65}
