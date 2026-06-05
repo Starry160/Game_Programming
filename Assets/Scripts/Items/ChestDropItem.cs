@@ -46,7 +46,8 @@ public class ChestDropItem : MonoBehaviour
         StopIdleFloat();
         if (itemCollider != null)
         {
-            itemCollider.isTrigger = false;
+            // Keep pickup items non-blocking during the whole lifecycle.
+            itemCollider.isTrigger = true;
         }
 
         if (moveRoutine != null)
