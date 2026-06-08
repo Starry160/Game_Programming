@@ -94,19 +94,22 @@ public class FinalBossController : MonoBehaviour
         moveWindowMax = 1.2f,
         recoverWindowMin = 0.25f,
         recoverWindowMax = 0.45f,
-        moveSpeed = 3.4f,
+        moveSpeed = 4.1f,
         meleeWeight = 0f,
-        armWeight = 0.4f,
-        laserWeight = 0.6f,
+        armWeight = 0.6f,
+        laserWeight = 0.4f,
         armComboMin = 2,
         armComboMax = 3
     };
 
     [Header("Phase 2 Immune Show")]
-    [SerializeField] private int immuneShowEveryMinActions = 2;
-    [SerializeField] private int immuneShowEveryMaxActions = 3;
+    [SerializeField] private int immuneShowEveryMinActions = 1;
+    [SerializeField] private int immuneShowEveryMaxActions = 2;
     [SerializeField] private float immuneShowDurationMin = 0.5f;
     [SerializeField] private float immuneShowDurationMax = 0.8f;
+    [SerializeField] private float phase2ImmuneNearDistance = 4.5f;
+    [SerializeField] private int phase2ImmuneFarMinActions = 1;
+    [SerializeField] private int phase2ImmuneFarMaxActions = 1;
 
     [Header("References (Optional)")]
     [SerializeField] private Transform moveAnchor;
@@ -221,9 +224,7 @@ public class FinalBossController : MonoBehaviour
         {
             _playerBodyCollider = GetPrimarySolidCollider(_playerTransform.GetComponentsInChildren<Collider2D>(true));
         }
-        _nextImmuneShowCount = Random.Range(
-            Mathf.Max(1, immuneShowEveryMinActions),
-            Mathf.Max(immuneShowEveryMinActions, immuneShowEveryMaxActions) + 1);
+        _nextImmuneShowCount = RollNextImmuneShowCount();
 
         PlayState("Idle");
         HealthChanged?.Invoke(_currentHealth, maxHealth);
@@ -327,7 +328,8 @@ public class FinalBossController : MonoBehaviour
                 continue;
             }
 
-            if (_phase == BossPhase.Phase2 && _actionsSinceImmuneShow >= _nextImmuneShowCount)
+            if (_phase == BossPhase.Phase2 &&
+                _actionsSinceImmuneShow >= _nextImmuneShowCount)
             {
                 yield return PlayImmuneShowRoutine();
             }
@@ -430,9 +432,7 @@ public class FinalBossController : MonoBehaviour
 
         _isImmune = false;
         _actionsSinceImmuneShow = 0;
-        _nextImmuneShowCount = Random.Range(
-            Mathf.Max(1, immuneShowEveryMinActions),
-            Mathf.Max(immuneShowEveryMinActions, immuneShowEveryMaxActions) + 1);
+        _nextImmuneShowCount = RollNextImmuneShowCount();
 
         PlayState("Idle");
         _isBusy = false;
@@ -485,9 +485,7 @@ public class FinalBossController : MonoBehaviour
         _isPhaseTransitionRunning = false;
         _actionsSinceImmuneShow = 0;
         _sameActionStreak = 0;
-        _nextImmuneShowCount = Random.Range(
-            Mathf.Max(1, immuneShowEveryMinActions),
-            Mathf.Max(immuneShowEveryMinActions, immuneShowEveryMaxActions) + 1);
+        _nextImmuneShowCount = RollNextImmuneShowCount();
         if (_animator != null)
         {
             _animator.speed = 1f;
@@ -603,8 +601,12 @@ public class FinalBossController : MonoBehaviour
         }
         else if (_phase == BossPhase.Phase2)
         {
-            // Phase2: prioritize ranged attacks (arm + laser), no melee selection.
+            // Phase2: default to ranged attacks (arm + laser).
             meleeWeight = 0f;
+            if (!CanUseLaserAtCurrentPosition() && IsPlayerInMeleeRange())
+            {
+                return BossAction.Melee;
+            }
         }
 
         if (_sameActionStreak >= 2)
@@ -622,7 +624,13 @@ public class FinalBossController : MonoBehaviour
             return ChooseByWeights(meleeWeight, armWeight, 0f);
         }
 
-        return ChooseByWeights(meleeWeight, armWeight, laserWeight);
+        BossAction selected = ChooseByWeights(meleeWeight, armWeight, laserWeight);
+        if (selected == BossAction.CastLaser && !CanUseLaserAtCurrentPosition())
+        {
+            selected = BossAction.CastArm;
+        }
+
+        return selected;
     }
 
     private BossAction ChooseByWeights(float meleeWeight, float armWeight, float laserWeight)
@@ -679,6 +687,16 @@ public class FinalBossController : MonoBehaviour
             default:
                 return 1f;
         }
+    }
+
+    private bool CanUseLaserAtCurrentPosition()
+    {
+        if (laserLauncher == null)
+        {
+            return false;
+        }
+
+        return laserLauncher.CanFireLaserFromCurrentPose();
     }
 
     private void RetargetAroundPlayer()
@@ -885,6 +903,27 @@ public class FinalBossController : MonoBehaviour
         }
 
         return baseDuration;
+    }
+
+    private int RollNextImmuneShowCount()
+    {
+        int nearMin = Mathf.Max(1, immuneShowEveryMinActions);
+        int nearMax = Mathf.Max(nearMin, immuneShowEveryMaxActions);
+        if (_phase != BossPhase.Phase2 || _playerTransform == null)
+        {
+            return Random.Range(nearMin, nearMax + 1);
+        }
+
+        float nearDistance = Mathf.Max(0.1f, phase2ImmuneNearDistance);
+        float distanceToPlayer = Vector2.Distance(transform.position, _playerTransform.position);
+        if (distanceToPlayer <= nearDistance)
+        {
+            return Random.Range(nearMin, nearMax + 1);
+        }
+
+        int farMin = Mathf.Max(1, phase2ImmuneFarMinActions);
+        int farMax = Mathf.Max(farMin, phase2ImmuneFarMaxActions);
+        return Random.Range(farMin, farMax + 1);
     }
 
     private void OnDrawGizmos()

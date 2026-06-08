@@ -567,7 +567,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.2, y: -3.07, z: 0}
-  m_LocalScale: {x: 1.3706243, y: 1.5259503, z: 1}
+  m_LocalScale: {x: 1.257616, y: 1.5259503, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3256956}
@@ -9513,6 +9513,12 @@ MonoBehaviour:
   followBossFacingDirection: 1
   matchOriginScale: 0
   sortingOrderOffset: 12
+  avoidLaserWhenBlockedByMapEdge: 1
+  mapEdgeMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  edgeCheckDistance: 16.5
+  edgeCheckPadding: 0.05
   prewarmCount: 2
 --- !u!114 &655925031
 MonoBehaviour:

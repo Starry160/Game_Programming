@@ -17,6 +17,13 @@ public class FinalBossLaserLauncher : MonoBehaviour
     [SerializeField] private bool followBossFacingDirection = true;
     [SerializeField] private bool matchOriginScale = true;
     [SerializeField] private int sortingOrderOffset = 8;
+    [Header("Edge Check")]
+    [SerializeField] private bool avoidLaserWhenBlockedByMapEdge = true;
+    [SerializeField] private Collider2D roomTriggerZone;
+    [SerializeField] private bool autoUseVisibleLaserLength = true;
+    [SerializeField] private float edgeCheckDistance = 16.5f;
+    [SerializeField, Range(0.5f, 1.2f)] private float edgeLengthScale = 1.1f;
+    [SerializeField] private float edgeCheckPadding = 0.05f;
 
     [Header("Pool")]
     [SerializeField] private int prewarmCount = 2;
@@ -26,6 +33,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
 
     private void Awake()
     {
+        AutoBindRoomTriggerZone();
         PrewarmPool();
     }
 
@@ -65,6 +73,12 @@ public class FinalBossLaserLauncher : MonoBehaviour
             return;
         }
 
+        // Final gate at fire time: facing/position may have changed after action selection.
+        if (!CanFireLaserFromCurrentPose())
+        {
+            return;
+        }
+
         if (_activeLaser != null)
         {
             _activeLaser.ReturnToPool();
@@ -74,7 +88,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         FinalBossLaserBeam beam = GetLaserFromPool();
         Transform firePoint = laserOrigin != null ? laserOrigin : transform;
         Quaternion castRotation = ResolveCastRotation(firePoint);
-        Vector3 spawnPosition = firePoint.position + firePoint.TransformDirection(_laserVisualOffset);
+        Vector3 spawnPosition = ResolveCheckStartPosition(firePoint, castRotation);
         beam.transform.position = spawnPosition;
         beam.transform.rotation = castRotation;
         if (matchOriginScale)
@@ -94,6 +108,133 @@ public class FinalBossLaserLauncher : MonoBehaviour
         beam.gameObject.SetActive(true);
         beam.Activate(this, firePoint, _laserVisualOffset, damagePerTick, tickInterval, laserDuration, lockDirectionOnCast, castRotation);
         _activeLaser = beam;
+    }
+
+    public bool CanFireLaserFromCurrentPose()
+    {
+        if (!avoidLaserWhenBlockedByMapEdge)
+        {
+            return true;
+        }
+
+        AutoBindRoomTriggerZone();
+        if (roomTriggerZone == null)
+        {
+            return true;
+        }
+
+        Transform firePoint = laserOrigin != null ? laserOrigin : transform;
+        Quaternion castRotation = ResolveCastRotation(firePoint);
+        Vector3 spawnPosition = ResolveCheckStartPosition(firePoint, castRotation);
+        float originX = spawnPosition.x;
+        float laserLength = GetRequiredLaserLength(firePoint);
+        float padding = Mathf.Max(0f, edgeCheckPadding);
+        Bounds bounds = roomTriggerZone.bounds;
+        Vector3 dir = castRotation * Vector3.right;
+        bool facingLeft = dir.x < 0f;
+
+        if (facingLeft)
+        {
+            float minAllowed = bounds.min.x + padding;
+            return originX - laserLength >= minAllowed;
+        }
+
+        float maxAllowed = bounds.max.x - padding;
+        return originX + laserLength <= maxAllowed;
+    }
+
+    private void OnValidate()
+    {
+        edgeCheckDistance = Mathf.Max(0.05f, edgeCheckDistance);
+        edgeLengthScale = Mathf.Clamp(edgeLengthScale, 0.5f, 1.2f);
+        edgeCheckPadding = Mathf.Max(0f, edgeCheckPadding);
+    }
+
+    private float GetRequiredLaserLength(Transform firePoint)
+    {
+        float lengthScale = Mathf.Clamp(edgeLengthScale, 0.5f, 1.2f);
+        if (!autoUseVisibleLaserLength || laserBeamPrefab == null)
+        {
+            return Mathf.Max(0.05f, edgeCheckDistance * lengthScale);
+        }
+
+        float scaleX;
+        if (matchOriginScale && firePoint != null)
+        {
+            scaleX = Mathf.Abs(firePoint.lossyScale.x);
+        }
+        else
+        {
+            scaleX = Mathf.Abs(laserBeamPrefab.transform.localScale.x);
+        }
+
+        float normalizedScaleX = Mathf.Max(0.001f, scaleX);
+
+        // Prefer the tuned damage box length for edge checks; it matches gameplay expectation better.
+        BoxCollider2D prefabCollider = laserBeamPrefab.GetComponent<BoxCollider2D>();
+        if (prefabCollider != null)
+        {
+            float colliderLength = Mathf.Max(0.01f, prefabCollider.size.x);
+            return Mathf.Max(0.05f, colliderLength * normalizedScaleX * lengthScale);
+        }
+
+        // Fallback to sprite width when collider is missing.
+        SpriteRenderer prefabRenderer = laserBeamPrefab.GetComponent<SpriteRenderer>();
+        if (prefabRenderer != null && prefabRenderer.sprite != null)
+        {
+            float spriteWidth = Mathf.Max(0.01f, prefabRenderer.sprite.bounds.size.x);
+            return Mathf.Max(0.05f, spriteWidth * normalizedScaleX * lengthScale);
+        }
+
+        return Mathf.Max(0.05f, edgeCheckDistance * lengthScale);
+    }
+
+    private void AutoBindRoomTriggerZone()
+    {
+        if (roomTriggerZone != null)
+        {
+            return;
+        }
+
+        RoomController room = GetComponentInParent<RoomController>();
+        if (room == null)
+        {
+            return;
+        }
+
+        Transform triggerZone = room.transform.Find("RoomTriggerZone");
+        if (triggerZone != null)
+        {
+            roomTriggerZone = triggerZone.GetComponent<Collider2D>();
+        }
+
+        if (roomTriggerZone == null)
+        {
+            roomTriggerZone = room.GetComponent<Collider2D>();
+        }
+    }
+
+    private Vector3 ResolveCheckStartPosition(Transform firePoint, Quaternion castRotation)
+    {
+        if (firePoint == null)
+        {
+            return transform.position;
+        }
+
+        Vector3 dir = castRotation * Vector3.right;
+        bool facingLeft = dir.x < 0f;
+        Vector3 originPosition = firePoint.position;
+
+        // Mirror muzzle origin on left cast, matching FinalBossLaserBeam.ResolveOriginPosition().
+        if (lockDirectionOnCast && facingLeft && firePoint.parent != null)
+        {
+            Vector3 mirroredLocal = firePoint.localPosition;
+            mirroredLocal.x = -mirroredLocal.x;
+            originPosition = firePoint.parent.TransformPoint(mirroredLocal);
+        }
+
+        Quaternion offsetRotation = lockDirectionOnCast ? castRotation : firePoint.rotation;
+        return originPosition + (offsetRotation * _laserVisualOffset);
     }
 
     private Quaternion ResolveCastRotation(Transform firePoint)
