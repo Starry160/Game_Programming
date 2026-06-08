@@ -1001,7 +1001,7 @@ MonoBehaviour:
   _maxSpeed: -1
   _offset: {x: 0, y: 0}
   _enableIntroCinematic: 1
-  _introSceneName: Finally Boss
+  _introSceneName: Final Boss
   _bossObjectName: FinalBoss
   _holdOnPlayerDuration: 0.8
   _moveToBossDuration: 1.2

@@ -1706,7 +1706,7 @@ MonoBehaviour:
   _maxSpeed: -1
   _offset: {x: 0, y: 0}
   _enableIntroCinematic: 1
-  _introSceneName: Finally Boss
+  _introSceneName: Final Boss
   _bossObjectName: FinalBoss
   _holdOnPlayerDuration: 0.8
   _moveToBossDuration: 1.2
@@ -12946,7 +12946,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _requiredRoomController: {fileID: 1105159376}
   _showAfterRoomCleared: 1
-  targetSceneName: Finally Boss
+  targetSceneName: Final Boss
   interactHint: {fileID: 1356407105}
   portalAnimator: {fileID: 0}
   teleportDelay: 1

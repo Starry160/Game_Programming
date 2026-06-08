@@ -20,7 +20,7 @@ public class CameraController : MonoBehaviour
     [Tooltip("进入场景时播放 Boss 开场镜头。")]
     [SerializeField] private bool _enableIntroCinematic = true;
     [Tooltip("仅在该场景名生效，避免影响其它关卡。")]
-    [SerializeField] private string _introSceneName = "Finally Boss";
+    [SerializeField] private string _introSceneName = "Final Boss";
     [Tooltip("Boss 对象名。")]
     [SerializeField] private string _bossObjectName = "FinalBoss";
     [SerializeField] private float _holdOnPlayerDuration = 0.8f;
