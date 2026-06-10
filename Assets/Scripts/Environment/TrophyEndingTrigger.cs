@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Final Room 奖杯交互：玩家靠近后奖杯放大，并弹出结算面板结束本局。
+/// Shows the victory results panel when the player reaches the final trophy.
 /// </summary>
 public class TrophyEndingTrigger : MonoBehaviour
 {
@@ -29,6 +29,7 @@ public class TrophyEndingTrigger : MonoBehaviour
     private Vector3 _baseLocalPosition;
     private bool _isEndingStarted;
 
+    // Hides the trophy prompt until the player enters the ending trigger.
     private void Awake()
     {
         _baseScale = transform.localScale;
@@ -36,11 +37,13 @@ public class TrophyEndingTrigger : MonoBehaviour
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    // Finds the ending result panel so the trophy can finish the run.
     private void Start()
     {
         TryFindPlayer();
     }
 
+    // Waits for player interaction while the trophy ending prompt is active.
     private void Update()
     {
         if (_isEndingStarted)
@@ -61,6 +64,7 @@ public class TrophyEndingTrigger : MonoBehaviour
         }
     }
 
+    // Runs the final trophy ending sequence and shows the result panel.
     private IEnumerator PlayEndingRoutine()
     {
         _isEndingStarted = true;
@@ -112,10 +116,11 @@ public class TrophyEndingTrigger : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[TrophyEndingTrigger] 未找到 GameOverPanel，无法显示结算界面。", this);
+            Debug.LogWarning("[TrophyEndingTrigger] GameOverPanel was not found, so the results panel cannot be shown.", this);
         }
     }
 
+    // Disables player movement and attack scripts during the ending flow.
     private void DisablePlayerControl()
     {
         if (_playerTransform == null)
@@ -149,6 +154,7 @@ public class TrophyEndingTrigger : MonoBehaviour
         }
     }
 
+    // Finds the active player object used by the ending trigger.
     private void TryFindPlayer()
     {
         GameObject player = GameObject.FindWithTag(playerTag);
@@ -158,6 +164,7 @@ public class TrophyEndingTrigger : MonoBehaviour
         }
     }
 
+    // Finds or prepares the result panel used at the end of the run.
     private GameOverPanel ResolveGameOverPanel()
     {
         if (gameOverPanel != null)

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Boss 顶部血量 UI：名称 + 三颗心（共 6 点，半心计）。
+/// Displays the final boss name and heart-based health meter.
 /// </summary>
 public class BossHealthUI : MonoBehaviour
 {
@@ -29,6 +29,7 @@ public class BossHealthUI : MonoBehaviour
     private CanvasGroup _canvasGroup;
     private Coroutine _hideFadeRoutine;
 
+    // Hooks scene-load events so the boss bar can rebind after level transitions.
     private void OnEnable()
     {
         EnsureCanvasGroup();
@@ -40,6 +41,7 @@ public class BossHealthUI : MonoBehaviour
         RefreshImmediate();
     }
 
+    // Removes scene-load callbacks while the boss bar is disabled.
     private void OnDisable()
     {
         StopHideFadeRoutine();
@@ -47,11 +49,13 @@ public class BossHealthUI : MonoBehaviour
         UnsubscribeBossEvents();
     }
 
+    // Clears boss-health subscriptions when the UI object is destroyed.
     private void OnDestroy()
     {
         CleanupRuntimeHearts();
     }
 
+    // Finds the active final boss and prepares the health bar for runtime display.
     private void Start()
     {
         if (bossNameText != null)
@@ -63,6 +67,7 @@ public class BossHealthUI : MonoBehaviour
         RefreshImmediate();
     }
 
+    // Finds the final boss health source for the boss UI.
     private void TryBindBoss()
     {
         if (targetBoss != null)
@@ -77,6 +82,7 @@ public class BossHealthUI : MonoBehaviour
         }
     }
 
+    // Subscribes the UI to boss health changes.
     private void SubscribeBossEvents()
     {
         if (targetBoss == null)
@@ -88,6 +94,7 @@ public class BossHealthUI : MonoBehaviour
         targetBoss.HealthChanged += HandleHealthChanged;
     }
 
+    // Removes boss health event subscriptions.
     private void UnsubscribeBossEvents()
     {
         if (targetBoss == null)
@@ -98,12 +105,14 @@ public class BossHealthUI : MonoBehaviour
         targetBoss.HealthChanged -= HandleHealthChanged;
     }
 
+    // Refreshes the heart display after boss health changes.
     private void HandleHealthChanged(float current, float max)
     {
         RefreshHeartSlotsByMax(max);
         RefreshHearts(current);
     }
 
+    // Shows the boss UI when the linked room battle begins.
     private void HandleRoomBattleStarted(RoomController room)
     {
         StopHideFadeRoutine();
@@ -111,6 +120,7 @@ public class BossHealthUI : MonoBehaviour
         RefreshImmediate();
     }
 
+    // Updates boss UI visibility and hearts without waiting for a fade.
     private void RefreshImmediate()
     {
         TryBindBoss();
@@ -123,6 +133,7 @@ public class BossHealthUI : MonoBehaviour
         RefreshHearts(targetBoss.CurrentHealth);
     }
 
+    // Finds the room controller that controls boss UI visibility.
     private void TryBindRoom()
     {
         if (targetRoom != null)
@@ -137,6 +148,7 @@ public class BossHealthUI : MonoBehaviour
         }
     }
 
+    // Subscribes to room battle and clear events.
     private void SubscribeRoomEvents()
     {
         if (targetRoom == null)
@@ -150,6 +162,7 @@ public class BossHealthUI : MonoBehaviour
         targetRoom.RoomCleared += HandleRoomCleared;
     }
 
+    // Removes room event subscriptions.
     private void UnsubscribeRoomEvents()
     {
         if (targetRoom == null)
@@ -161,12 +174,14 @@ public class BossHealthUI : MonoBehaviour
         targetRoom.RoomCleared -= HandleRoomCleared;
     }
 
+    // Hides the boss UI after the linked room is cleared.
     private void HandleRoomCleared(RoomController room)
     {
         StopHideFadeRoutine();
         _hideFadeRoutine = StartCoroutine(FadeOutAndHideRoutine());
     }
 
+    // Shows or hides the boss UI based on room battle state.
     private void UpdateVisibilityByRoomState()
     {
         TryBindRoom();
@@ -174,6 +189,7 @@ public class BossHealthUI : MonoBehaviour
         SetPanelVisible(shouldShow);
     }
 
+    // Ensures the panel has a CanvasGroup for fading.
     private void EnsureCanvasGroup()
     {
         if (_canvasGroup != null)
@@ -188,6 +204,7 @@ public class BossHealthUI : MonoBehaviour
         }
     }
 
+    // Applies the target visible state to the boss UI panel.
     private void SetPanelVisible(bool visible)
     {
         EnsureCanvasGroup();
@@ -196,6 +213,7 @@ public class BossHealthUI : MonoBehaviour
         _canvasGroup.blocksRaycasts = visible;
     }
 
+    // Fades the boss UI out before disabling it.
     private IEnumerator FadeOutAndHideRoutine()
     {
         EnsureCanvasGroup();
@@ -217,6 +235,7 @@ public class BossHealthUI : MonoBehaviour
         _hideFadeRoutine = null;
     }
 
+    // Stops any active hide fade before changing visibility.
     private void StopHideFadeRoutine()
     {
         if (_hideFadeRoutine == null)
@@ -228,6 +247,7 @@ public class BossHealthUI : MonoBehaviour
         _hideFadeRoutine = null;
     }
 
+    // Converts boss health into full, half, and empty heart sprites.
     private void RefreshHearts(float currentHealth)
     {
         if (heartImages == null || heartImages.Count == 0)
@@ -260,6 +280,7 @@ public class BossHealthUI : MonoBehaviour
         }
     }
 
+    // Creates enough heart slots for the boss max health value.
     private void RefreshHeartSlotsByMax(float maxHealth)
     {
         if (heartImages == null || heartImages.Count == 0)
@@ -283,6 +304,7 @@ public class BossHealthUI : MonoBehaviour
         }
     }
 
+    // Creates missing heart images for the boss health meter.
     private void EnsureHeartSlots(int requiredHearts)
     {
         if (!autoExpandHeartSlots)
@@ -321,6 +343,7 @@ public class BossHealthUI : MonoBehaviour
         }
     }
 
+    // Calculates spacing between boss heart icons.
     private float GetHeartSpacing()
     {
         if (heartImages.Count >= 2 && heartImages[0] != null && heartImages[1] != null)
@@ -346,6 +369,7 @@ public class BossHealthUI : MonoBehaviour
         return 48f;
     }
 
+    // Destroys heart icons generated at runtime.
     private void CleanupRuntimeHearts()
     {
         for (int i = 0; i < runtimeHeartImages.Count; i++)

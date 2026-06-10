@@ -1,9 +1,9 @@
 using UnityEngine;
 
-/// <summary>全局音频管理器：统一播放主角/敌人受击音效。</summary>
+/// <summary>Provides shared hit sound playback for player and enemy feedback.</summary>
 public class AudioManager : MonoBehaviour
 {
-    /// <summary>全局单例，供任意脚本直接调用。</summary>
+    /// <summary>Provides shared hit sound playback for player and enemy feedback.</summary>
     public static AudioManager Instance;
 
     [Header("Hit Sounds")]
@@ -16,6 +16,7 @@ public class AudioManager : MonoBehaviour
 
     private AudioSource _audioSource;
 
+    // Builds the singleton audio service that other gameplay scripts call for shared sound effects.
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -32,12 +33,12 @@ public class AudioManager : MonoBehaviour
             _audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        // 受击为 2D UI/反馈音，不使用空间衰减。
         _audioSource.spatialBlend = 0f;
         _audioSource.playOnAwake = false;
         _audioSource.loop = false;
     }
 
+    // Plays the player hit sound effect.
     public void PlayPlayerHit()
     {
         if (_audioSource == null || _playerHitSound == null)
@@ -48,6 +49,7 @@ public class AudioManager : MonoBehaviour
         _audioSource.PlayOneShot(_playerHitSound, _playerHitVolume);
     }
 
+    // Plays the enemy hit sound effect.
     public void PlayEnemyHit()
     {
         if (_audioSource == null || _enemyHitSound == null)

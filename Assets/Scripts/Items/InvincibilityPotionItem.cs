@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>无敌药水：授予限时无敌并显示飘字。</summary>
+/// <summary>Grants temporary invincibility and pickup feedback when collected.</summary>
 public class InvincibilityPotionItem : ChestDropItem
 {
     [Header("Invincibility Effect")]
@@ -23,7 +23,7 @@ public class InvincibilityPotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.8f;
     [SerializeField] private int popupSortingOrder = 200;
 
-    // 拾取：GrantTemporaryInvincibility + 飘字 + 音效。
+    // Applies the pickup effect before destroying the reward object.
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -36,11 +36,11 @@ public class InvincibilityPotionItem : ChestDropItem
         {
             playerStats.GrantTemporaryInvincibility(invincibilityDuration);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[InvincibilityPotionItem] {name} 被玩家拾取，获得无敌 {invincibilityDuration:F1} 秒。");
+            Debug.Log($"[InvincibilityPotionItem] {name} picked up. Invincibility granted for {invincibilityDuration:F1} seconds.");
         }
         else
         {
-            Debug.LogWarning($"[InvincibilityPotionItem] {name} 被拾取，但未找到 PlayerStats。");
+            Debug.LogWarning($"[InvincibilityPotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();
@@ -53,7 +53,7 @@ public class InvincibilityPotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
-    // 播放拾取音效。
+    // Plays the pickup sound at the collected item position.
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -64,7 +64,7 @@ public class InvincibilityPotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
-    // 创建无敌飘字。
+    // Creates floating pickup text to show the reward effect.
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("InvincibilityPotionPopup");

@@ -11,7 +11,7 @@ public class OrbitMotion : MonoBehaviour
     public Vector3 selfRotationAxis = Vector3.up;
     public float selfRotationSpeed = 25f;
 
-    // 用于记录圆心（比如地球）上一帧的位置
+    // Stores the previous orbit center position so satellites follow moving centers smoothly.
     private Vector3 lastCenterPosition;
 
     private void Start()
@@ -26,18 +26,18 @@ public class OrbitMotion : MonoBehaviour
     {
         if (orbitCenter != null)
         {
-            // 关键修复：先让物体（月球）跟着圆心（地球）同频移动，抵消圆心乱跑导致的甩飞问题
+            // Move with the orbit center first so moons are not left behind.
             Vector3 centerMovement = orbitCenter.position - lastCenterPosition;
             transform.position += centerMovement;
 
-            // 然后再围绕圆心进行公转旋转
+            // Rotate around the current center position after applying center movement.
             transform.RotateAround(orbitCenter.position, orbitAxis, orbitSpeed * Time.deltaTime);
 
-            // 更新记录的圆心位置
+            // Save the center position for the next frame's movement delta.
             lastCenterPosition = orbitCenter.position;
         }
 
-        // 自身的自转行为
+        // Apply local self-rotation independently from orbital motion.
         transform.Rotate(selfRotationAxis, selfRotationSpeed * Time.deltaTime, Space.Self);
     }
 }

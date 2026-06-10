@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>玩家移动与瞄准：WASD/摇杆移动，鼠标/右摇杆瞄准。</summary>
+/// <summary>Handles player movement, aim input, physics motion, and movement animation.</summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerController : MonoBehaviour
@@ -25,36 +25,35 @@ public class PlayerController : MonoBehaviour
     private bool _aimControlIsPointer;
 
     /// <summary>
-    /// 提供给外部系统读取的移动速度。
+    /// Current movement speed used by the Rigidbody2D controller.
     /// </summary>
     public float MoveSpeed => _moveSpeed;
 
     /// <summary>
-    /// 提供给外部系统读取的当前瞄准方向。
+    /// Normalized aim direction used by weapons and any aim-aware player logic.
     /// </summary>
     public Vector2 AimDirection { get; private set; }
 
-    // 初始化组件、刚体参数与输入 Action。
+    // Configures player physics and builds runtime input actions.
     private void Awake()
     {
+        // Core movement uses Rigidbody2D physics, so lock rotation and disable gravity.
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _boxCollider2D = GetComponent<BoxCollider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
 
-        // 刚体参数强制由代码配置，避免场景手动设置不一致。
         _rigidbody2D.bodyType = RigidbodyType2D.Dynamic;
         _rigidbody2D.gravityScale = 0f;
         _rigidbody2D.constraints = RigidbodyConstraints2D.FreezeRotation;
         _rigidbody2D.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-        // 给 2D 俯视角像素角色一个通用默认碰撞体大小。
         _boxCollider2D.size = new Vector2(0.8f, 0.8f);
 
         CreateInputActions();
     }
 
-    // 订阅并启用输入。
+    // Enables movement and aim input callbacks while the player can act.
     private void OnEnable()
     {
         _moveAction.performed += OnMovePerformed;
@@ -66,7 +65,7 @@ public class PlayerController : MonoBehaviour
         _aimAction.Enable();
     }
 
-    // 禁用输入并取消订阅。
+    // Disables movement and aim input callbacks when player control is turned off.
     private void OnDisable()
     {
         _moveAction.Disable();
@@ -78,32 +77,31 @@ public class PlayerController : MonoBehaviour
         _aimAction.canceled -= OnAimCanceled;
     }
 
-    // 释放 InputAction 资源。
+    // Disposes runtime-created input actions when the player object is destroyed.
     private void OnDestroy()
     {
         _moveAction?.Dispose();
         _aimAction?.Dispose();
     }
 
-    // 物理帧：按输入设置刚体速度。
+    // Moves the Rigidbody2D from the current input vector during the physics step.
     private void FixedUpdate()
     {
-        // 通过 Rigidbody2D.velocity 驱动物理移动，不直接操作 Transform。
         _rigidbody2D.velocity = _moveInput * _moveSpeed;
     }
 
-    // 逻辑帧：更新瞄准方向与移动动画。
+    // Converts aim input and updates movement animation every frame.
     private void Update()
     {
         UpdateAimDirection();
-        // 角色左右朝向已交给 PlayerFacing 脚本基于鼠标位置处理，这里不再翻转。
         // UpdateFacingByAim();
         UpdateAnimation();
     }
 
-    // 创建移动与瞄准的 Input System 绑定。
+    // Creates movement and aim input actions for keyboard, mouse, and gamepad.
     private void CreateInputActions()
     {
+        // WASD and left stick share the same move action for consistent control mapping.
         _moveAction = new InputAction("Move", InputActionType.Value, expectedControlType: "Vector2");
         _moveAction.AddCompositeBinding("2DVector")
             .With("Up", "<Keyboard>/w")
@@ -112,42 +110,42 @@ public class PlayerController : MonoBehaviour
             .With("Right", "<Keyboard>/d");
         _moveAction.AddBinding("<Gamepad>/leftStick");
 
-        // 鼠标位置与右摇杆共用一个 Action，按当前输入设备判断处理逻辑。
         _aimAction = new InputAction("Aim", InputActionType.PassThrough, expectedControlType: "Vector2");
         _aimAction.AddBinding("<Mouse>/position");
         _aimAction.AddBinding("<Gamepad>/rightStick");
     }
 
-    // 移动输入开始/变化。
+    // Stores the latest movement input vector.
     private void OnMovePerformed(InputAction.CallbackContext context)
     {
         _moveInput = context.ReadValue<Vector2>();
     }
 
-    // 移动输入松开。
+    // Clears movement input when the control is released.
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
         _moveInput = Vector2.zero;
     }
 
-    // 瞄准输入更新，区分鼠标与手柄。
+    // Stores the latest aim input and updates aim direction.
     private void OnAimPerformed(InputAction.CallbackContext context)
     {
         _rawAimInput = context.ReadValue<Vector2>();
         _aimControlIsPointer = context.control.device is Pointer;
     }
 
-    // 瞄准输入取消。
+    // Clears aim input when the control is released.
     private void OnAimCanceled(InputAction.CallbackContext context)
     {
         _rawAimInput = Vector2.zero;
     }
 
-    // 将原始瞄准输入转为归一化世界方向。
+    // Converts mouse or stick input into a normalized world-space aim direction.
     private void UpdateAimDirection()
     {
         if (_aimControlIsPointer)
         {
+            // Mouse aim must be converted from screen space into the player's world plane.
             Camera mainCamera = Camera.main;
             if (mainCamera == null)
             {
@@ -155,8 +153,6 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            // 防御：输入设备在某些帧可能给出 NaN/无穷大的屏幕坐标，
-            // 直接传给 ScreenToWorldPoint 会触发 "out of view frustum" 报错。
             if (!IsFiniteVector(_rawAimInput))
             {
                 AimDirection = Vector2.zero;
@@ -173,6 +169,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        // Gamepad aim is already a direction vector, so only apply a dead zone.
         if (_rawAimInput.sqrMagnitude < _gamepadAimDeadZone * _gamepadAimDeadZone)
         {
             AimDirection = Vector2.zero;
@@ -182,14 +179,14 @@ public class PlayerController : MonoBehaviour
         AimDirection = _rawAimInput.normalized;
     }
 
-    // 校验向量是否为有限值（排除 NaN / Infinity）。
+    // Returns whether a vector contains only finite numeric values.
     private static bool IsFiniteVector(Vector2 value)
     {
         return !float.IsNaN(value.x) && !float.IsNaN(value.y) &&
                !float.IsInfinity(value.x) && !float.IsInfinity(value.y);
     }
 
-    // （已弃用）按移动方向翻转 Sprite，现由 PlayerFacing 处理。
+    // Keeps legacy aim-facing logic disabled in favor of PlayerFacing.
     private void UpdateFacingByAim()
     {
         if (_spriteRenderer == null || Mathf.Approximately(_moveInput.x, 0f))
@@ -200,7 +197,7 @@ public class PlayerController : MonoBehaviour
         _spriteRenderer.flipX = _moveInput.x < 0f;
     }
 
-    // 根据是否在移动切换 Animator 的 isMoving。
+    // Sets the movement animation flag from current input.
     private void UpdateAnimation()
     {
         if (_animator == null)
@@ -208,7 +205,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // 基于当前移动输入切换待机/移动动画状态。
         bool isMoving = _moveInput.sqrMagnitude > 0f;
         _animator.SetBool("isMoving", isMoving);
     }

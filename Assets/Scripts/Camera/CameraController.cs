@@ -2,33 +2,33 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>2D 相机平滑跟随玩家，可外部切换目标。</summary>
+/// <summary>Smoothly follows the player and can play the boss intro camera sequence.</summary>
 [RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour
 {
     [Header("Follow")]
-    [Tooltip("平滑跟随时间，数值越小跟随越紧，越大缓冲越柔。")]
+    [Tooltip("Smooth follow time; lower values make the camera catch up faster.")]
     [SerializeField] private float _smoothTime = 0.15f;
 
-    [Tooltip("相机最大跟随速度，0 或负值表示不限制。")]
+    [Tooltip("Maximum camera follow speed; non-positive values disable the cap.")]
     [SerializeField] private float _maxSpeed = -1f;
 
-    [Tooltip("相机与目标的本地偏移（XY 平面）。")]
+    [Tooltip("Local XY offset from the followed target.")]
     [SerializeField] private Vector2 _offset = Vector2.zero;
 
     [Header("Intro Cinematic")]
-    [Tooltip("进入场景时播放 Boss 开场镜头。")]
+    [Tooltip("Play the boss intro camera sequence when entering the configured scene.")]
     [SerializeField] private bool _enableIntroCinematic = true;
-    [Tooltip("仅在该场景名生效，避免影响其它关卡。")]
+    [Tooltip("Scene name where the boss intro camera sequence is enabled.")]
     [SerializeField] private string _introSceneName = "Final Boss";
-    [Tooltip("Boss 对象名。")]
+    [Tooltip("Name of the boss object used as the intro camera target.")]
     [SerializeField] private string _bossObjectName = "FinalBoss";
     [SerializeField] private float _holdOnPlayerDuration = 0.8f;
     [SerializeField] private float _moveToBossDuration = 1.2f;
     [SerializeField] private float _holdOnBossDuration = 1.5f;
     [SerializeField] private float _moveBackToPlayerDuration = 1.0f;
     [SerializeField] private float _cinematicSmoothTime = 0.32f;
-    [Tooltip("开场期间临时禁用玩家移动/攻击。")]
+    [Tooltip("Temporarily disables player movement and attacks during the intro shot.")]
     [SerializeField] private bool _disablePlayerControlDuringIntro = true;
 
     private Transform _target;
@@ -38,17 +38,15 @@ public class CameraController : MonoBehaviour
     private PlayerAttack _playerAttack;
     private PlayerFacing _playerFacing;
 
-    // 缓存初始 Z，防止 2D 正交相机深度漂移。
+    // Stores the starting offset between the camera and its follow target.
     private void Awake()
     {
-        // 锁定初始 Z 轴深度，避免跟随导致 2D 画面丢失。
         _lockedZ = transform.position.z;
     }
 
-    // 查找场景中的玩家作为跟随目标。
+    // Finds the player automatically when no follow target was assigned in the Inspector.
     private void Start()
     {
-        // 纯代码定位跟随目标，无需 Inspector 手动拖拽。
         PlayerController player = FindObjectOfType<PlayerController>();
         if (player != null)
         {
@@ -60,14 +58,13 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[CameraController] 未在场景中找到 PlayerController，相机将保持静止。");
+            Debug.LogWarning("[CameraController] PlayerController was not found in the scene. The camera will remain still.");
         }
     }
 
-    // 每帧平滑插值到目标位置（LateUpdate 减少抖动）。
+    // Updates camera or visual follow logic after normal Update movement.
     private void LateUpdate()
     {
-        // 在 LateUpdate 中处理跟随，避免与玩家的 Update/FixedUpdate 移动产生抖动。
         if (_target == null)
         {
             return;
@@ -86,19 +83,19 @@ public class CameraController : MonoBehaviour
             _smoothTime,
             maxSpeed);
 
-        // 再次强制锁定 Z，双保险避免误修改。
         smoothed.z = _lockedZ;
         transform.position = smoothed;
     }
 
     /// <summary>
-    /// 允许外部系统（例如关卡切换、Boss 剧情）手动指定跟随目标。
+    /// Changes the transform that the camera follows.
     /// </summary>
     public void SetTarget(Transform newTarget)
     {
         _target = newTarget;
     }
 
+    // Starts the intro cinematic if the current scene requires it.
     private void TryPlayIntroCinematic(Transform playerTransform)
     {
         if (!_enableIntroCinematic)
@@ -121,6 +118,7 @@ public class CameraController : MonoBehaviour
         StartCoroutine(IntroCinematicRoutine(playerTransform, bossObject.transform));
     }
 
+    // Moves the camera from player to boss and back during the intro.
     private IEnumerator IntroCinematicRoutine(Transform playerTransform, Transform bossTransform)
     {
         if (_disablePlayerControlDuringIntro)
@@ -148,6 +146,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    // Enables or disables player movement, facing, and attack scripts.
     private void SetPlayerControlEnabled(bool enabled)
     {
         if (_playerController != null)

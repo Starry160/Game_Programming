@@ -5,11 +5,11 @@ public class SolarUIController : MonoBehaviour
 {
     [Header("UI References")]
     public GameObject infoPanel;
-    public TextMeshProUGUI titleText; // 改成这行
-    public TextMeshProUGUI factText;  // 改成这行
+    public TextMeshProUGUI titleText; // Displays the selected planet or moon name.
+    public TextMeshProUGUI factText;  // Displays the child-friendly fact text.
 
     [Header("Return Hint")]
-    public TextMeshProUGUI hintText;  // 改成这行
+    public TextMeshProUGUI hintText;  // Displays the return-to-overview hint.
     [TextArea(1, 2)] public string returnHint = "Press ESC or tap Return to overview.";
 
     private void Start()

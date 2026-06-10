@@ -3,10 +3,7 @@ using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-/// <summary>
-/// Final Boss 两阶段主控：负责阶段切换、技能调度、移动窗口与死亡收尾。
-/// 技能发射仍由动画事件 -> Launcher 执行，保持解耦。
-/// </summary>
+/// <summary>Schedules final boss phases, attacks, movement windows, and death flow.</summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(SpriteRenderer))]
@@ -69,9 +66,9 @@ public class FinalBossController : MonoBehaviour
     [SerializeField, Range(0.1f, 1.5f)] private float defeatedAnimSpeed = 0.65f;
     [SerializeField] private float armComboGap = 0.3f;
     [SerializeField] private float minTelegraphTime = 0.25f;
-    [SerializeField, Tooltip("近战后恢复时间倍率（<1 更快接招）。")] private float meleeRecoverMultiplier = 0.65f;
-    [SerializeField, Tooltip("手臂技能后恢复时间倍率（>1 更慢接招）。")] private float armRecoverMultiplier = 1.35f;
-    [SerializeField, Tooltip("激光后恢复时间倍率。")] private float laserRecoverMultiplier = 1f;
+    [SerializeField, Tooltip("Recovery time multiplier after melee attacks.")] private float meleeRecoverMultiplier = 0.65f;
+    [SerializeField, Tooltip("Recovery time multiplier after arm attacks.")] private float armRecoverMultiplier = 1.35f;
+    [SerializeField, Tooltip("Recovery time multiplier after laser attacks.")] private float laserRecoverMultiplier = 1f;
 
     [Header("Phase Tuning")]
     [SerializeField] private PhaseTuning phase1 = new PhaseTuning
@@ -154,6 +151,7 @@ public class FinalBossController : MonoBehaviour
     public float MaxHealth => maxHealth;
     public bool IsDefeated => _isDefeatFinalized;
 
+    // Gathers boss renderers, colliders, launchers, and optional room references.
     private void Awake()
     {
         _animator = GetComponent<Animator>();
@@ -213,6 +211,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Applies the initial boss visibility, health, and intro-cinematic state.
     private void Start()
     {
         maxHealth = Mathf.Max(1f, phase1MaxHealth);
@@ -231,6 +230,7 @@ public class FinalBossController : MonoBehaviour
         StartCoroutine(BossLoop());
     }
 
+    // Runs physics-timed movement and collision-sensitive behavior.
     private void FixedUpdate()
     {
         if (!_movementActive || _phase == BossPhase.Defeated)
@@ -266,6 +266,7 @@ public class FinalBossController : MonoBehaviour
         UpdateFacing(velocity.x);
     }
 
+    // Applies incoming damage and related hit feedback.
     public void TakeDamage(float amount)
     {
         if (_phase == BossPhase.Defeated || _isImmune || amount <= 0f)
@@ -309,6 +310,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Runs the active boss phase loop while choosing attacks and recovery windows.
     private IEnumerator BossLoop()
     {
         while (_phase != BossPhase.Defeated)
@@ -331,11 +333,13 @@ public class FinalBossController : MonoBehaviour
             if (_phase == BossPhase.Phase2 &&
                 _actionsSinceImmuneShow >= _nextImmuneShowCount)
             {
+                // Phase 2 periodically shows immunity so players cannot burn the boss down too fast.
                 yield return PlayImmuneShowRoutine();
             }
 
             yield return MoveWindowRoutine();
 
+            // Each cycle is movement, one selected attack, then a phase-tuned recovery pause.
             BossAction action = SelectAction();
             yield return ExecuteActionRoutine(action);
 
@@ -345,6 +349,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Lets the boss reposition for a limited time between attacks.
     private IEnumerator MoveWindowRoutine()
     {
         _movementActive = true;
@@ -374,6 +379,7 @@ public class FinalBossController : MonoBehaviour
         PlayState("Idle");
     }
 
+    // Runs one selected boss action and its recovery delay.
     private IEnumerator ExecuteActionRoutine(BossAction action)
     {
         _isBusy = true;
@@ -384,6 +390,7 @@ public class FinalBossController : MonoBehaviour
         if (action == BossAction.CastArm)
         {
             int combo = Random.Range(GetPhaseTuning().armComboMin, GetPhaseTuning().armComboMax + 1);
+            // Arm casts can chain in phase two, with a short gap between telegraphs.
             for (int i = 0; i < combo; i++)
             {
                 PlayState("Casting");
@@ -418,6 +425,7 @@ public class FinalBossController : MonoBehaviour
         _isBusy = false;
     }
 
+    // Plays temporary invulnerability feedback after certain boss hits.
     private IEnumerator PlayImmuneShowRoutine()
     {
         _isBusy = true;
@@ -438,6 +446,7 @@ public class FinalBossController : MonoBehaviour
         _isBusy = false;
     }
 
+    // Plays the phase transition and switches the boss into phase two behavior.
     private IEnumerator PhaseTransitionRoutine()
     {
         if (_phase != BossPhase.Phase1 || _isPhaseTransitionRunning)
@@ -469,6 +478,7 @@ public class FinalBossController : MonoBehaviour
         maxHealth = Mathf.Max(1f, phase2MaxHealth);
         HealthChanged?.Invoke(_currentHealth, maxHealth);
 
+        // Phase two refills in visible steps so the heart UI clearly communicates the reset.
         int autoStepByHeart = Mathf.Max(1, Mathf.RoundToInt(maxHealth * 0.5f));
         int steps = Mathf.Max(autoStepByHeart, phase2RegenSteps);
         float interval = Mathf.Max(0.05f, phase2RegenStepInterval);
@@ -493,6 +503,7 @@ public class FinalBossController : MonoBehaviour
         PlayState("Idle");
     }
 
+    // Stops boss behavior, disables collisions, and starts the defeat cleanup.
     private void HandleDefeated()
     {
         if (_phase == BossPhase.Defeated)
@@ -531,6 +542,7 @@ public class FinalBossController : MonoBehaviour
         _defeatedRoutine = StartCoroutine(DefeatedFreezeRoutine());
     }
 
+    // Freezes the boss briefly after defeat before cleanup continues.
     private IEnumerator DefeatedFreezeRoutine()
     {
         float speed = Mathf.Max(0.05f, defeatedAnimSpeed);
@@ -556,6 +568,7 @@ public class FinalBossController : MonoBehaviour
         _defeatedRoutine = null;
     }
 
+    // Starts the boss combat loop when the room battle begins.
     public void ActivateBattle()
     {
         if (_phase == BossPhase.Defeated)
@@ -566,6 +579,7 @@ public class FinalBossController : MonoBehaviour
         _battleStarted = true;
     }
 
+    // Turns off boss colliders so the defeated boss no longer blocks gameplay.
     private void DisableBossCollision()
     {
         Collider2D[] colliders = GetComponentsInChildren<Collider2D>(true);
@@ -585,6 +599,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Chooses the next boss action from phase rules and cooldowns.
     private BossAction SelectAction()
     {
         PhaseTuning tuning = GetPhaseTuning();
@@ -616,6 +631,7 @@ public class FinalBossController : MonoBehaviour
 
         if (_sameActionStreak >= 2)
         {
+            // Avoid repeating the same attack too many times in a row.
             if (_lastAction == BossAction.Melee)
             {
                 return ChooseByWeights(0f, armWeight, laserWeight);
@@ -638,6 +654,7 @@ public class FinalBossController : MonoBehaviour
         return selected;
     }
 
+    // Selects an action from weighted candidates.
     private BossAction ChooseByWeights(float meleeWeight, float armWeight, float laserWeight)
     {
         float m = Mathf.Max(0f, meleeWeight);
@@ -664,6 +681,7 @@ public class FinalBossController : MonoBehaviour
         return BossAction.CastLaser;
     }
 
+    // Records the selected action for cooldown and history tracking.
     private void RegisterAction(BossAction action)
     {
         if (_lastAction == action)
@@ -679,6 +697,7 @@ public class FinalBossController : MonoBehaviour
         _actionsSinceImmuneShow++;
     }
 
+    // Returns the recovery speed multiplier for the selected action.
     private float GetRecoverMultiplier(BossAction action)
     {
         switch (action)
@@ -694,6 +713,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Checks if the current boss position can support a laser attack.
     private bool CanUseLaserAtCurrentPosition()
     {
         if (laserLauncher == null)
@@ -704,6 +724,7 @@ public class FinalBossController : MonoBehaviour
         return laserLauncher.CanFireLaserFromCurrentPose();
     }
 
+    // Chooses a nearby target point around the player for boss movement.
     private void RetargetAroundPlayer()
     {
         if (_playerTransform == null)
@@ -745,6 +766,7 @@ public class FinalBossController : MonoBehaviour
         _moveTarget = playerPos + randomOnCircle * orbitRadius;
     }
 
+    // Flips the enemy visuals toward movement or target direction.
     private void UpdateFacing(float velocityX)
     {
         if (_spriteRenderer == null)
@@ -762,6 +784,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Checks whether the player is close enough for boss melee.
     private bool IsPlayerInMeleeRange()
     {
         if (_playerTransform == null)
@@ -781,6 +804,7 @@ public class FinalBossController : MonoBehaviour
         return meleeAttack.CanHitTarget(_playerTransform);
     }
 
+    // Applies boss contact damage when melee conditions are met.
     private void TryApplyMeleeDamage()
     {
         if (_playerTransform == null)
@@ -796,6 +820,7 @@ public class FinalBossController : MonoBehaviour
         meleeAttack.TryApplyDamageToTarget(_playerTransform);
     }
 
+    // Flips the boss to face the player on the X axis.
     private void FacePlayerHorizontally()
     {
         if (_spriteRenderer == null)
@@ -821,6 +846,7 @@ public class FinalBossController : MonoBehaviour
         _spriteRenderer.flipX = deltaX < 0f;
     }
 
+    // Updates the boss running animation parameter.
     private void SetAnimatorRunning(bool value)
     {
         if (_animator == null)
@@ -836,6 +862,7 @@ public class FinalBossController : MonoBehaviour
         _animator.SetBool(IsRunningHash, value);
     }
 
+    // Requests a boss animator state by name.
     private void PlayState(string stateName)
     {
         if (_animator == null || string.IsNullOrEmpty(stateName))
@@ -846,11 +873,13 @@ public class FinalBossController : MonoBehaviour
         _animator.Play(stateName, 0, 0f);
     }
 
+    // Returns tuning values for the current boss phase.
     private PhaseTuning GetPhaseTuning()
     {
         return _phase == BossPhase.Phase2 ? phase2 : phase1;
     }
 
+    // Checks whether the boss body collider is touching the player.
     private bool IsTouchingPlayerBody()
     {
         if (_bossBodyCollider == null || _playerBodyCollider == null)
@@ -862,6 +891,7 @@ public class FinalBossController : MonoBehaviour
         return distance.isOverlapped || distance.distance <= 0.01f;
     }
 
+    // Finds the main solid collider used for boss body checks.
     private static Collider2D GetPrimarySolidCollider(Collider2D[] colliders)
     {
         if (colliders == null || colliders.Length == 0)
@@ -881,6 +911,7 @@ public class FinalBossController : MonoBehaviour
         return null;
     }
 
+    // Checks whether the player is within the phase-one detection radius.
     private bool IsPlayerInPhase1DetectionCircle()
     {
         if (_playerTransform == null)
@@ -892,6 +923,7 @@ public class FinalBossController : MonoBehaviour
         return Vector2.Distance(transform.position, _playerTransform.position) <= radius;
     }
 
+    // Returns the boss invulnerability duration after being hit.
     private float GetHitInvulnerableDuration()
     {
         float baseDuration = Mathf.Max(0f, postHitInvulnerableDuration);
@@ -910,6 +942,7 @@ public class FinalBossController : MonoBehaviour
         return baseDuration;
     }
 
+    // Randomizes how many hits occur before the next immune display.
     private int RollNextImmuneShowCount()
     {
         int nearMin = Mathf.Max(1, immuneShowEveryMinActions);
@@ -931,6 +964,7 @@ public class FinalBossController : MonoBehaviour
         return Random.Range(farMin, farMax + 1);
     }
 
+    // Draws editor gizmos for boss targeting and attack ranges.
     private void OnDrawGizmos()
     {
         if (_phase != BossPhase.Phase1)

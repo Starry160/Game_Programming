@@ -19,7 +19,7 @@ public static class EnemyPhysicsSetup
 
         if (playerLayer < 0 || enemyLayer < 0 || enemySensorLayer < 0)
         {
-            Debug.LogError("[EnemyPhysicsSetup] Layer 创建失败。请检查 TagManager.asset 是否可写。");
+            Debug.LogError("[EnemyPhysicsSetup] Layer creation failed. Check whether TagManager.asset is writable.");
             return;
         }
 
@@ -32,7 +32,7 @@ public static class EnemyPhysicsSetup
         AssetDatabase.Refresh();
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 
-        Debug.Log("[EnemyPhysicsSetup] 配置完成：Layer、碰撞矩阵、Enemy 传感器已自动装配。");
+        Debug.Log("[EnemyPhysicsSetup] Setup complete: layers, collision matrix, and enemy sensors configured.");
     }
 
     private static int EnsureLayer(string layerName)
@@ -50,7 +50,6 @@ public static class EnemyPhysicsSetup
             return -1;
         }
 
-        // Unity 自定义 layer 槽常见可用区间 [8, 31]
         for (int i = 8; i <= 31; i++)
         {
             SerializedProperty slot = layersProp.GetArrayElementAtIndex(i);
@@ -68,22 +67,18 @@ public static class EnemyPhysicsSetup
             }
         }
 
-        Debug.LogError($"[EnemyPhysicsSetup] 没有空闲 Layer 槽位可用于 {layerName}。");
+        Debug.LogError($"[EnemyPhysicsSetup] No free layer slot is available for {layerName}.");
         return -1;
     }
 
     private static void ConfigureCollisionMatrix(int playerLayer, int enemyLayer, int enemySensorLayer)
     {
-        // 核心：Enemy 与 Enemy 关闭物理碰撞，避免卡位排队。
         Physics2D.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
 
-        // Enemy 与 Player 保持可碰撞（能贴脸攻击 / 挡住玩家）。
         Physics2D.IgnoreLayerCollision(enemyLayer, playerLayer, false);
 
-        // Enemy 与默认层（墙/障碍通常在 Default）保持可碰撞。
         Physics2D.IgnoreLayerCollision(enemyLayer, 0, false);
 
-        // Sensor 只跟 Sensor 交互，其余全部忽略。
         for (int i = 0; i < 32; i++)
         {
             bool shouldIgnore = i != enemySensorLayer;
@@ -131,7 +126,7 @@ public static class EnemyPhysicsSetup
             Collider2D mainCollider = enemy.GetComponent<Collider2D>();
             if (rb == null || mainCollider == null)
             {
-                Debug.LogWarning($"[EnemyPhysicsSetup] 跳过 {enemy.name}：缺少 Rigidbody2D 或 Collider2D。");
+                Debug.LogWarning($"[EnemyPhysicsSetup] Skipping {enemy.name}: missing Rigidbody2D or Collider2D.");
                 continue;
             }
 

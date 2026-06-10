@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Final Boss 激光体：跟随发射点，按 tick 对玩家持续造成伤害，持续时间结束后回收。
+/// Runs the boss laser beam, follows its emitter, and applies tick damage.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class FinalBossLaserBeam : MonoBehaviour
@@ -32,6 +32,7 @@ public class FinalBossLaserBeam : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private BoxCollider2D _damageCollider;
 
+    // Captures laser renderers, colliders, and default sizes for beam telegraphs.
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -39,6 +40,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         SyncDamageColliderShape();
     }
 
+    // Resets the beam to its inactive visual state when reused.
     private void OnEnable()
     {
         _elapsed = 0f;
@@ -48,6 +50,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         SetDamageColliderEnabled(false);
     }
 
+    // Updates camera or visual follow logic after normal Update movement.
     private void LateUpdate()
     {
         if (!_active)
@@ -78,6 +81,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         }
     }
 
+    // Activates the pooled projectile with direction, owner, and damage settings.
     public void Activate(
         FinalBossLaserLauncher owner,
         Transform origin,
@@ -113,6 +117,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         }
     }
 
+    // Applies laser tick damage while the player remains inside the damage collider.
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!_active || other == null)
@@ -144,6 +149,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         }
     }
 
+    // Disables this pooled projectile and notifies its owner pool.
     public void ReturnToPool()
     {
         _active = false;
@@ -157,6 +163,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    // Calculates the laser position aligned to its emitter and facing.
     private Vector3 ComputeAlignedPosition()
     {
         Quaternion offsetRotation = ResolveOffsetRotation();
@@ -173,6 +180,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         return basePosition + transform.right * worldShift;
     }
 
+    // Finds the world-space origin used by the active laser beam.
     private Vector3 ResolveOriginPosition()
     {
         if (_origin == null)
@@ -192,6 +200,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         return _origin.position;
     }
 
+    // Calculates the rotation applied to directional laser offsets.
     private Quaternion ResolveOffsetRotation()
     {
         if (_origin == null)
@@ -207,6 +216,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         return _origin.rotation;
     }
 
+    // Draws the laser beam length and aim direction in the Scene view.
     private void OnDrawGizmosSelected()
     {
         if (!_showDamageGizmo)
@@ -227,6 +237,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         Gizmos.matrix = oldMatrix;
     }
 
+    // Keeps editor-time references and collider setup consistent.
     private void OnValidate()
     {
         _damageBoxSize.x = Mathf.Max(0.01f, _damageBoxSize.x);
@@ -234,6 +245,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         SyncDamageColliderShape();
     }
 
+    // Finds the collider that applies laser damage.
     private BoxCollider2D GetDamageCollider()
     {
         if (_damageCollider == null)
@@ -244,6 +256,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         return _damageCollider;
     }
 
+    // Matches the damage collider size to the visible laser beam.
     private void SyncDamageColliderShape()
     {
         BoxCollider2D box = GetDamageCollider();
@@ -257,10 +270,9 @@ public class FinalBossLaserBeam : MonoBehaviour
         box.size = _damageBoxSize;
     }
 
+    // Returns the damage collider offset for the current facing direction.
     private Vector2 GetDirectionalDamageOffset()
     {
-        // z=180° 时局部 Y 轴也会翻转；为保证左右发射在世界空间上下对齐一致，
-        // 左向时对 offset.y 做反向补偿。
         if (IsFacingLeft())
         {
             return new Vector2(_damageBoxOffset.x, -_damageBoxOffset.y);
@@ -269,6 +281,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         return _damageBoxOffset;
     }
 
+    // Returns whether the laser emitter is facing left.
     private bool IsFacingLeft()
     {
         Vector3 dir;
@@ -288,6 +301,7 @@ public class FinalBossLaserBeam : MonoBehaviour
         return dir.x < 0f;
     }
 
+    // Enables or disables the laser damage collider.
     private void SetDamageColliderEnabled(bool enabled)
     {
         BoxCollider2D box = GetDamageCollider();

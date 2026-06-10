@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>护盾药水：提升护盾上限并填满增量。</summary>
+/// <summary>Increases max shield, fills the shield gain, and shows pickup feedback.</summary>
 public class ShieldPotionItem : ChestDropItem
 {
     [Header("Shield Potion Effect")]
@@ -23,7 +23,7 @@ public class ShieldPotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.7f;
     [SerializeField] private int popupSortingOrder = 200;
 
-    // 拾取：IncreaseMaxShieldAndFill + 飘字 + 音效。
+    // Applies the pickup effect before destroying the reward object.
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -36,11 +36,11 @@ public class ShieldPotionItem : ChestDropItem
         {
             playerStats.IncreaseMaxShieldAndFill(shieldIncreaseAmount);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[ShieldPotionItem] {name} 被玩家拾取，护盾上限与当前护盾 +{shieldIncreaseAmount}。");
+            Debug.Log($"[ShieldPotionItem] {name} picked up. Max and current shield +{shieldIncreaseAmount}.");
         }
         else
         {
-            Debug.LogWarning($"[ShieldPotionItem] {name} 被拾取，但未找到 PlayerStats。");
+            Debug.LogWarning($"[ShieldPotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();
@@ -53,7 +53,7 @@ public class ShieldPotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
-    // 播放拾取音效。
+    // Plays the pickup sound at the collected item position.
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -64,7 +64,7 @@ public class ShieldPotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
-    // 创建护盾飘字。
+    // Creates floating pickup text to show the reward effect.
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("ShieldPotionPopup");

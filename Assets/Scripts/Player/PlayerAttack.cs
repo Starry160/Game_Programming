@@ -2,93 +2,92 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>玩家攻击：按当前武器执行剑/杖/弓攻击与伤害判定。</summary>
+/// <summary>Dispatches sword, staff, and bow attacks based on the selected class weapon.</summary>
 public class PlayerAttack : MonoBehaviour
 {
-    // 武器索引常量，与 GlobalData.chosenWeaponIndex 以及各祭坛的 weaponIndex 对齐。
     private const int WEAPON_SWORD = 0;
     private const int WEAPON_STAFF = 1;
     private const int WEAPON_BOW = 2;
 
     [Header("References")]
-    [Tooltip("武器轴心 Transform，代码会旋转/平移它来驱动各职业的攻击动作。")]
+    [Tooltip("Weapon pivot rotated and moved by attack animations.")]
     public Transform weaponPivot;
 
-    [Tooltip("伤害判定的中心点（通常放在剑刃前方的空物体）。")]
+    [Tooltip("Center point used for melee damage checks.")]
     public Transform attackPoint;
 
     [Header("Audio")]
-    [Tooltip("用于播放攻击音效的 AudioSource（通常挂在主角身上）。")]
+    [Tooltip("AudioSource used for attack sound effects.")]
     public AudioSource audioSource;
 
-    [Tooltip("大剑挥击音效。")]
+    [Tooltip("Sound effect played by the sword attack.")]
     public AudioClip swordSfx;
 
-    [Tooltip("法杖开火音效。")]
+    [Tooltip("Sound effect played by the staff attack.")]
     public AudioClip staffSfx;
 
-    [Tooltip("弓箭射击音效。")]
+    [Tooltip("Sound effect played by the bow attack.")]
     public AudioClip bowSfx;
 
-    [Header("Sword (骑士大剑)")]
-    [Tooltip("大剑挥砍总时长（前半段劈下 + 后半段收剑）。")]
+    [Header("Settings")]
+    [Tooltip("Total duration of the sword swing.")]
     public float swordSwingDuration = 0.2f;
 
-    [Tooltip("大剑挥砍到达的目标角度（度，负值向下劈砍）。")]
+    [Tooltip("Target sword swing angle in degrees.")]
     public float swordSwingAngle = -120f;
 
-    [Header("Staff (法师法杖)")]
-    [Tooltip("法杖小幅挥动的总时长。")]
+    [Header("Settings")]
+    [Tooltip("Total duration of the staff swing.")]
     public float staffSwingDuration = 0.1f;
 
-    [Tooltip("法杖小幅挥动的目标角度（度），通常 20~30 度即可。")]
+    [Tooltip("Target staff swing angle in degrees.")]
     public float staffSwingAngle = 25f;
 
-    [Tooltip("法师发射的火球预制体（需挂载 Projectile 脚本 + 勾选 Is Trigger 的 2D 碰撞器）。")]
+    [Tooltip("Fireball prefab fired by the Mage staff.")]
     public GameObject fireballPrefab;
 
-    [Tooltip("法杖的火球发射点 Transform（通常放在法杖尖端）。")]
+    [Tooltip("Transform used as the staff projectile spawn point.")]
     public Transform staffFirePoint;
 
-    [Header("Bow (弓箭手弓)")]
-    [Tooltip("弓的拉弓/复位总时长。")]
+    [Header("Settings")]
+    [Tooltip("Total duration of the bow recoil animation.")]
     public float bowRecoilDuration = 0.1f;
 
-    [Tooltip("弓拉弓时向角色后方平移的距离（本地空间 X 负方向），越大后坐力越明显。")]
+    [Tooltip("Local recoil distance applied when drawing the bow.")]
     public float bowRecoilDistance = 0.15f;
 
-    [Tooltip("弓箭手发射的箭矢预制体（需挂 Projectile 脚本 + 勾选 Is Trigger 的 2D 碰撞器）。")]
+    [Tooltip("Arrow prefab fired by the Archer bow.")]
     public GameObject arrowPrefab;
 
-    [Tooltip("弓的箭矢发射点 Transform（通常放在弓的箭槽处）。")]
+    [Tooltip("Transform used as the arrow spawn point.")]
     public Transform bowFirePoint;
 
     [Header("Cooldown")]
-    [Tooltip("两次攻击之间的冷却时间（秒），所有武器共用。")]
+    [Tooltip("Cooldown time between attacks in seconds.")]
     public float attackCooldown = 0.2f;
 
     [Header("Damage")]
-    [Tooltip("伤害判定扇形的半径（米）。")]
+    [Tooltip("Radius of the melee damage sector.")]
     public float attackRange = 0.8f;
 
-    [Tooltip("伤害判定扇形的总张角（度），例如 90 表示身前一个直角扇形。")]
+    [Tooltip("Total angle of the melee damage sector in degrees.")]
     public float attackAngle = 90f;
 
-    [Tooltip("只检测这些图层上的碰撞体（例如 Enemy），避免误伤自己或环境。")]
+    [Tooltip("Layers included in melee damage checks.")]
     public LayerMask enemyLayers;
 
-    [Tooltip("大剑每次近战造成的伤害值。")]
+    [Tooltip("Damage dealt by each sword melee hit.")]
     public int attackDamage = 15;
-    [Tooltip("对 Final Boss 的近战单次伤害（按心值设计，默认 1 点）。")]
+    [Tooltip("Melee damage dealt to the final boss per hit.")]
     public float bossMeleeDamagePerHit = 1f;
-    [Tooltip("法师火球每发造成的伤害值。")]
+    [Tooltip("Damage dealt by each fireball.")]
     public float fireballDamage = 20f;
-    [Tooltip("弓箭每发造成的伤害值。")]
+    [Tooltip("Damage dealt by each arrow.")]
     public float arrowDamage = 10f;
 
     private bool isAttacking = false;
 
-    // 自动补齐攻击音源：优先 Inspector 引用，其次当前物体组件，最后运行时自动添加。
+    // Ensures attack sounds have an AudioSource configured for all weapon types.
     private void Awake()
     {
         if (audioSource == null)
@@ -106,7 +105,7 @@ public class PlayerAttack : MonoBehaviour
         audioSource.loop = false;
     }
 
-    // 左键按下时按 GlobalData.chosenWeaponIndex 分发攻击协程。
+    // Starts the selected weapon attack when the player clicks and is off cooldown.
     private void Update()
     {
         if (isAttacking)
@@ -119,7 +118,7 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        // 根据跨场景记录的职业索引，分发到对应武器的攻击协程。
+        // Weapon index comes from the class selection flow, so each class maps to one attack coroutine.
         switch (GlobalData.chosenWeaponIndex)
         {
             case WEAPON_SWORD:
@@ -132,13 +131,12 @@ public class PlayerAttack : MonoBehaviour
                 StartCoroutine(BowAttack());
                 break;
             default:
-                // 未选择职业（-1）或未知索引时，默认用骑士大剑作为兜底表现。
                 StartCoroutine(SwordAttack());
                 break;
         }
     }
 
-    // 大剑挥砍：旋转武器 + 扇形近战伤害。
+    // Runs the sword swing and melee damage check.
     private IEnumerator SwordAttack()
     {
         isAttacking = true;
@@ -150,27 +148,24 @@ public class PlayerAttack : MonoBehaviour
             yield break;
         }
 
-        // 使用固定常量作为初始旋转，避免每次读取 localRotation 导致累积浮点误差，
-        // 造成多次挥剑后武器逐渐"下垂"的漂移 Bug。
         Quaternion defaultRotation = Quaternion.Euler(0f, 0f, 0f);
         Quaternion targetRotation = Quaternion.Euler(0f, 0f, swordSwingAngle);
         float halfDuration = Mathf.Max(0.0001f, swordSwingDuration * 0.5f);
 
-        // 劈下瞬间触发扇形近战伤害判定。
+        // Sword damage happens at the start of the swing so the visual follows the hit immediately.
         PerformDamage();
         PlayAttackSfx(swordSfx);
 
         yield return LerpRotation(defaultRotation, targetRotation, halfDuration);
         yield return LerpRotation(targetRotation, defaultRotation, halfDuration);
 
-        // 强制归位：无论 Lerp 结束时是否有帧误差，这一行都会把武器精确拉回默认角度。
         weaponPivot.localRotation = defaultRotation;
 
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
     }
 
-    // 法杖小幅挥动并发射火球。
+    // Runs the staff swing and fires a magic projectile.
     private IEnumerator StaffAttack()
     {
         isAttacking = true;
@@ -186,7 +181,7 @@ public class PlayerAttack : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(0f, 0f, staffSwingAngle);
         float halfDuration = Mathf.Max(0.0001f, staffSwingDuration * 0.5f);
 
-        // 挥动瞬间留出一个极短的"蓄力"间隔，再发射火球，手感更有节奏。
+        // Delay the projectile slightly so the fireball appears during the staff motion.
         yield return new WaitForSeconds(0.05f);
         SpawnFireball();
         PlayAttackSfx(staffSfx);
@@ -198,7 +193,7 @@ public class PlayerAttack : MonoBehaviour
         isAttacking = false;
     }
 
-    // 弓拉弦后坐并发射箭矢。
+    // Runs bow recoil and fires an arrow projectile.
     private IEnumerator BowAttack()
     {
         isAttacking = true;
@@ -211,11 +206,10 @@ public class PlayerAttack : MonoBehaviour
         }
 
         Vector3 startPosition = weaponPivot.localPosition;
-        // 本地空间沿 -X 平移模拟向后拉弓，Player 翻转时会自动跟随。
         Vector3 recoilPosition = startPosition + new Vector3(-bowRecoilDistance, 0f, 0f);
         float halfDuration = Mathf.Max(0.0001f, bowRecoilDuration * 0.5f);
 
-        // 拉弓瞬间发射箭矢，复用与火球相同的精确瞄准逻辑。
+        // Bow attack fires first, then uses a short local-position recoil for feedback.
         SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, "Arrow", arrowDamage);
         PlayAttackSfx(bowSfx);
 
@@ -226,13 +220,13 @@ public class PlayerAttack : MonoBehaviour
         isAttacking = false;
     }
 
-    // 在法杖发射点生成朝向鼠标的火球。
+    // Spawns the mage fireball from the staff fire point.
     private void SpawnFireball()
     {
         SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball", fireballDamage);
     }
 
-    // 播放攻击音效（随机音高）。
+    // Plays an attack sound with slight pitch variation.
     private void PlayAttackSfx(AudioClip clip)
     {
         if (audioSource == null || clip == null)
@@ -240,41 +234,37 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        // 让音高在一个小范围内随机波动，减少重复播放时的机械感。
         audioSource.pitch = Random.Range(0.9f, 1.1f);
         audioSource.PlayOneShot(clip);
     }
 
-    // 实例化投射物并朝向鼠标世界坐标旋转。
+    // Spawns and aims a projectile toward the mouse world position.
     private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName, float projectileDamage)
     {
-        // 安全检查：预制体或发射点缺失时打印警告，避免运行时静默失效或空引用异常。
         if (prefab == null)
         {
-            Debug.LogWarning($"[PlayerAttack] {debugName} 预制体未配置，无法发射。", this);
+            Debug.LogWarning($"[PlayerAttack] {debugName} prefab is not configured, so it cannot be fired.", this);
             return;
         }
 
         if (spawnPoint == null)
         {
-            Debug.LogWarning($"[PlayerAttack] {debugName} 的发射点 Transform 未配置，无法发射。", this);
+            Debug.LogWarning($"[PlayerAttack] {debugName} prefab is not configured, so it cannot be fired.", this);
             return;
         }
 
-        // 精确瞄准鼠标位置：基于鼠标世界坐标与发射点的向量，做 360° 角度换算。
         Camera mainCamera = Camera.main;
         if (mainCamera == null || Mouse.current == null)
         {
             return;
         }
 
-        // 修复 ScreenToWorldPoint 丢失 Z 深度的经典 Bug：
-        // 必须显式传入相机与发射点平面之间的距离，否则结果会坍缩到相机位置。
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         float distanceToCamera = Mathf.Abs(mainCamera.transform.position.z - spawnPoint.position.z);
         Vector3 screenPosWithZ = new Vector3(mouseScreenPos.x, mouseScreenPos.y, distanceToCamera);
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(screenPosWithZ);
 
+        // Aim angle is calculated from spawn point to mouse world position before instantiating.
         Vector2 aimDir = (Vector2)(mouseWorldPos - spawnPoint.position);
         float angle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg;
 
@@ -286,7 +276,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    // 武器 pivot 旋转插值。
+    // Interpolates weapon rotation over a short attack window.
     private IEnumerator LerpRotation(Quaternion from, Quaternion to, float duration)
     {
         float elapsed = 0f;
@@ -300,7 +290,7 @@ public class PlayerAttack : MonoBehaviour
         weaponPivot.localRotation = to;
     }
 
-    // 武器 pivot 位移插值（弓后坐）。
+    // Interpolates weapon local position for bow recoil.
     private IEnumerator LerpPosition(Vector3 from, Vector3 to, float duration)
     {
         float elapsed = 0f;
@@ -314,7 +304,7 @@ public class PlayerAttack : MonoBehaviour
         weaponPivot.localPosition = to;
     }
 
-    // 扇形范围内对敌人造成伤害（优先 EnemyHealth）。
+    // Applies melee damage to enemies inside the attack sector.
     private void PerformDamage()
     {
         if (attackPoint == null)
@@ -322,16 +312,15 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        // 先用圆形范围粗筛，再按扇形张角精筛。
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(
             attackPoint.position,
             attackRange,
             enemyLayers);
 
-        // 角色朝向：由 PlayerFacing 通过 localScale.x 的正负号控制。
         Vector2 facingDir = transform.localScale.x > 0f ? Vector2.right : Vector2.left;
         float halfAngle = attackAngle * 0.5f;
 
+        // Only targets inside the forward-facing attack cone should receive melee damage.
         for (int i = 0; i < hitEnemies.Length; i++)
         {
             Collider2D enemy = hitEnemies[i];
@@ -345,6 +334,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (angle <= halfAngle)
             {
+                // Boss damage uses its own controller, while normal enemies use health or legacy AI.
                 FinalBossController bossController = enemy.GetComponent<FinalBossController>();
                 if (bossController == null)
                 {
@@ -381,14 +371,14 @@ public class PlayerAttack : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogWarning($"[PlayerAttack] 扇形命中 {enemy.name}，但未找到 EnemyHealth/EnemyAI。", enemy);
+                        Debug.LogWarning($"[PlayerAttack] Sector hit {enemy.name}, but EnemyHealth/EnemyAI was not found.", enemy);
                     }
                 }
             }
         }
     }
 
-    // 编辑器中绘制近战扇形范围 Gizmo。
+    // Draws the sword melee radius and attack cone in the Scene view.
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null)
@@ -398,10 +388,8 @@ public class PlayerAttack : MonoBehaviour
 
         Gizmos.color = Color.red;
 
-        // 外围参考圆：直观表示扇形的半径。
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
 
-        // 根据当前朝向（localScale.x 正负号）绘制扇形的上下两条边界线，构成披萨饼的切口。
         Vector3 facingDir = transform.localScale.x > 0f ? Vector3.right : Vector3.left;
         Vector3 upperLine = Quaternion.Euler(0f, 0f, attackAngle / 2f) * facingDir * attackRange;
         Vector3 lowerLine = Quaternion.Euler(0f, 0f, -attackAngle / 2f) * facingDir * attackRange;

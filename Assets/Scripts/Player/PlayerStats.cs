@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 
-/// <summary>玩家生命/护盾、受击无敌、药水增益与 HUD 同步。</summary>
+/// <summary>Manages player health, shield, invincibility, potion effects, and HUD updates.</summary>
 public class PlayerStats : MonoBehaviour
 {
     [Header("Health")]
@@ -17,9 +17,9 @@ public class PlayerStats : MonoBehaviour
     [Header("Shield")]
     public float maxShield = 50f;
     public float currentShield;
-    [Tooltip("受到伤害后，至少经过这段时间未再受伤，护盾才会开始恢复。")]
+    [Tooltip("Delay after taking damage before shield regeneration starts.")]
     public float shieldRegenDelay = 3f;
-    [Tooltip("护盾每次恢复 1 点之间的时间间隔。")]
+    [Tooltip("Time between each shield regeneration tick.")]
     public float shieldRegenInterval = 5f;
 
     [Header("UI References")]
@@ -28,28 +28,28 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI shieldText;
     [Header("Debug Safety")]
-    [Tooltip("调试期：受击后短时间内检测异常坐标跳变，并打印日志。")]
+    [Tooltip("Debug guard that detects abnormal movement after taking damage.")]
     public bool enablePostHitTeleportGuard = false;
-    [Tooltip("判定为异常重置的最小位移距离。")]
+    [Tooltip("Minimum movement distance treated as abnormal after a hit.")]
     public float teleportDistanceThreshold = 6f;
-    [Tooltip("受击后监控异常位移的时间窗口。")]
+    [Tooltip("Time window for detecting abnormal movement after a hit.")]
     public float teleportDetectWindow = 0.8f;
-    [Tooltip("检测到异常位移时是否强制拉回受击前位置。")]
+    [Tooltip("Restore the pre-hit position when abnormal movement is detected.")]
     public bool restoreOnTeleportDetected = true;
     [Header("Invincibility VFX")]
-    [Tooltip("临时无敌期间是否启用金色闪烁效果。")]
+    [Tooltip("Enable gold flashing during temporary invincibility.")]
     public bool enableGoldInvincibilityFlash = true;
-    [Tooltip("无敌闪烁时的金色。")]
+    [Tooltip("Gold flash color used during temporary invincibility.")]
     public Color invincibleFlashColor = new Color(1f, 0.85f, 0.2f, 0.85f);
-    [Tooltip("无敌闪烁切换间隔（秒）。")]
+    [Tooltip("Flash interval used during temporary invincibility.")]
     public float invincibleFlashInterval = 0.08f;
-    [Tooltip("临时无敌期间是否启用轻微缩放呼吸效果。")]
+    [Tooltip("Enable slight scale pulsing during temporary invincibility.")]
     public bool enableInvincibleScalePulse = true;
-    [Tooltip("无敌缩放呼吸最小倍率（相对基础缩放）。")]
+    [Tooltip("Minimum scale multiplier during invincibility pulsing.")]
     public float invincibleScaleMin = 1f;
-    [Tooltip("无敌缩放呼吸最大倍率（相对基础缩放）。")]
+    [Tooltip("Maximum scale multiplier during invincibility pulsing.")]
     public float invincibleScaleMax = 1.05f;
-    [Tooltip("无敌缩放呼吸频率（每秒循环次数）。")]
+    [Tooltip("Scale pulse frequency during temporary invincibility.")]
     public float invincibleScaleFrequency = 1f;
 
     private float nextShieldRegenTime;
@@ -63,19 +63,19 @@ public class PlayerStats : MonoBehaviour
     private Coroutine _showGameOverCoroutine;
     private GameOverPanel _gameOverPanel;
 
-    // 订阅场景加载以重新绑定 UI。
+    // Watches scene loads so HUD references can be rebound after transitions.
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    // 取消场景加载订阅。
+    // Stops watching scene loads while the player stats component is disabled.
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // 从 GlobalData 恢复生命/护盾并初始化 UI。
+    // Restores persistent health data and prepares HUD, shield, and hit feedback state.
     private void Start()
     {
         TryAutoBindUIReferences();
@@ -96,6 +96,7 @@ public class PlayerStats : MonoBehaviour
 
         if (GlobalData.hasPersistedMaxHealth)
         {
+            // Max health persists across scene transitions and class room changes.
             maxHealth = Mathf.Max(1f, GlobalData.persistedMaxHealth);
         }
         else
@@ -116,6 +117,7 @@ public class PlayerStats : MonoBehaviour
 
         if (GlobalData.hasPersistedHealth)
         {
+            // Current health is clamped in case max health changed before this scene loaded.
             currentHealth = Mathf.Clamp(GlobalData.persistedHealth, 0f, maxHealth);
         }
         else
@@ -130,20 +132,20 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
-    // 切场景后重新查找 HUD 引用。
+    // Rebinds HUD and result panel references after scene changes.
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         TryAutoBindUIReferences();
         UpdateUI();
     }
 
-    // 每帧处理护盾自动恢复。
+    // Runs shield regeneration timing while the player is alive.
     private void Update()
     {
         HandleShieldRegeneration();
     }
 
-    // 受伤冷却后按间隔恢复护盾。
+    // Regenerates shield after the player has avoided damage long enough.
     private void HandleShieldRegeneration()
     {
         if (currentShield >= maxShield)
@@ -151,6 +153,7 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
+        // Shield only starts regenerating after the post-hit delay has elapsed.
         if (Time.time < nextShieldRegenTime)
         {
             return;
@@ -161,7 +164,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
-    // 刷新血条/盾条填充与数值文本。
+    // Synchronizes health and shield bars with the current stat values.
     public void UpdateUI()
     {
         if (healthText == null || shieldText == null || healthFillImage == null || shieldFillImage == null)
@@ -190,7 +193,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // 按路径或名称自动查找 HUD 组件。
+    // Finds health and shield HUD references by scene hierarchy or name.
     private void TryAutoBindUIReferences()
     {
         if (healthText == null)
@@ -246,7 +249,6 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // 在场景中按 GameObject 名称查找激活的组件。
     private T FindActiveComponentByName<T>(string objectName) where T : Component
     {
         T[] components = FindObjectsOfType<T>(true);
@@ -274,7 +276,7 @@ public class PlayerStats : MonoBehaviour
         return null;
     }
 
-    // 受到伤害：先扣护盾再扣血，触发无敌与受击反馈。
+    // Consumes shield first, then health, and starts hit feedback and invulnerability.
     public void TakeDamage(float amount)
     {
         if (_isDead)
@@ -306,16 +308,15 @@ public class PlayerStats : MonoBehaviour
             feedback.PlayFeedback();
         }
 
-        // 任何受伤都会打断护盾恢复计时，重新等待 shieldRegenDelay（可在 Inspector 调整）。
         nextShieldRegenTime = Time.time + shieldRegenDelay;
 
-        // 优先扣除护盾；仅当护盾不足时，剩余伤害才会扣生命值。
+        // Shield absorbs incoming damage first; any overflow is passed to health.
         if (currentShield > 0f)
         {
             if (amount <= currentShield)
             {
                 currentShield -= amount;
-                Debug.Log("玩家受击，当前血量：" + currentHealth);
+                Debug.Log("Player took damage. Current health: " + currentHealth);
                 UpdateUI();
                 StartInvulnerability();
                 return;
@@ -327,10 +328,11 @@ public class PlayerStats : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         GlobalData.persistedHealth = currentHealth;
-        Debug.Log("玩家受击，当前血量：" + currentHealth);
+        Debug.Log("Player took damage. Current health: " + currentHealth);
 
         UpdateUI();
 
+        // Death flow is triggered immediately once health reaches zero.
         if (currentHealth <= 0f)
         {
             currentHealth = 0f;
@@ -343,7 +345,7 @@ public class PlayerStats : MonoBehaviour
         StartInvulnerability();
     }
 
-    // 真实伤害：无视护盾，直接扣除生命值（用于激光等穿透护盾的伤害）。
+    // Applies direct health damage that bypasses shield protection.
     public void TakeTrueDamage(float amount)
     {
         if (_isDead)
@@ -372,12 +374,11 @@ public class PlayerStats : MonoBehaviour
             feedback.PlayFeedback();
         }
 
-        // 真实伤害同样打断护盾恢复计时，但不会扣减护盾值。
         nextShieldRegenTime = Time.time + shieldRegenDelay;
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         GlobalData.persistedHealth = currentHealth;
-        Debug.Log("玩家受到真实伤害，当前血量：" + currentHealth);
+        Debug.Log("Player took damage. Current health: " + currentHealth);
 
         UpdateUI();
 
@@ -393,7 +394,7 @@ public class PlayerStats : MonoBehaviour
         StartInvulnerability();
     }
 
-    // 治疗并同步 GlobalData 与 UI。
+    // Restores player health without exceeding max health.
     public void Heal(float amount)
     {
         if (_isDead)
@@ -411,7 +412,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
-    // 授予临时无敌（金闪 + 缩放呼吸，不覆盖朝向符号）。
+    // Starts the potion invincibility effect without overwriting player facing.
     public void GrantTemporaryInvincibility(float duration)
     {
         if (_isDead)
@@ -436,10 +437,11 @@ public class PlayerStats : MonoBehaviour
             StopCoroutine(temporaryInvincibilityCoroutine);
         }
 
+        // Potion invincibility replaces the normal post-hit invulnerability visual effect.
         temporaryInvincibilityCoroutine = StartCoroutine(TemporaryInvincibilityRoutine(duration));
     }
 
-    // 生命药水：提升上限并回复等量生命。
+    // Raises max health and heals by the same amount.
     public void IncreaseMaxHealthAndHeal(float amount)
     {
         if (_isDead)
@@ -463,7 +465,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
-    // 护盾药水：提升护盾上限并填满增量。
+    // Raises max shield and fills the gained shield amount.
     public void IncreaseMaxShieldAndFill(float amount)
     {
         if (_isDead)
@@ -485,7 +487,7 @@ public class PlayerStats : MonoBehaviour
         UpdateUI();
     }
 
-    // 启动受击后短暂红闪无敌。
+    // Starts short post-hit invulnerability and red flash feedback.
     private void StartInvulnerability()
     {
         if (invulnerabilityCoroutine != null)
@@ -496,7 +498,7 @@ public class PlayerStats : MonoBehaviour
         invulnerabilityCoroutine = StartCoroutine(InvulnerabilityRoutine());
     }
 
-    // 受击无敌协程：红白闪烁。
+    // Runs red flash feedback during post-hit invulnerability.
     private IEnumerator InvulnerabilityRoutine()
     {
         isInvulnerable = true;
@@ -530,7 +532,7 @@ public class PlayerStats : MonoBehaviour
         invulnerabilityCoroutine = null;
     }
 
-    // 药水无敌协程：金闪 + 缩放脉冲。
+    // Runs gold flash and scale pulse during potion invincibility.
     private IEnumerator TemporaryInvincibilityRoutine(float duration)
     {
         isTemporarilyInvincible = true;
@@ -547,6 +549,7 @@ public class PlayerStats : MonoBehaviour
         float maxScale = Mathf.Max(minScale, Mathf.Max(invincibleScaleMin, invincibleScaleMax));
         float scaleFreq = Mathf.Max(0.01f, invincibleScaleFrequency);
 
+        // Keep the original color as the base so the flash restores cleanly after each pulse.
         if (spriteRenderer != null)
         {
             spriteRenderer.color = originalColor;
@@ -570,6 +573,7 @@ public class PlayerStats : MonoBehaviour
 
             if (enableInvincibleScalePulse && visualTarget != null)
             {
+                // Preserve facing sign while pulsing scale, otherwise invincibility could flip the sprite.
                 float wave = (Mathf.Sin(timer * (Mathf.PI * 2f) * scaleFreq) + 1f) * 0.5f;
                 float scaleMul = Mathf.Lerp(minScale, maxScale, wave);
                 float facingSignX = Mathf.Sign(visualTarget.localScale.x);
@@ -609,6 +613,7 @@ public class PlayerStats : MonoBehaviour
         temporaryInvincibilityCoroutine = null;
     }
 
+    // Stops player control and prepares the delayed game-over result panel.
     private void HandlePlayerDeath()
     {
         if (_isDead)
@@ -620,6 +625,7 @@ public class PlayerStats : MonoBehaviour
         isInvulnerable = false;
         isTemporarilyInvincible = false;
 
+        // Stop every active protection coroutine so the death state cannot be overwritten later.
         if (invulnerabilityCoroutine != null)
         {
             StopCoroutine(invulnerabilityCoroutine);
@@ -646,6 +652,7 @@ public class PlayerStats : MonoBehaviour
         _showGameOverCoroutine = StartCoroutine(ShowGameOverAfterDelay());
     }
 
+    // Disables player movement and attack scripts during the ending flow.
     private void DisablePlayerControl()
     {
         PlayerController controller = GetComponent<PlayerController>();
@@ -668,6 +675,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // Waits briefly before showing the game-over result panel.
     private IEnumerator ShowGameOverAfterDelay()
     {
         yield return new WaitForSeconds(1.5f);
@@ -685,7 +693,7 @@ public class PlayerStats : MonoBehaviour
         _showGameOverCoroutine = null;
     }
 
-    // 调试：受击后监测异常位移。
+    // Starts debug monitoring for abnormal movement after damage.
     private void StartPostHitTeleportGuard(Vector3 preHitPosition, string preHitScene)
     {
         if (!enablePostHitTeleportGuard)
@@ -696,7 +704,7 @@ public class PlayerStats : MonoBehaviour
         StartCoroutine(PostHitTeleportGuardRoutine(preHitPosition, preHitScene));
     }
 
-    // 调试协程：超阈值则拉回受击前位置。
+    // Detects and optionally restores suspicious post-hit movement.
     private IEnumerator PostHitTeleportGuardRoutine(Vector3 preHitPosition, string preHitScene)
     {
         float timer = 0f;
@@ -709,7 +717,7 @@ public class PlayerStats : MonoBehaviour
             string currentScene = SceneManager.GetActiveScene().name;
             if (!string.Equals(currentScene, preHitScene, StringComparison.Ordinal))
             {
-                Debug.LogWarning($"[HitTeleportGuard] 受击后场景发生变化: {preHitScene} -> {currentScene}");
+                Debug.LogWarning($"[HitTeleportGuard] Scene changed after hit: {preHitScene} -> {currentScene}");
                 yield break;
             }
 
@@ -717,7 +725,7 @@ public class PlayerStats : MonoBehaviour
             if (movedDistance >= teleportDistanceThreshold)
             {
                 Debug.LogWarning(
-                    $"[HitTeleportGuard] 检测到受击后异常位移，before={preHitPosition}, after={transform.position}, dist={movedDistance:F2}");
+                    $"[HitTeleportGuard] Abnormal movement after hit detected, before={preHitPosition}, after={transform.position}, dist={movedDistance:F2}");
                 LogNearestPortalAndDoorHints();
 
                 if (restoreOnTeleportDetected)
@@ -728,7 +736,7 @@ public class PlayerStats : MonoBehaviour
                         rb.velocity = Vector2.zero;
                         rb.angularVelocity = 0f;
                     }
-                    Debug.LogWarning("[HitTeleportGuard] 已强制拉回受击前位置（调试保护）。");
+                    Debug.LogWarning("[HitTeleportGuard] Restored the pre-hit position for debug protection.");
                 }
                 yield break;
             }
@@ -737,7 +745,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // 调试：打印最近传送门/门距离。
+    // Logs nearby portal and door distances for debugging movement issues.
     private void LogNearestPortalAndDoorHints()
     {
         Vector3 playerPos = transform.position;

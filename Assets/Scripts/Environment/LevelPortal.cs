@@ -3,32 +3,32 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-/// <summary>关卡传送门：按 E 播放吸入动画后加载目标场景。</summary>
+/// <summary>Handles player interaction, portal pull-in animation, and scene loading.</summary>
 [RequireComponent(typeof(Collider2D))]
 public class LevelPortal : MonoBehaviour
 {
     [Header("Unlock Condition (Optional)")]
-    [Tooltip("绑定房间控制器后，传送门会在该房间清怪前保持隐藏。")]
+    [Tooltip("Room that must be cleared before this portal becomes visible.")]
     [SerializeField] private RoomController _requiredRoomController;
 
-    [Tooltip("需要房间清空后才显示该传送门。")]
+    [Tooltip("Keep the portal hidden until the linked room has been cleared.")]
     [SerializeField] private bool _showAfterRoomCleared = false;
 
     [Header("Scene")]
-    [Tooltip("要跳转到的目标场景名称（需在 Build Settings 中已添加）。")]
+    [Tooltip("Scene name to load; it must be included in Build Settings.")]
     public string targetSceneName;
 
     [Header("UI")]
-    [Tooltip("玩家靠近时显示的交互提示（例如“按 E 进入”Canvas 或文字）。")]
+    [Tooltip("Hint object shown while the player can interact with the portal.")]
     public GameObject interactHint;
 
     [Header("Animation")]
-    [Tooltip("传送门的 Animator，用于播放激活动画。")]
+    [Tooltip("Animator used for the portal activation animation.")]
     public Animator portalAnimator;
-    [Tooltip("播放激活动画使用的 Trigger 参数名。")]
+    [Tooltip("Animator trigger used to play the portal activation animation.")]
     [SerializeField] private string _activateTriggerName = "Activate";
 
-    [Tooltip("吸入动画时长（秒），同时也是切场景前的总延迟。")]
+    [Tooltip("Duration of the pull-in animation before loading the scene.")]
     public float teleportDelay = 1.5f;
 
     private bool canInteract;
@@ -36,11 +36,12 @@ public class LevelPortal : MonoBehaviour
     private bool _isUnlocked = true;
     private bool _hasActivateTrigger = true;
 
-    // 默认隐藏交互提示。
+    // Applies room-clear unlock rules and prepares the portal prompt and animation trigger.
     private void Awake()
     {
         _isUnlocked = !_showAfterRoomCleared;
 
+        // Room-gated portals stay hidden until their linked room reports a clear event.
         if (_showAfterRoomCleared)
         {
             if (_requiredRoomController == null)
@@ -59,13 +60,13 @@ public class LevelPortal : MonoBehaviour
 
         CacheAnimatorTriggerFlag();
 
-        // 默认隐藏交互提示，只有玩家靠近时才出现。
         if (interactHint != null)
         {
             interactHint.SetActive(false);
         }
     }
 
+    // Detaches from the room-clear event when this portal is destroyed.
     private void OnDestroy()
     {
         if (_requiredRoomController != null)
@@ -74,7 +75,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
-    // 玩家在范围内时检测 E 键传送。
+    // Waits for the interact key while the player is inside an unlocked portal.
     private void Update()
     {
         if (!canInteract || _currentPlayer == null)
@@ -82,14 +83,14 @@ public class LevelPortal : MonoBehaviour
             return;
         }
 
-        // 与项目内其他交互脚本风格一致，直接读新输入系统的键盘状态。
+        // Pressing E begins the pull-in sequence instead of loading the scene immediately.
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             BeginTeleport();
         }
     }
 
-    // 玩家进入，显示提示。
+    // Enables portal interaction when the player enters an unlocked portal trigger.
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!_isUnlocked)
@@ -102,7 +103,6 @@ public class LevelPortal : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' trigger entered by '{other.name}' at pos={other.transform.position}");
         canInteract = true;
         _currentPlayer = other.gameObject;
 
@@ -112,7 +112,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
-    // 玩家离开，隐藏提示。
+    // Disables portal interaction when the player leaves the portal trigger.
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!_isUnlocked)
@@ -125,7 +125,6 @@ public class LevelPortal : MonoBehaviour
             return;
         }
 
-        // 仅当离开的确实是当前记录的玩家时才清空，避免误清除。
         if (other.gameObject == _currentPlayer)
         {
             canInteract = false;
@@ -138,10 +137,9 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
-    // 开始传送：播动画、冻结玩家刚体。
+    // Starts the portal interaction and freezes player physics during the pull-in.
     private void BeginTeleport()
     {
-        // 上锁 + 关闭提示，防止延迟期间被狂按或误操作。
         canInteract = false;
 
         if (interactHint != null)
@@ -149,9 +147,9 @@ public class LevelPortal : MonoBehaviour
             interactHint.SetActive(false);
         }
 
+        // Play the optional portal animation, then freeze the player for the pull-in effect.
         TryPlayPortalActivateAnimation();
 
-        // 冻结玩家的物理模拟，防止被吸入过程中还能移动/被碰撞推开。
         if (_currentPlayer != null)
         {
             Rigidbody2D rb = _currentPlayer.GetComponent<Rigidbody2D>();
@@ -164,10 +162,9 @@ public class LevelPortal : MonoBehaviour
         StartCoroutine(SuckInRoutine());
     }
 
-    // 将玩家拉向门心并缩小，延时后 LoadScene。
+    // Pulls the player into the portal before loading the configured target scene.
     private IEnumerator SuckInRoutine()
     {
-        // 缓存玩家 Transform 与初始状态，保证整段插值稳定。
         Transform playerTransform = _currentPlayer != null ? _currentPlayer.transform : null;
         Vector3 startPosition = playerTransform != null ? playerTransform.position : Vector3.zero;
         Vector3 startScale = playerTransform != null ? playerTransform.localScale : Vector3.one;
@@ -178,6 +175,7 @@ public class LevelPortal : MonoBehaviour
         {
             timer += Time.deltaTime;
 
+            // Lerp both position and scale so the player appears to be absorbed by the portal.
             if (playerTransform != null)
             {
                 float t = Mathf.Clamp01(timer / teleportDelay);
@@ -188,7 +186,6 @@ public class LevelPortal : MonoBehaviour
             yield return null;
         }
 
-        // 确保最终精确落位，避免帧误差残留。
         if (playerTransform != null)
         {
             playerTransform.position = portalCenter;
@@ -197,23 +194,21 @@ public class LevelPortal : MonoBehaviour
 
         if (string.IsNullOrEmpty(targetSceneName))
         {
-            Debug.LogWarning($"[LevelPortal] {name} 未配置 targetSceneName，无法跳转。", this);
+            Debug.LogWarning($"[LevelPortal] {name} has no targetSceneName configured, so it cannot load a scene.", this);
             yield break;
         }
 
         string currentScene = SceneManager.GetActiveScene().name;
         if (string.Equals(targetSceneName, currentScene, System.StringComparison.Ordinal))
         {
-            Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' blocked self-reload of current scene '{currentScene}'.");
+            // Avoid reloading the active scene when a portal is accidentally pointed at itself.
             yield break;
         }
 
-        string playerName = _currentPlayer != null ? _currentPlayer.name : "null";
-        Vector3 playerPos = _currentPlayer != null ? _currentPlayer.transform.position : Vector3.zero;
-        Debug.LogWarning($"[PortalTrace] LevelPortal '{name}' loading scene '{targetSceneName}'. TriggerPlayer={playerName}, PlayerPos={playerPos}");
         SceneManager.LoadScene(targetSceneName);
     }
 
+    // Unlocks the portal when its required room has been cleared.
     private void HandleRequiredRoomCleared(RoomController clearedRoom)
     {
         if (clearedRoom != _requiredRoomController)
@@ -225,6 +220,7 @@ public class LevelPortal : MonoBehaviour
         SetPortalVisibility(true);
     }
 
+    // Shows or hides the portal visuals and trigger collider.
     private void SetPortalVisibility(bool visible)
     {
         Collider2D triggerCollider = GetComponent<Collider2D>();
@@ -233,6 +229,7 @@ public class LevelPortal : MonoBehaviour
             triggerCollider.enabled = visible;
         }
 
+        // Hidden portals disable visuals and trigger interaction together.
         SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
         for (int i = 0; i < renderers.Length; i++)
         {
@@ -250,6 +247,7 @@ public class LevelPortal : MonoBehaviour
         }
     }
 
+    // Checks whether the portal animator supports the optional activation trigger.
     private void CacheAnimatorTriggerFlag()
     {
         _hasActivateTrigger = true;
@@ -258,6 +256,7 @@ public class LevelPortal : MonoBehaviour
             return;
         }
 
+        // Cache trigger availability once so missing animator triggers do not spam warnings.
         _hasActivateTrigger = false;
         AnimatorControllerParameter[] parameters = portalAnimator.parameters;
         for (int i = 0; i < parameters.Length; i++)
@@ -272,14 +271,9 @@ public class LevelPortal : MonoBehaviour
             }
         }
 
-        if (!_hasActivateTrigger)
-        {
-            Debug.LogWarning(
-                $"[LevelPortal] Animator '{portalAnimator.runtimeAnimatorController?.name}' does not contain trigger '{_activateTriggerName}'.",
-                portalAnimator);
-        }
     }
 
+    // Plays the portal activation trigger when the animator supports it.
     private void TryPlayPortalActivateAnimation()
     {
         if (portalAnimator == null)

@@ -2,25 +2,25 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>剧情翻页：逐页显示文本，结束后加载游戏场景。</summary>
+/// <summary>Displays story pages one by one before loading the gameplay scene.</summary>
 public class StoryIntroManager : MonoBehaviour
 {
     [Header("Story")]
-    [Tooltip("剧情文本数组，每个元素代表一页。")]
+    [Tooltip("Story text pages shown before gameplay starts.")]
     [TextArea(3, 8)]
     public string[] storyPages;
 
     [Header("UI")]
-    [Tooltip("用于显示剧情文字的 TMP 文本组件。")]
+    [Tooltip("TMP text component used to display the current story page.")]
     public TextMeshProUGUI storyText;
 
     [Header("Scene")]
-    [Tooltip("剧情结束后跳转到的目标场景 Build Index。")]
+    [Tooltip("Build index loaded after the final story page.")]
     [SerializeField] private int _gameSceneBuildIndex = 2;
 
     private int _currentPage;
 
-    // 显示第一页剧情。
+    // Shows the story panel on the title scene until the player continues.
     private void Start()
     {
         _currentPage = 0;
@@ -28,7 +28,7 @@ public class StoryIntroManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 翻到下一页；若已经是最后一页则加载游戏主场景。
+    /// Advances to the next story page or loads the gameplay scene.
     /// </summary>
     public void NextPage()
     {
@@ -43,7 +43,7 @@ public class StoryIntroManager : MonoBehaviour
         ShowCurrentPage();
     }
 
-    // 将当前页文字写入 TMP。
+    // Writes the current story page into the TMP text field.
     private void ShowCurrentPage()
     {
         if (storyText == null || storyPages == null || storyPages.Length == 0)

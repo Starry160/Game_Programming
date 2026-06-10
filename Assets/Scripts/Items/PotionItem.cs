@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>生命药水：提升生命上限并治疗，显示拾取飘字。</summary>
+/// <summary>Increases max health, heals the player, and shows pickup feedback.</summary>
 public class PotionItem : ChestDropItem
 {
     [Header("Life Potion Effect")]
@@ -23,7 +23,7 @@ public class PotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.7f;
     [SerializeField] private int popupSortingOrder = 200;
 
-    // 拾取：IncreaseMaxHealthAndHeal + 飘字 + 音效。
+    // Applies the pickup effect before destroying the reward object.
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -36,11 +36,11 @@ public class PotionItem : ChestDropItem
         {
             playerStats.IncreaseMaxHealthAndHeal(healthIncreaseAmount);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[PotionItem] {name} 被玩家拾取，生命上限与当前生命 +{healthIncreaseAmount}。");
+            Debug.Log($"[PotionItem] {name} picked up. Max and current health +{healthIncreaseAmount}.");
         }
         else
         {
-            Debug.LogWarning($"[PotionItem] {name} 被拾取，但未找到 PlayerStats。");
+            Debug.LogWarning($"[PotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();
@@ -53,7 +53,7 @@ public class PotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
-    // 在拾取点播放音效。
+    // Plays the pickup sound at the collected item position.
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -64,7 +64,7 @@ public class PotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
-    // 动态创建 TMP 飘字并挂 PopupMotion。
+    // Creates floating pickup text to show the reward effect.
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("LifePotionPopup");
@@ -90,7 +90,7 @@ public class PotionItem : ChestDropItem
     }
 }
 
-/// <summary>拾取飘字：上移并淡出后销毁。</summary>
+/// <summary>Floats pickup text upward and fades it out after a short duration.</summary>
 public class PopupMotion : MonoBehaviour
 {
     private TextMeshPro _tmp;
@@ -100,7 +100,7 @@ public class PopupMotion : MonoBehaviour
     private Vector3 _startPos;
     private Color _startColor;
 
-    // 配置飘字时长与上浮距离。
+    // Stores popup animation settings before the text starts moving.
     public void Initialize(TextMeshPro tmp, float duration, float floatDistance)
     {
         _tmp = tmp;
@@ -110,7 +110,7 @@ public class PopupMotion : MonoBehaviour
         _startColor = _tmp != null ? _tmp.color : Color.white;
     }
 
-    // 每帧上移并降低 alpha，结束销毁。
+    // Moves the popup upward and fades the text until it expires.
     private void Update()
     {
         if (_tmp == null)

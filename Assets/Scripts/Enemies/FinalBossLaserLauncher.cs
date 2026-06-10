@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 挂在 FinalBoss 上：由动画事件触发激光开始/结束，使用对象池复用激光体。
+/// Starts and stops pooled boss laser beams from animation events.
 /// </summary>
 public class FinalBossLaserLauncher : MonoBehaviour
 {
@@ -31,12 +31,14 @@ public class FinalBossLaserLauncher : MonoBehaviour
     private readonly Queue<FinalBossLaserBeam> _pool = new Queue<FinalBossLaserBeam>();
     private FinalBossLaserBeam _activeLaser;
 
+    // Prepares laser beam visuals and fallback audio before attack patterns begin.
     private void Awake()
     {
         AutoBindRoomTriggerZone();
         PrewarmPool();
     }
 
+    // Creates pooled projectile objects before combat starts.
     private void PrewarmPool()
     {
         if (laserBeamPrefab == null)
@@ -53,23 +55,24 @@ public class FinalBossLaserLauncher : MonoBehaviour
         }
     }
 
-    /// <summary>在 FinalBoss_LaserBeam 动画中添加事件调用。</summary>
+    /// <summary>Starts and stops pooled boss laser beams from animation events.</summary>
     public void OnLaserFire()
     {
         FireLaser();
     }
 
-    /// <summary>在 FinalBoss_LaserBeam 动画末段添加事件调用。</summary>
+    /// <summary>Starts and stops pooled boss laser beams from animation events.</summary>
     public void OnLaserEnd()
     {
         StopLaser();
     }
 
+    // Configures a pooled laser beam from the current boss pose and room bounds.
     public void FireLaser()
     {
         if (laserBeamPrefab == null)
         {
-            Debug.LogWarning("[FinalBossLaserLauncher] laserBeamPrefab 未绑定。", this);
+            Debug.LogWarning("[FinalBossLaserLauncher] laserBeamPrefab is not assigned.", this);
             return;
         }
 
@@ -110,6 +113,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         _activeLaser = beam;
     }
 
+    // Checks whether the boss has enough clear room to fire a laser.
     public bool CanFireLaserFromCurrentPose()
     {
         if (!avoidLaserWhenBlockedByMapEdge)
@@ -133,6 +137,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         Vector3 dir = castRotation * Vector3.right;
         bool facingLeft = dir.x < 0f;
 
+        // Prevent lasers from being selected when the beam would immediately leave the boss room.
         if (facingLeft)
         {
             float minAllowed = bounds.min.x + padding;
@@ -143,6 +148,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         return originX + laserLength <= maxAllowed;
     }
 
+    // Keeps editor-time references and collider setup consistent.
     private void OnValidate()
     {
         edgeCheckDistance = Mathf.Max(0.05f, edgeCheckDistance);
@@ -150,6 +156,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         edgeCheckPadding = Mathf.Max(0f, edgeCheckPadding);
     }
 
+    // Calculates how far the laser must reach across the room.
     private float GetRequiredLaserLength(Transform firePoint)
     {
         float lengthScale = Mathf.Clamp(edgeLengthScale, 0.5f, 1.2f);
@@ -189,6 +196,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         return Mathf.Max(0.05f, edgeCheckDistance * lengthScale);
     }
 
+    // Finds the room trigger zone used for laser bounds checks.
     private void AutoBindRoomTriggerZone()
     {
         if (roomTriggerZone != null)
@@ -214,6 +222,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         }
     }
 
+    // Chooses the origin used for laser clearance checks.
     private Vector3 ResolveCheckStartPosition(Transform firePoint, Quaternion castRotation)
     {
         if (firePoint == null)
@@ -237,6 +246,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         return originPosition + (offsetRotation * _laserVisualOffset);
     }
 
+    // Calculates the laser cast direction from boss facing.
     private Quaternion ResolveCastRotation(Transform firePoint)
     {
         Quaternion baseRotation = firePoint != null ? firePoint.rotation : transform.rotation;
@@ -254,6 +264,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         return bossRenderer.flipX ? Quaternion.Euler(0f, 0f, 180f) : Quaternion.identity;
     }
 
+    // Stops the active laser and returns it to the pool.
     public void StopLaser()
     {
         if (_activeLaser == null)
@@ -265,6 +276,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         _activeLaser = null;
     }
 
+    // Gets an available laser beam from the object pool.
     private FinalBossLaserBeam GetLaserFromPool()
     {
         while (_pool.Count > 0)
@@ -279,6 +291,7 @@ public class FinalBossLaserLauncher : MonoBehaviour
         return Instantiate(laserBeamPrefab, transform.position, Quaternion.identity);
     }
 
+    // Returns a laser beam to the object pool.
     public void ReleaseLaser(FinalBossLaserBeam laser)
     {
         if (laser == null)

@@ -6,39 +6,30 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>编辑器工具：一键生成剧情界面 Canvas 与 StoryIntroManager。</summary>
+/// <summary>Creates the story intro canvas, page button, and manager from the Unity editor.</summary>
 public static class StoryIntroSetupEditor
 {
-    private const string MENU_PATH = "Tools/一键生成剧情界面 (Auto Setup)";
+    private const string MENU_PATH = "Tools/Generate Story Intro UI (Auto Setup)";
 
-    // 菜单入口：创建完整剧情 UI 层级。
     [MenuItem(MENU_PATH)]
     public static void AutoSetup()
     {
         // 1. Canvas + CanvasScaler + GraphicRaycaster
         Canvas canvas = CreateCanvas();
-        // 2. EventSystem（UI 交互必备）
         EnsureEventSystem();
-        // 3. 全屏黑色背景
         CreateFullscreenBackground(canvas.transform);
-        // 4. 居中文本
         TextMeshProUGUI storyText = CreateCenteredStoryText(canvas.transform);
-        // 5. 全屏透明翻页热区按钮
         Button pageButton = CreateFullscreenInvisibleButton(canvas.transform);
-        // 6. StoryManager 空物体并挂载脚本
         StoryIntroManager manager = CreateStoryManager(storyText);
 
-        // 7. 自动绑定按钮 OnClick → manager.NextPage（持久化绑定，可在 Inspector 看到）
         UnityEventTools.AddPersistentListener(pageButton.onClick, manager.NextPage);
 
-        // 标脏当前场景，提示保存
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         Selection.activeGameObject = manager.gameObject;
         EditorUtility.DisplayDialog("Story Intro Setup",
-            "剧情界面已生成完毕。\n请在 StoryManager 上配置 storyPages 文本即可。", "OK");
+            "Story intro UI has been generated. Configure storyPages on StoryManager.", "OK");
     }
 
-    // 创建全屏 Overlay Canvas。
     private static Canvas CreateCanvas()
     {
         GameObject canvasGo = new GameObject("StoryCanvas",
@@ -58,7 +49,6 @@ public static class StoryIntroSetupEditor
         return canvas;
     }
 
-    // 场景中无 EventSystem 时创建一个。
     private static void EnsureEventSystem()
     {
         if (Object.FindObjectOfType<EventSystem>() != null)
@@ -71,7 +61,6 @@ public static class StoryIntroSetupEditor
         Undo.RegisterCreatedObjectUndo(esGo, "Create EventSystem");
     }
 
-    // 全屏黑色背景。
     private static void CreateFullscreenBackground(Transform parent)
     {
         GameObject bgGo = new GameObject("Background", typeof(Image));
@@ -85,7 +74,6 @@ public static class StoryIntroSetupEditor
         StretchFullscreen(bgGo.GetComponent<RectTransform>());
     }
 
-    // 居中剧情 TMP 文本区域。
     private static TextMeshProUGUI CreateCenteredStoryText(Transform parent)
     {
         GameObject textGo = new GameObject("StoryText", typeof(TextMeshProUGUI));
@@ -93,14 +81,13 @@ public static class StoryIntroSetupEditor
         textGo.transform.SetParent(parent, false);
 
         TextMeshProUGUI tmp = textGo.GetComponent<TextMeshProUGUI>();
-        tmp.text = "在这里输入剧情文本…";
+        tmp.text = "Enter story text here...";
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.enableWordWrapping = true;
         tmp.fontSize = 42f;
         tmp.color = Color.white;
         tmp.raycastTarget = false;
 
-        // 在画面中央留出一块大的可读区域（左右各留 200，上下各留 200）
         RectTransform rect = tmp.GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(0f, 0f);
         rect.anchorMax = new Vector2(1f, 1f);
@@ -111,7 +98,6 @@ public static class StoryIntroSetupEditor
         return tmp;
     }
 
-    // 全屏透明按钮用于翻页点击。
     private static Button CreateFullscreenInvisibleButton(Transform parent)
     {
         GameObject btnGo = new GameObject("NextPageButton", typeof(Image), typeof(Button));
@@ -120,7 +106,6 @@ public static class StoryIntroSetupEditor
 
         Image image = btnGo.GetComponent<Image>();
         image.color = new Color(0f, 0f, 0f, 0f);
-        // 透明 Image 仍可作为 raycast 目标用于点击检测。
         image.raycastTarget = true;
 
         Button button = btnGo.GetComponent<Button>();
@@ -129,13 +114,11 @@ public static class StoryIntroSetupEditor
 
         StretchFullscreen(btnGo.GetComponent<RectTransform>());
 
-        // 让按钮位于最上层，覆盖文字与背景。
         btnGo.transform.SetAsLastSibling();
 
         return button;
     }
 
-    // 创建 StoryIntroManager 并填入示例剧情页。
     private static StoryIntroManager CreateStoryManager(TextMeshProUGUI storyText)
     {
         GameObject mgrGo = new GameObject("StoryManager", typeof(StoryIntroManager));
@@ -145,15 +128,14 @@ public static class StoryIntroSetupEditor
         manager.storyText = storyText;
         manager.storyPages = new string[]
         {
-            "第一页：很久以前，地牢深处沉睡着一段被遗忘的记忆…",
-            "第二页：勇者带着仅有的勇气，踏入了无尽的回廊。",
-            "第三页：点击屏幕开始你的冒险。"
+            "Page 1: Long ago, a forgotten memory slept deep within the dungeon...",
+            "Page 2: With only courage, the hero stepped into the endless corridor.",
+            "Page 3: Click the screen to begin your adventure."
         };
 
         return manager;
     }
 
-    // RectTransform 拉满父级。
     private static void StretchFullscreen(RectTransform rect)
     {
         rect.anchorMin = Vector2.zero;

@@ -1,21 +1,20 @@
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>编辑器工具：为选中敌人配置 EnemyHealth 与悬浮心形 UI。</summary>
+/// <summary>Adds EnemyHealth and floating heart UI to the selected enemy.</summary>
 public static class EnemyHeartSetupBuilder
 {
     private const string MenuPath = "Tools/Setup Enemy Floating Heart";
     private const string HeartName = "FloatingHeart";
     private const string TilesetPath = "Assets/Sprites/Tile/0x72_DungeonTilesetII_v1.7.png";
 
-    // 菜单入口：配置选中敌人的血量与心形精灵。
     [MenuItem(MenuPath)]
     public static void SetupEnemyFloatingHeart()
     {
         GameObject enemy = Selection.activeGameObject;
         if (enemy == null)
         {
-            Debug.LogError("[EnemyHeartSetupBuilder] 请先在 Hierarchy 选中一个小骷髅敌人对象。");
+            Debug.LogError("[EnemyHeartSetupBuilder] Select a skeleton enemy object in the Hierarchy first.");
             return;
         }
 
@@ -68,10 +67,9 @@ public static class EnemyHeartSetupBuilder
 
         EditorUtility.SetDirty(heartObject);
         EditorUtility.SetDirty(enemyHealth);
-        Debug.Log($"[EnemyHeartSetupBuilder] {enemy.name} 的悬浮爱心配置完成。");
+        Debug.Log($"[EnemyHeartSetupBuilder] Floating heart UI setup completed for {enemy.name}.");
     }
 
-    // 从图集按帧后缀查找心形 Sprite。
     private static Sprite FindHeartSpriteByFrame(int frameIndex)
     {
         string suffix = "_" + frameIndex;
@@ -96,7 +94,7 @@ public static class EnemyHeartSetupBuilder
             }
         }
 
-        Debug.LogError($"[EnemyHeartSetupBuilder] 未找到心形帧 _{frameIndex}。");
+        Debug.LogError($"[EnemyHeartSetupBuilder] Heart frame _{frameIndex} was not found.");
         return null;
     }
 }

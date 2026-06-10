@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 挂在 FinalBoss 上：由 Casting 动画事件触发，发射独立“手臂飞行物”。
+/// Launches pooled boss arm projectiles from animation events.
 /// </summary>
 public class FinalBossArmLauncher : MonoBehaviour
 {
@@ -25,6 +25,7 @@ public class FinalBossArmLauncher : MonoBehaviour
     private readonly Queue<FinalBossArmProjectile> _pool = new Queue<FinalBossArmProjectile>();
     private Transform _playerTransform;
 
+    // Stores the player target and spawn center used by the boss arm projectiles.
     private void Awake()
     {
         GameObject player = GameObject.FindWithTag("Player");
@@ -36,6 +37,7 @@ public class FinalBossArmLauncher : MonoBehaviour
         PrewarmPool();
     }
 
+    // Creates pooled projectile objects before combat starts.
     private void PrewarmPool()
     {
         if (armProjectilePrefab == null)
@@ -53,18 +55,19 @@ public class FinalBossArmLauncher : MonoBehaviour
     }
 
     /// <summary>
-    /// 在 Casting 动画末帧添加 Animation Event，函数名填这个：OnCastRelease
+    /// Fires the boss arm projectile at the animation release frame.
     /// </summary>
     public void OnCastRelease()
     {
         FireArm();
     }
 
+    // Launches a pooled arm projectile in the resolved facing direction.
     public void FireArm()
     {
         if (armProjectilePrefab == null)
         {
-            Debug.LogWarning("[FinalBossArmLauncher] armProjectilePrefab 未绑定。", this);
+            Debug.LogWarning("[FinalBossArmLauncher] armProjectilePrefab is not assigned.", this);
             return;
         }
 
@@ -79,6 +82,7 @@ public class FinalBossArmLauncher : MonoBehaviour
         projectile.Activate(this, shootDirection, projectileSpeed, projectileDamage, projectileLifetime, hitMask);
     }
 
+    // Resolves the direction used by the boss arm projectile.
     private Vector2 GetShootDirection(Vector3 spawnPosition)
     {
         if (autoAimAtPlayer)
@@ -110,6 +114,7 @@ public class FinalBossArmLauncher : MonoBehaviour
         return fallbackDirection.normalized;
     }
 
+    // Flips boss visuals to match the arm projectile direction.
     private void ApplyFacingByShootDirection(Vector2 shootDirection)
     {
         if (!facePlayerWhenFiring)
@@ -133,6 +138,7 @@ public class FinalBossArmLauncher : MonoBehaviour
         }
     }
 
+    // Gets an available arm projectile from the object pool.
     private FinalBossArmProjectile GetProjectileFromPool()
     {
         while (_pool.Count > 0)
@@ -147,6 +153,7 @@ public class FinalBossArmLauncher : MonoBehaviour
         return Instantiate(armProjectilePrefab, transform.position, Quaternion.identity);
     }
 
+    // Returns an arm projectile to the object pool.
     public void ReleaseProjectile(FinalBossArmProjectile projectile)
     {
         if (projectile == null)

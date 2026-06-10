@@ -1,36 +1,36 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>门开关：精灵切换、碰撞阻挡、可选出口切场景与房间锁。</summary>
+/// <summary>Controls door sprites, locking, collision, and optional scene transitions.</summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
 {
     [Header("Sprites")]
-    [Tooltip("门关闭时显示的图片。")]
+    [Tooltip("When enabled, this door loads another scene after opening.")]
     [SerializeField] private Sprite _closedSprite;
 
-    [Tooltip("门打开时显示的图片。")]
+    [Tooltip("When enabled, this door loads another scene after opening.")]
     [SerializeField] private Sprite _openSprite;
 
     [Header("Physics")]
-    [Tooltip("阻挡玩家通行的实体碰撞体（不是触发器）。")]
+    [Tooltip("When enabled, this door loads another scene after opening.")]
     [SerializeField] private Collider2D _solidCollider;
     [Header("Animation (Optional)")]
-    [Tooltip("若门有 Animator，可在这里绑定用于开关门动画的控制器。")]
+    [Tooltip("When enabled, this door loads another scene after opening.")]
     [SerializeField] private Animator _doorAnimator;
     [SerializeField] private string _openTriggerName = "Open";
     [SerializeField] private string _closeTriggerName = "Close";
 
     [Header("Scene Transition")]
-    [Tooltip("勾选后，玩家进入这扇门会触发场景跳转。")]
+    [Tooltip("When enabled, this door loads another scene after opening.")]
     public bool isExitDoor;
 
-    [Tooltip("跳转的目标场景名称（需在 Build Settings 中已添加）。")]
+    [Tooltip("Scene name to load; it must be included in Build Settings.")]
     public string targetSceneName;
     [Header("Room Lock")]
-    [Tooltip("战斗开始后自动进入锁门逻辑，清怪前无法开门。")]
+    [Tooltip("Automatically locks the door while enemies remain in the room.")]
     public bool autoLockOnBattleStart = true;
-    [Tooltip("敌人存活检测间隔（秒）。")]
+    [Tooltip("Delay between room enemy checks in seconds.")]
     public float enemyCheckInterval = 0.5f;
 
     private SpriteRenderer _spriteRenderer;
@@ -42,7 +42,7 @@ public class DoorController : MonoBehaviour
     private float _nextLockedLogTime = 0f;
     private const float LOCKED_LOG_INTERVAL = 1f;
 
-    // 初始化为关门状态并绑定实体碰撞体。
+    // Captures the door collider, renderer, and closed-state visuals for later restore.
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -59,7 +59,6 @@ public class DoorController : MonoBehaviour
             }
         }
 
-        // 初始化为关门状态，确保运行时视觉与碰撞一致。
         if (_closedSprite != null)
         {
             _spriteRenderer.sprite = _closedSprite;
@@ -74,7 +73,7 @@ public class DoorController : MonoBehaviour
         nextEnemyCheckTime = 0f;
     }
 
-    // 可选：按全局 Enemy 标签自动更新锁门状态。
+    // Opens the door when the nearby player presses the interact key and the room is clear.
     private void Update()
     {
         if (!autoLockOnBattleStart)
@@ -93,7 +92,7 @@ public class DoorController : MonoBehaviour
         isLocked = hasEnemiesAlive;
     }
 
-    // 玩家进入：未锁则开门，出口门可切场景。
+    // Tracks the player entering door range and shows the interact prompt when allowed.
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -101,7 +100,6 @@ public class DoorController : MonoBehaviour
             return;
         }
 
-        // 铁律：锁死状态下，第一时间拦截，不执行任何开门逻辑与动画逻辑。
         if (isLocked)
         {
             LogLockedMessage();
@@ -113,14 +111,13 @@ public class DoorController : MonoBehaviour
             return;
         }
 
-        // 出口门：仅在门成功开启后再触发场景跳转，避免与门的状态冲突。
         if (isExitDoor && _isOpen)
         {
             TryLoadTargetScene();
         }
     }
 
-    // 玩家停留：持续尝试开门/传送。
+    // Handles objects that remain inside this trigger area.
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -128,7 +125,6 @@ public class DoorController : MonoBehaviour
             return;
         }
 
-        // 铁律：锁死状态下，持续拦截，避免玩家卡门缝时误开门。
         if (isLocked)
         {
             LogLockedMessage();
@@ -141,7 +137,7 @@ public class DoorController : MonoBehaviour
         }
     }
 
-    // 玩家离开：关门。
+    // Clears door interaction state once the player leaves the trigger area.
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
@@ -152,7 +148,7 @@ public class DoorController : MonoBehaviour
         CloseDoor();
     }
 
-    // 切换开门精灵、动画并禁用阻挡碰撞体。
+    // Switches the door to its open visual and disables blocking collision.
     private void OpenDoor()
     {
         if (isLocked)
@@ -185,7 +181,7 @@ public class DoorController : MonoBehaviour
         _isOpen = true;
     }
 
-    // 恢复关门精灵、动画并启用阻挡碰撞体。
+    // Restores the closed door visual and blocking collider.
     private void CloseDoor()
     {
         if (_closedSprite != null)
@@ -195,7 +191,6 @@ public class DoorController : MonoBehaviour
 
         if (_doorAnimator != null)
         {
-            // 关门时强制清掉开门 Trigger，防止动画状态机后台误触发开门。
             if (!string.IsNullOrEmpty(_openTriggerName))
             {
                 _doorAnimator.ResetTrigger(_openTriggerName);
@@ -214,7 +209,7 @@ public class DoorController : MonoBehaviour
         _isOpen = false;
     }
 
-    /// <summary>房间系统调用：设置锁门并强制关门。</summary>
+    /// <summary>Controls door sprites, locking, collision, and optional scene transitions.</summary>
     public void SetLocked(bool locked)
     {
         isLocked = locked;
@@ -228,7 +223,7 @@ public class DoorController : MonoBehaviour
         isRoomCleared = true;
     }
 
-    // 未锁且房间已清才允许开门。
+    // Attempts to open the door only if the room is clear and unlocked.
     private bool TryOpenForPlayer()
     {
         if (isLocked || !isRoomCleared)
@@ -241,10 +236,9 @@ public class DoorController : MonoBehaviour
         return true;
     }
 
-    // 加载 targetSceneName（防重复、防自加载）。
+    // Loads the configured exit scene once and prevents duplicate transition calls.
     private void TryLoadTargetScene()
     {
-        // 防止 LoadScene 期间触发器多次回调导致重复加载。
         if (_hasTransitioned)
         {
             return;
@@ -252,23 +246,21 @@ public class DoorController : MonoBehaviour
 
         if (string.IsNullOrEmpty(targetSceneName))
         {
-            Debug.LogWarning($"[DoorController] {name} 标记为出口门，但未配置 targetSceneName。", this);
+            Debug.LogWarning($"[DoorController] {name} is marked as an exit door, but targetSceneName is not configured.", this);
             return;
         }
 
         string currentScene = SceneManager.GetActiveScene().name;
         if (string.Equals(targetSceneName, currentScene, System.StringComparison.Ordinal))
         {
-            Debug.LogWarning($"[PortalTrace] DoorController '{name}' blocked self-reload of current scene '{currentScene}'.");
             return;
         }
 
         _hasTransitioned = true;
-        Debug.LogWarning($"[PortalTrace] DoorController '{name}' loading scene '{targetSceneName}'. PlayerPos={GameObject.FindWithTag("Player")?.transform.position ?? Vector3.zero}");
         SceneManager.LoadScene(targetSceneName);
     }
 
-    // 场景中是否仍有激活的 Enemy。
+    // Checks whether any active Enemy-tagged objects remain in the scene.
     private bool CheckIfEnemiesAlive()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -283,7 +275,7 @@ public class DoorController : MonoBehaviour
         return false;
     }
 
-    // 限频打印“房间未清空”提示。
+    // Shows a throttled message when the room is still locked by enemies.
     private void LogLockedMessage()
     {
         if (Time.time < _nextLockedLogTime)
@@ -292,6 +284,6 @@ public class DoorController : MonoBehaviour
         }
 
         _nextLockedLogTime = Time.time + LOCKED_LOG_INTERVAL;
-        Debug.Log("【地牢结界】房间内还有敌人未消灭，门无法打开！");
+        Debug.Log("[Dungeon Seal] Enemies remain in the room. The door cannot open!");
     }
 }

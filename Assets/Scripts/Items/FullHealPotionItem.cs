@@ -1,11 +1,11 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>场景放置型生命药水：保持 ChestDropItem 的 idle 浮动效果，拾取后直接回满血。</summary>
+/// <summary>Restores the player to full health when collected in the scene.</summary>
 public class FullHealPotionItem : ChestDropItem
 {
     [Header("Scene Setup")]
-    [Tooltip("场景内直接摆放时，开局自动启用拾取与上下浮动效果。")]
+    [Tooltip("Enable pickup and idle floating automatically when placed directly in a scene.")]
     [SerializeField] private bool autoEnableIdleOnStart = true;
 
     [Header("Pickup Audio")]
@@ -24,7 +24,7 @@ public class FullHealPotionItem : ChestDropItem
     [SerializeField] private float popupFloatDistance = 0.7f;
     [SerializeField] private int popupSortingOrder = 200;
 
-    // 场景直摆药水：用零位移 PopOut 启动同款 idle 效果与可拾取状态。
+    // Caches potion visuals and prepares the pickup interaction radius.
     private void Start()
     {
         if (!autoEnableIdleOnStart)
@@ -40,7 +40,7 @@ public class FullHealPotionItem : ChestDropItem
         PopOut(Vector2.zero);
     }
 
-    // 拾取后直接回满当前生命值上限。
+    // Applies the pickup effect before destroying the reward object.
     protected override void OnPickedByPlayer(Collider2D player)
     {
         PlayerStats playerStats = player.GetComponent<PlayerStats>();
@@ -53,11 +53,11 @@ public class FullHealPotionItem : ChestDropItem
         {
             playerStats.Heal(playerStats.maxHealth);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[FullHealPotionItem] {name} 被玩家拾取，生命值已回满。");
+            Debug.Log($"[FullHealPotionItem] {name} picked up. Health fully restored.");
         }
         else
         {
-            Debug.LogWarning($"[FullHealPotionItem] {name} 被拾取，但未找到 PlayerStats。");
+            Debug.LogWarning($"[FullHealPotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();
@@ -70,6 +70,7 @@ public class FullHealPotionItem : ChestDropItem
         base.OnPickedByPlayer(player);
     }
 
+    // Plays the pickup sound at the collected item position.
     private void PlayPickupSfx()
     {
         if (pickupSfx == null)
@@ -80,6 +81,7 @@ public class FullHealPotionItem : ChestDropItem
         AudioSource.PlayClipAtPoint(pickupSfx, transform.position, pickupSfxVolume);
     }
 
+    // Creates floating pickup text to show the reward effect.
     private void SpawnPopup(Vector3 worldPosition)
     {
         GameObject popupObject = new GameObject("FullHealPotionPopup");

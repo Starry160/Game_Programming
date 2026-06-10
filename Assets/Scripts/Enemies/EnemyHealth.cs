@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>敌人生命值（心形 UI）、受击与死亡淡出销毁。</summary>
+/// <summary>Tracks enemy heart health, hit feedback, and death fade-out.</summary>
 [DisallowMultipleComponent]
 public class EnemyHealth : MonoBehaviour
 {
@@ -25,7 +25,7 @@ public class EnemyHealth : MonoBehaviour
     private Collider2D[] _allColliders;
     private SpriteRenderer[] _allSpriteRenderers;
 
-    // 缓存 AI、刚体与所有碰撞体/渲染器。
+    // Connects this health component to the final boss controller when present.
     private void Awake()
     {
         _enemyAI = GetComponent<EnemyAI>();
@@ -39,14 +39,14 @@ public class EnemyHealth : MonoBehaviour
         CacheHeartRenderers();
     }
 
-    // 初始化血量并显示心形精灵。
+    // Initializes current health after boss scaling or normal enemy defaults are known.
     private void Start()
     {
         _currentHealth = Mathf.Max(1, maxHealth);
         RefreshHeartSprite();
     }
 
-    // 扣血、播放受击反馈，血量为 0 时进入死亡流程。
+    // Applies incoming damage and related hit feedback.
     public void TakeDamage(int amount = 1)
     {
         if (_isDead || amount <= 0)
@@ -74,7 +74,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    // 根据当前血量切换满/半/空心精灵。
+    // Updates enemy heart sprites to match current health.
     private void RefreshHeartSprite()
     {
         if (_heartSpriteRenderers == null || _heartSpriteRenderers.Count == 0)
@@ -106,7 +106,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    // 禁用 AI/碰撞，淡出后销毁。
+    // Disables enemy behavior, fades sprites, then destroys the enemy.
     private IEnumerator DieAfterDelay()
     {
         _isDead = true;
@@ -152,7 +152,7 @@ public class EnemyHealth : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // 设置敌人所有子 Sprite 的透明度。
+    // Applies a shared alpha value to every enemy sprite renderer.
     private void SetAllSpritesAlpha(float alpha)
     {
         for (int i = 0; i < _allSpriteRenderers.Length; i++)
@@ -169,6 +169,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    // Caches heart sprite renderers used by the floating health display.
     private void CacheHeartRenderers()
     {
         if (_heartSpriteRenderers == null)

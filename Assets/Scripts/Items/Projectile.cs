@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>投射物：沿朝向飞行，命中敌人/环境后爆炸销毁。</summary>
+/// <summary>Moves projectiles forward, applies hit damage, and destroys them on impact.</summary>
 public class Projectile : MonoBehaviour
 {
     public enum TargetSide
@@ -10,42 +10,41 @@ public class Projectile : MonoBehaviour
     }
 
     [Header("Stats")]
-    [Tooltip("子弹飞行速度（米/秒）。")]
+    [Tooltip("Projectile movement speed in units per second.")]
     public float speed = 10f;
 
-    [Tooltip("命中敌人造成的伤害值。")]
+    [Tooltip("Damage dealt when this projectile hits a valid target.")]
     public float damage = 20f;
-    [Tooltip("命中 Final Boss 时固定伤害（1 点 = 半颗心）。")]
+    [Tooltip("Damage dealt to the final boss per projectile hit.")]
     public float bossDamagePerHit = 1f;
 
-    [Tooltip("存活时间（秒），超时自动销毁，防止飞出地图永久残留。")]
+    [Tooltip("Maximum lifetime before the projectile destroys itself.")]
     public float lifeTime = 2f;
 
-    [Tooltip("命中敌人或墙壁时生成的爆炸特效预制体（通常挂 AutoDestroy 脚本）。")]
+    [Tooltip("Effect spawned when the projectile hits a target or wall.")]
     public GameObject explosionPrefab;
 
     [Header("Targeting")]
-    [Tooltip("该投射物命中的目标阵营。")]
+    [Tooltip("Faction that this projectile is allowed to damage.")]
     public TargetSide targetSide = TargetSide.Enemy;
-    [Tooltip("发射者 Tag（用于忽略同阵营发射者自身碰撞）。")]
+    [Tooltip("Tag used to ignore collisions with the projectile owner.")]
     public string ownerTag = "Player";
-    [Tooltip("发射者根节点（用于忽略出生后与自己碰撞）。")]
+    [Tooltip("Transform ignored by this projectile so it cannot hit its caster.")]
     public Transform ownerTransform;
 
-    // 超时自动销毁。
+    // Schedules projectile cleanup so missed shots do not remain forever.
     private void Start()
     {
         Destroy(gameObject, lifeTime);
     }
 
-    // 沿 transform.right 方向移动。
+    // Moves the projectile forward based on its speed each frame.
     private void Update()
     {
-        // 沿自身 +X 方向匀速前进；方向由发射时的 rotation 决定。
         transform.position += transform.right * (speed * Time.deltaTime);
     }
 
-    // 触发碰撞：敌人伤害或环境阻挡。
+    // Routes projectile collisions to enemy damage, player damage, or environment impact.
     private void OnTriggerEnter2D(Collider2D col)
     {
         if (col == null)
@@ -55,16 +54,17 @@ public class Projectile : MonoBehaviour
 
         if (!string.IsNullOrEmpty(ownerTag) && col.CompareTag(ownerTag))
         {
+            // Ignore the shooter by tag before doing any expensive target checks.
             return;
         }
 
         if (ownerTransform != null &&
             (col.transform == ownerTransform || col.transform.IsChildOf(ownerTransform)))
         {
+            // Owner transform catches child colliders that may not share the owner tag.
             return;
         }
 
-        // 敌方投射物（target=Player）应穿过所有敌人，避免 Monster/Skeleton 互相挡弹。
         if (targetSide == TargetSide.Player && IsEnemyCollider(col))
         {
             return;
@@ -90,6 +90,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    // Returns whether the projectile collider belongs to an enemy target.
     private bool IsEnemyCollider(Collider2D col)
     {
         if (col == null)
@@ -125,11 +126,13 @@ public class Projectile : MonoBehaviour
         return false;
     }
 
+    // Returns whether the projectile collider belongs to the player target.
     private bool IsPlayerCollider(Collider2D col)
     {
         return col.CompareTag("Player");
     }
 
+    // Applies projectile damage to enemy or boss health components.
     private void DamageEnemy(Collider2D col)
     {
         FinalBossController finalBoss = col.GetComponent<FinalBossController>();
@@ -140,6 +143,7 @@ public class Projectile : MonoBehaviour
 
         if (finalBoss != null)
         {
+            // Boss health uses a smaller per-hit value than regular projectile damage.
             finalBoss.TakeDamage(Mathf.Max(0f, bossDamagePerHit));
             return;
         }
@@ -168,10 +172,11 @@ public class Projectile : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[Projectile] 命中疑似敌人对象 {col.name}，但未找到 EnemyHealth/EnemyAI。");
+            Debug.LogWarning($"[Projectile] Hit likely enemy object {col.name}, but EnemyHealth/EnemyAI was not found.");
         }
     }
 
+    // Applies projectile damage to the player stats component.
     private void DamagePlayer(Collider2D col)
     {
         PlayerStats playerStats = col.GetComponent<PlayerStats>();
@@ -186,6 +191,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    // Spawns the impact effect and destroys this projectile.
     private void SpawnExplosionAndDestroy()
     {
         if (explosionPrefab != null)
@@ -196,14 +202,14 @@ public class Projectile : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // 击中墙/关闭的门：生成特效并销毁。
+    // Handles projectile impact against walls, doors, or obstacles.
     private void OnHitEnvironment(GameObject environment)
     {
-        Debug.Log($"{gameObject.name} 击中环境: {environment.name}");
+        Debug.Log($"{gameObject.name} hit environment: {environment.name}");
         SpawnExplosionAndDestroy();
     }
 
-    // 判断是否为墙或仍有关闭碰撞体的门。
+    // Treats walls, closed doors, and solid obstacles as projectile blockers.
     private bool IsEnvironmentCollider(Collider2D col)
     {
         if (col == null || col.gameObject == null)
@@ -225,8 +231,6 @@ public class Projectile : MonoBehaviour
 
         if (looksLikeDoorOrGate)
         {
-            // 门开启时通常会禁用“实体阻挡碰撞体”，但保留触发器做交互。
-            // 只有在门仍有可阻挡的非 Trigger 碰撞体时，才视为环境命中。
             Collider2D[] sameObjectColliders = col.GetComponents<Collider2D>();
             for (int i = 0; i < sameObjectColliders.Length; i++)
             {
@@ -240,8 +244,6 @@ public class Projectile : MonoBehaviour
             return false;
         }
 
-        // 通用兜底：除敌人/玩家以外，任何实体非 Trigger 碰撞体都可阻挡投射物。
-        // 这样可覆盖 TestCorridor_01 这类未打 Tag/无 DoorController 的普通阻挡体。
         return col.enabled && !col.isTrigger;
     }
 }

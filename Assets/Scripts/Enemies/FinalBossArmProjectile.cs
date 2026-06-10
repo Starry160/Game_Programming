@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Final Boss 手臂飞行物：激活后沿给定方向飞行，命中玩家/阻挡层后回收到对象池。
+/// Moves the boss arm projectile and returns it to the pool after impact.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class FinalBossArmProjectile : MonoBehaviour
@@ -21,6 +21,7 @@ public class FinalBossArmProjectile : MonoBehaviour
 
     private Collider2D _projectileCollider;
 
+    // Caches physics and warning visuals before the arm projectile starts moving.
     private void Awake()
     {
         _projectileCollider = GetComponent<Collider2D>();
@@ -30,11 +31,13 @@ public class FinalBossArmProjectile : MonoBehaviour
         }
     }
 
+    // Resets projectile lifetime and collision state whenever the arm is spawned.
     private void OnEnable()
     {
         _lifeTimer = 0f;
     }
 
+    // Runs physics-timed movement and collision-sensitive behavior.
     private void FixedUpdate()
     {
         if (!_isActive)
@@ -52,6 +55,7 @@ public class FinalBossArmProjectile : MonoBehaviour
         transform.position += (Vector3)(_moveDirection * (_speed * Time.fixedDeltaTime));
     }
 
+    // Activates the pooled projectile with direction, owner, and damage settings.
     public void Activate(
         FinalBossArmLauncher owner,
         Vector2 direction,
@@ -76,6 +80,7 @@ public class FinalBossArmProjectile : MonoBehaviour
         }
     }
 
+    // Damages the player when the boss arm finishes warning and collides.
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!_isActive || other == null)
@@ -113,6 +118,7 @@ public class FinalBossArmProjectile : MonoBehaviour
         }
     }
 
+    // Disables this pooled projectile and notifies its owner pool.
     public void ReturnToPool()
     {
         _isActive = false;
@@ -130,6 +136,7 @@ public class FinalBossArmProjectile : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    // Returns whether this collider should stop the projectile.
     private bool IsObstacleCollider(Collider2D col)
     {
         if (col == null || !col.enabled || col.isTrigger)
@@ -170,6 +177,7 @@ public class FinalBossArmProjectile : MonoBehaviour
         return true;
     }
 
+    // Spawns the projectile impact effect at the hit position.
     private void SpawnImpactEffect()
     {
         if (impactEffectPrefab == null)

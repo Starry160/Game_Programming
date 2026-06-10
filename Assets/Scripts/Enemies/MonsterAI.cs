@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Monster 独立 AI：
-/// - 玩家未进入本房间：只随机跑动，不攻击。
-/// - 玩家进入本房间：可发射火球；若 MouthPoint -> Player 被 Wall 阻挡，则跑位找直线角度。
-/// </summary>
+/// <summary>Controls ranged monster movement, line-of-sight repositioning, and fireball attacks.</summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
 public class MonsterAI : MonoBehaviour
@@ -56,6 +52,7 @@ public class MonsterAI : MonoBehaviour
     private Vector2 _lastRepositionSamplePos;
     private float _nextStuckCheckTime = 0f;
 
+    // Finds the player, room, physics, and animation references used by ranged AI.
     private void Awake()
     {
         if (roomController == null)
@@ -86,6 +83,7 @@ public class MonsterAI : MonoBehaviour
         _nextStuckCheckTime = Time.time + stuckCheckInterval;
     }
 
+    // Updates monster roaming, line-of-sight repositioning, and ranged firing.
     private void FixedUpdate()
     {
         if (!IsPlayerAlive())
@@ -108,6 +106,7 @@ public class MonsterAI : MonoBehaviour
         bool playerInRoom = IsPlayerInSameRoom();
         bool hasClearShot = playerInRoom && HasClearShotToPlayer();
 
+        // Ranged monsters reposition for line of sight, otherwise they keep roaming.
         if (playerInRoom && !hasClearShot)
         {
             nextVelocity = GetRepositionVelocity();
@@ -123,6 +122,7 @@ public class MonsterAI : MonoBehaviour
         TryFireProjectile(playerInRoom, hasClearShot);
     }
 
+    // Flips the enemy visuals toward movement or target direction.
     private void UpdateFacing(float velocityX)
     {
         if (_spriteRenderer == null)
@@ -140,6 +140,7 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
+    // Keeps legacy aim-facing logic disabled in favor of PlayerFacing.
     private void UpdateFacingByAim(Vector2 aimDirection)
     {
         if (_spriteRenderer == null)
@@ -157,6 +158,7 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
+    // Sets the running animation from current horizontal movement speed.
     private void UpdateAnimator()
     {
         if (_animator == null || _rb == null)
@@ -168,6 +170,7 @@ public class MonsterAI : MonoBehaviour
         _animator.SetBool("isRunning", isRunning);
     }
 
+    // Returns whether the player can still be targeted.
     private bool IsPlayerAlive()
     {
         if (_playerTransform == null)
@@ -192,6 +195,7 @@ public class MonsterAI : MonoBehaviour
         return _playerStats.currentHealth > 0f;
     }
 
+    // Checks whether the player is inside this monster room.
     private bool IsPlayerInSameRoom()
     {
         if (_playerTransform == null)
@@ -203,7 +207,7 @@ public class MonsterAI : MonoBehaviour
         {
             if (!_hasLoggedMissingRoomController)
             {
-                Debug.LogWarning($"[MonsterAI] {name} 未绑定 RoomController，默认按同房间处理。", this);
+                Debug.LogWarning($"[MonsterAI] {name} has no RoomController assigned, so same-room behavior is assumed.", this);
                 _hasLoggedMissingRoomController = true;
             }
 
@@ -213,12 +217,14 @@ public class MonsterAI : MonoBehaviour
         Collider2D roomTrigger = GetRoomTriggerZone();
         if (roomTrigger == null)
         {
+            // Missing room bounds means the monster cannot confirm containment, so it stays active.
             return true;
         }
 
         return roomTrigger.bounds.Contains(_playerTransform.position);
     }
 
+    // Finds the trigger zone used to define this monster room.
     private Collider2D GetRoomTriggerZone()
     {
         if (_cachedRoomTriggerZone != null)
@@ -245,6 +251,7 @@ public class MonsterAI : MonoBehaviour
         return _cachedRoomTriggerZone;
     }
 
+    // Checks whether a wall blocks the monster mouth from seeing the player.
     private bool HasClearShotToPlayer()
     {
         if (_playerTransform == null)
@@ -260,6 +267,7 @@ public class MonsterAI : MonoBehaviour
             return true;
         }
 
+        // Any non-trigger wall between mouth and player blocks a fireball shot.
         for (int i = 0; i < hits.Length; i++)
         {
             Collider2D c = hits[i].collider;
@@ -283,10 +291,12 @@ public class MonsterAI : MonoBehaviour
         return true;
     }
 
+    // Chooses a wandering direction when the player is not engaged.
     private Vector2 GetRandomWanderVelocity()
     {
         if (_idleTimer > 0f)
         {
+            // Brief idle pauses make wandering less mechanical between target picks.
             _idleTimer -= Time.fixedDeltaTime;
             return Vector2.zero;
         }
@@ -304,6 +314,7 @@ public class MonsterAI : MonoBehaviour
         return dir * moveSpeed;
     }
 
+    // Chooses a side movement direction that improves line of sight to the player.
     private Vector2 GetRepositionVelocity()
     {
         if (_playerTransform == null)
@@ -311,6 +322,7 @@ public class MonsterAI : MonoBehaviour
             return Vector2.zero;
         }
 
+        // Periodically choose the side with better wall clearance for a shooting lane.
         if (Time.time >= _nextStrafeSwitchTime)
         {
             _strafeSign = ChooseBetterStrafeSign();
@@ -322,7 +334,7 @@ public class MonsterAI : MonoBehaviour
             float moved = Vector2.Distance(_rb.position, _lastRepositionSamplePos);
             if (moved < stuckMinMoveDistance)
             {
-                // 当前位置基本没推进，切另一侧避免左右抖动卡住。
+                // If the monster barely moved, flip side to escape local obstacles.
                 _strafeSign *= -1;
                 _nextStrafeSwitchTime = Time.time + (strafeSwitchInterval * 0.5f);
             }
@@ -342,6 +354,7 @@ public class MonsterAI : MonoBehaviour
         return desired.normalized * moveSpeed;
     }
 
+    // Chooses the strafe side with clearer line of sight.
     private int ChooseBetterStrafeSign()
     {
         if (_playerTransform == null)
@@ -361,7 +374,6 @@ public class MonsterAI : MonoBehaviour
         float leftClear = ProbeSideClearDistance(leftDir);
         float rightClear = ProbeSideClearDistance(rightDir);
 
-        // 差距不明显时保持当前方向，避免频繁切换。
         if (Mathf.Abs(leftClear - rightClear) < 0.12f)
         {
             return _strafeSign;
@@ -370,6 +382,7 @@ public class MonsterAI : MonoBehaviour
         return leftClear > rightClear ? 1 : -1;
     }
 
+    // Measures how far a side movement direction stays clear.
     private float ProbeSideClearDistance(Vector2 sideDir)
     {
         Vector2 origin = GetMouthWorldPosition();
@@ -399,8 +412,10 @@ public class MonsterAI : MonoBehaviour
         return nearestWallDistance;
     }
 
+    // Spawns a fireball from the mouth point and aims it at the player.
     private void TryFireProjectile(bool playerInRoom, bool hasClearShot)
     {
+        // Fire only when the player is in the same room and no wall blocks the shot.
         if (!playerInRoom || !hasClearShot || _playerTransform == null || projectilePrefab == null)
         {
             return;
@@ -415,10 +430,10 @@ public class MonsterAI : MonoBehaviour
         Vector2 fireDir = ((Vector2)_playerTransform.position - spawnPos).normalized;
         if (fireDir.sqrMagnitude < 0.0001f)
         {
+            // If the player overlaps the mouth point, fall back to the monster's facing side.
             fireDir = _spriteRenderer != null && _spriteRenderer.flipX ? Vector2.left : Vector2.right;
         }
 
-        // 发射瞬间让朝向与当前开火方向一致。
         UpdateFacingByAim(fireDir);
 
         float angle = Mathf.Atan2(fireDir.y, fireDir.x) * Mathf.Rad2Deg;
@@ -438,6 +453,7 @@ public class MonsterAI : MonoBehaviour
         PlayFireballSfx();
     }
 
+    // Returns the projectile spawn position at the monster mouth.
     private Vector2 GetMouthWorldPosition()
     {
         if (mouthPoint != null)
@@ -449,6 +465,7 @@ public class MonsterAI : MonoBehaviour
         return (Vector2)transform.position + new Vector2(xOffset, -0.06f);
     }
 
+    // Plays the monster fireball sound with slight pitch variation.
     private void PlayFireballSfx()
     {
         if (attackAudioSource == null || fireballSfx == null)
@@ -456,7 +473,6 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
-        // 与法师发射音同风格：轻微随机音高，减少机械重复感。
         attackAudioSource.pitch = Random.Range(0.9f, 1.1f);
         attackAudioSource.PlayOneShot(fireballSfx, fireballSfxVolume);
     }

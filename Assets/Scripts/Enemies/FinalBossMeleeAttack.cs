@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Final Boss 近战判定组件：扇形范围检测、伤害结算与 Gizmos 可视化。
+/// Checks the boss melee sector and applies damage to the player.
 /// </summary>
 [DisallowMultipleComponent]
 public class FinalBossMeleeAttack : MonoBehaviour
@@ -23,6 +23,7 @@ public class FinalBossMeleeAttack : MonoBehaviour
     public float AttackAnimDuration => Mathf.Max(0.05f, attackAnimDuration);
     public float HitDelay => Mathf.Clamp(hitDelay, 0f, AttackAnimDuration);
 
+    // Stores attack references and builds the boss melee hit mask.
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -32,6 +33,7 @@ public class FinalBossMeleeAttack : MonoBehaviour
         }
     }
 
+    // Checks whether the boss melee attack can damage this target.
     public bool CanHitTarget(Transform target)
     {
         if (target == null)
@@ -42,6 +44,7 @@ public class FinalBossMeleeAttack : MonoBehaviour
         return IsTargetInSector(target.position);
     }
 
+    // Applies melee damage only when the target is inside the boss attack sector.
     public bool TryApplyDamageToTarget(Transform target)
     {
         if (target == null || !IsTargetInSector(target.position))
@@ -64,6 +67,7 @@ public class FinalBossMeleeAttack : MonoBehaviour
         return true;
     }
 
+    // Checks whether a target lies inside the melee sector.
     private bool IsTargetInSector(Vector3 targetPosition)
     {
         Vector2 origin = meleeOrigin != null ? meleeOrigin.position : transform.position;
@@ -84,12 +88,14 @@ public class FinalBossMeleeAttack : MonoBehaviour
         return angle <= Mathf.Clamp(meleeHalfAngle, 1f, 180f);
     }
 
+    // Returns the boss melee forward direction from facing scale.
     private Vector2 GetForward()
     {
         float facingSign = (_spriteRenderer != null && _spriteRenderer.flipX) ? -1f : 1f;
         return ((Vector2)transform.right * facingSign).normalized;
     }
 
+    // Draws the boss melee hit circle in the Scene view.
     private void OnDrawGizmosSelected()
     {
         Vector3 center = meleeOrigin != null ? meleeOrigin.position : transform.position;

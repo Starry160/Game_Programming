@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-/// <summary>编辑器工具：从图集帧生成宝箱 Idle/Open 动画与 Animator Controller。</summary>
+/// <summary>Generates treasure chest animation clips and animator controller assets.</summary>
 public static class ChestAnimationBuilder
 {
     private const string ChestTilesetPath = "Assets/Sprites/Tile/0x72_DungeonTilesetII_v1.7.png";
@@ -16,7 +16,6 @@ public static class ChestAnimationBuilder
     private const float OpenFrameInterval = 0.1f;
     private const float OpenFps = 10f;
 
-    // 菜单入口：重建宝箱动画资源。
     [MenuItem("Tools/Build Chest Animation")]
     public static void BuildChestAnimation()
     {
@@ -52,7 +51,6 @@ public static class ChestAnimationBuilder
         Debug.Log("Chest animation assets rebuilt successfully at Assets/Animations/Chest.");
     }
 
-    // 确保输出目录存在。
     private static void EnsureOutputFolderExists()
     {
         if (!AssetDatabase.IsValidFolder("Assets/Animations"))
@@ -66,7 +64,6 @@ public static class ChestAnimationBuilder
         }
     }
 
-    // 按帧号查找精灵，失败时 LogError。
     private static Sprite FindChestSpriteByFrameOrLogError(int frameIndex)
     {
         Sprite sprite = FindChestSpriteByFrame(frameIndex);
@@ -78,7 +75,6 @@ public static class ChestAnimationBuilder
         return sprite;
     }
 
-    // 在图集或全局按 _帧号 后缀查找 Sprite。
     private static Sprite FindChestSpriteByFrame(int frameIndex)
     {
         string suffix = "_" + frameIndex;
@@ -120,7 +116,6 @@ public static class ChestAnimationBuilder
         return matches[0];
     }
 
-    // 删除已有资源以便强制重建。
     private static void DeleteAssetIfExists(string assetPath)
     {
         if (AssetDatabase.LoadMainAssetAtPath(assetPath) != null)
@@ -129,7 +124,6 @@ public static class ChestAnimationBuilder
         }
     }
 
-    // 创建/更新 Sprite 关键帧动画 Clip。
     private static AnimationClip BuildClip(string clipPath, IReadOnlyList<Sprite> frames, float frameInterval, bool loopTime)
     {
         AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
@@ -169,7 +163,6 @@ public static class ChestAnimationBuilder
         return clip;
     }
 
-    // 设置 Clip 是否循环。
     private static void SetClipLoop(AnimationClip clip, bool loopTime)
     {
         SerializedObject serializedClip = new SerializedObject(clip);
@@ -186,7 +179,6 @@ public static class ChestAnimationBuilder
         serializedClip.ApplyModifiedProperties();
     }
 
-    // 创建 Controller：Idle 默认，open Trigger 切到 Open。
     private static void BuildController(string controllerPath, AnimationClip idleClip, AnimationClip openClip)
     {
         AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
@@ -218,7 +210,6 @@ public static class ChestAnimationBuilder
         EditorUtility.SetDirty(controller);
     }
 
-    // 确保 Animator 存在指定 Trigger 参数。
     private static void EnsureTriggerParameter(AnimatorController controller, string parameterName)
     {
         for (int i = 0; i < controller.parameters.Length; i++)
@@ -233,7 +224,6 @@ public static class ChestAnimationBuilder
         controller.AddParameter(parameterName, AnimatorControllerParameterType.Trigger);
     }
 
-    // 获取或新建 Animator 状态节点。
     private static AnimatorState GetOrCreateState(AnimatorStateMachine stateMachine, string stateName, Vector3 position)
     {
         ChildAnimatorState[] states = stateMachine.states;
@@ -248,7 +238,6 @@ public static class ChestAnimationBuilder
         return stateMachine.AddState(stateName, position);
     }
 
-    // 移除两状态间已有过渡（避免重复）。
     private static void RemoveTransition(AnimatorState fromState, AnimatorState toState)
     {
         List<AnimatorStateTransition> transitionsToRemove = new List<AnimatorStateTransition>();

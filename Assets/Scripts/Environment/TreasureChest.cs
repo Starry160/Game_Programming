@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-/// <summary>宝箱：玩家触碰打开动画并水平弹出掉落物。</summary>
+/// <summary>Opens once when touched and pops rewards out horizontally.</summary>
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Animator))]
 public class TreasureChest : MonoBehaviour
@@ -18,7 +18,7 @@ public class TreasureChest : MonoBehaviour
     private Animator _animator;
     private bool _isOpened = false;
 
-    // 确保碰撞体为 Trigger。
+    // Prepares the chest sprite and hides interaction text before the player arrives.
     private void Start()
     {
         _triggerCollider = GetComponent<BoxCollider2D>();
@@ -30,7 +30,7 @@ public class TreasureChest : MonoBehaviour
         }
     }
 
-    // 玩家首次触碰时开箱。
+    // Lets the player open the chest when standing inside the interaction radius.
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_isOpened)
@@ -47,7 +47,7 @@ public class TreasureChest : MonoBehaviour
         OpenChest();
     }
 
-    // 触发 open 动画并生成掉落。
+    // Opens the chest once and starts the reward drop sequence.
     private void OpenChest()
     {
         if (_animator != null)
@@ -58,17 +58,16 @@ public class TreasureChest : MonoBehaviour
         SpawnDrop();
     }
 
-    // 在宝箱左右生成掉落并调用 PopOut 水平飞出。
+    // Creates chest rewards on both sides and pushes them outward on the same horizontal line.
     private void SpawnDrop()
     {
         if (_dropPrefab == null)
         {
-            Debug.LogWarning("[TreasureChest] _dropPrefab 未绑定，无法弹出掉落物。", this);
+            Debug.LogWarning("[TreasureChest] _dropPrefab is not assigned, so no drop can pop out.", this);
             return;
         }
 
         float directionX = (Random.value > 0.5f) ? 1f : -1f;
-        // 严格保持宝箱同一水平线（同Y）生成，向左右平射。
         Vector3 spawnPosition = transform.position + new Vector3(directionX * _spawnSideOffset, _spawnVerticalOffset, 0f);
         GameObject dropObj = Instantiate(_dropPrefab, spawnPosition, Quaternion.identity);
         ChestDropItem dropItem = dropObj.GetComponent<ChestDropItem>();
@@ -79,7 +78,7 @@ public class TreasureChest : MonoBehaviour
 
         if (dropItem == null)
         {
-            Debug.LogWarning($"[TreasureChest] 生成的掉落物对象 {dropObj.name} 未挂 ChestDropItem。", dropObj);
+            Debug.LogWarning($"[TreasureChest] Spawned drop object {dropObj.name} does not have ChestDropItem.", dropObj);
             return;
         }
 
@@ -95,7 +94,7 @@ public class TreasureChest : MonoBehaviour
         dropItem.PopOut(moveVector);
     }
 
-    // 编辑器 Gizmo：生成点与水平飞出方向。
+    // Draws the chest interaction radius in the Scene view.
     private void OnDrawGizmosSelected()
     {
         Vector3 center = transform.position + new Vector3(0f, _spawnVerticalOffset, 0f);

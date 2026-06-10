@@ -76,10 +76,10 @@ public static class UICharactersSetupTool
         EditorSceneDirty();
         Selection.activeTransform = root;
 
-        string result = $"[UICharactersSetupTool] 完成。更新角色: {string.Join(", ", updatedRoles)}";
+        string result = $"[UICharactersSetupTool] Completed. Updated roles: {string.Join(", ", updatedRoles)}";
         if (missingRolePaths.Count > 0)
         {
-            result += $"\n缺失 Idle 资源（已跳过）:\n- {string.Join("\n- ", missingRolePaths)}";
+            result += $"\nMissing idle assets (skipped):\n- {string.Join("\n- ", missingRolePaths)}";
             Debug.LogWarning(result);
         }
         else

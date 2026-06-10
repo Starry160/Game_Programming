@@ -1,30 +1,33 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>UI 角色辅助：保证 Image 以原始像素尺寸显示。</summary>
+/// <summary>Keeps UI character images at their native sprite size.</summary>
 [ExecuteAlways]
 [RequireComponent(typeof(Image))]
 public class UICharacterAnimator : MonoBehaviour
 {
     private Image _image;
 
+    // Starts the looping idle preview when this UI character becomes visible.
     private void OnEnable()
     {
         RefreshNativeSize();
     }
 
+    // Advances the UI character preview by ping-ponging rotation each frame.
     private void Awake()
     {
         _image = GetComponent<Image>();
         RefreshNativeSize();
     }
 
+    // Keeps editor-time references and collider setup consistent.
     private void OnValidate()
     {
         RefreshNativeSize();
     }
 
-    /// <summary>手动刷新 Image 的 Native Size。</summary>
+    /// <summary>Keeps UI character images at their native sprite size.</summary>
     public void RefreshNativeSize()
     {
         if (_image == null)

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>本局战绩统计：击杀、药水与存活时间。</summary>
+/// <summary>Tracks kills, potion pickups, and survival time for the current run.</summary>
 public class RunStatsManager : MonoBehaviour
 {
     public static RunStatsManager Instance;
@@ -15,6 +15,7 @@ public class RunStatsManager : MonoBehaviour
     private static bool _hasInitializedThisRun;
     private static bool _hasStartedRunTimer;
 
+    // Creates the persistent run-stat singleton that tracks timer and kill count.
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -36,16 +37,19 @@ public class RunStatsManager : MonoBehaviour
         _isCounting = _hasStartedRunTimer;
     }
 
+    // Watches scene loads so run stats stay valid across gameplay scenes.
     private void OnEnable()
     {
         SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
+    // Stops watching scene-load events when the tracker is disabled.
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 
+    // Advances the run timer while gameplay is active.
     private void Update()
     {
         if (!_isCounting)
@@ -57,24 +61,28 @@ public class RunStatsManager : MonoBehaviour
         SyncToGlobalSnapshot();
     }
 
+    // Adds one kill to the run statistics.
     public void AddKill()
     {
         killCount++;
         SyncToGlobalSnapshot();
     }
 
+    // Adds one potion pickup to the run statistics.
     public void AddPotion()
     {
         potionCollected++;
         SyncToGlobalSnapshot();
     }
 
+    // Stops survival time accumulation for the current run.
     public void StopTimer()
     {
         _isCounting = false;
         SyncToGlobalSnapshot();
     }
 
+    // Clears all current run counters.
     public void ResetStats()
     {
         killCount = 0;
@@ -84,7 +92,7 @@ public class RunStatsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 回到主菜单时调用：清空战绩并停止计时，等待下一局开始。
+    /// Tracks kills, potion pickups, and survival time for the current run.
     /// </summary>
     public static void ResetForMenu()
     {
@@ -99,7 +107,7 @@ public class RunStatsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 点击开始新游戏时调用：确保新一局从 0 开始并重新计时。
+    /// Tracks kills, potion pickups, and survival time for the current run.
     /// </summary>
     public static void BeginNewRun()
     {
@@ -119,6 +127,7 @@ public class RunStatsManager : MonoBehaviour
         _hasStartedRunTimer = false;
     }
 
+    // Copies current run statistics into GlobalData.
     private void SyncToGlobalSnapshot()
     {
         GlobalData.persistedKillCount = killCount;
@@ -126,6 +135,7 @@ public class RunStatsManager : MonoBehaviour
         GlobalData.persistedSurvivalTime = survivalTime;
     }
 
+    // Starts or stops run timing based on the loaded scene.
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (!_hasInitializedThisRun)
@@ -133,7 +143,6 @@ public class RunStatsManager : MonoBehaviour
             return;
         }
 
-        // 只在 TalentRoom 传送门到达 Level_01 后开始计时。
         if (!_hasStartedRunTimer && string.Equals(scene.name, "Level_01", System.StringComparison.Ordinal))
         {
             _hasStartedRunTimer = true;
@@ -142,7 +151,6 @@ public class RunStatsManager : MonoBehaviour
             return;
         }
 
-        // 计时起点前始终不累计。
         if (!_hasStartedRunTimer)
         {
             _isCounting = false;

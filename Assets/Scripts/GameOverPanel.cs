@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
 
-/// <summary>战绩结算面板：展示数据并返回主菜单。</summary>
+/// <summary>Shows final run results for death or victory and returns to the main menu.</summary>
 public class GameOverPanel : MonoBehaviour
 {
     public enum ResultType
@@ -28,7 +28,7 @@ public class GameOverPanel : MonoBehaviour
 
     [Header("Victory Visual")]
     [SerializeField] private Image _panelBackground;
-    [SerializeField] private string _victoryTitle = "你成功通过了试炼";
+    [SerializeField] private string _victoryTitle = "You successfully completed the trial";
     [SerializeField] private Color _victoryPanelColor = new Color(0.16f, 0.28f, 0.5f, 0.9f);
     [SerializeField] private Color _victoryTitleColor = new Color(1f, 0.87f, 0.35f, 1f);
 
@@ -38,6 +38,7 @@ public class GameOverPanel : MonoBehaviour
     private CanvasGroup _canvasGroup;
     private Coroutine _fadeCoroutine;
 
+    // Locates result-panel buttons and keeps the panel hidden at startup.
     private void Awake()
     {
         EnsureCanvasGroup();
@@ -46,7 +47,7 @@ public class GameOverPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 运行时准备：即使场景里默认 Inactive，也会自动启用并保持隐藏待命。
+    /// Prepares the panel so it can be shown even if it starts inactive.
     /// </summary>
     public void PrepareForRuntime()
     {
@@ -60,21 +61,25 @@ public class GameOverPanel : MonoBehaviour
         IsShowing = false;
     }
 
+    // Shows the result panel using the selected result type and fade duration.
     public void ShowPanel()
     {
         ShowPanel(ResultType.Death, 0.35f);
     }
 
+    // Shows the result panel using the selected result type and fade duration.
     public void ShowPanel(ResultType resultType)
     {
         ShowPanel(resultType, 0.35f);
     }
 
+    // Shows the result panel using the selected result type and fade duration.
     public void ShowPanel(float fadeDuration)
     {
         ShowPanel(ResultType.Death, fadeDuration);
     }
 
+    // Shows the result panel using the selected result type and fade duration.
     public void ShowPanel(ResultType resultType, float fadeDuration)
     {
         gameObject.SetActive(true);
@@ -98,6 +103,7 @@ public class GameOverPanel : MonoBehaviour
         }
     }
 
+    // Handles the result panel button that returns to the main menu.
     public void OnMainMenuButtonPressed()
     {
         IsShowing = false;
@@ -107,6 +113,7 @@ public class GameOverPanel : MonoBehaviour
         SceneManager.LoadScene(_mainMenuSceneName);
     }
 
+    // Writes kills, potion count, and survival time into the result panel.
     private void FillTexts()
     {
         int kills = GlobalData.persistedKillCount;
@@ -139,6 +146,7 @@ public class GameOverPanel : MonoBehaviour
         }
     }
 
+    // Applies colors and title text for victory or death results.
     private void ApplyVisual(ResultType resultType)
     {
         string targetTitle = resultType == ResultType.Victory ? _victoryTitle : _deathTitle;
@@ -157,6 +165,7 @@ public class GameOverPanel : MonoBehaviour
         }
     }
 
+    // Fades the result panel into view.
     private IEnumerator FadeInRoutine(float fadeDuration)
     {
         if (_canvasGroup == null)
@@ -179,6 +188,7 @@ public class GameOverPanel : MonoBehaviour
         _fadeCoroutine = null;
     }
 
+    // Ensures the panel has a CanvasGroup for fading.
     private void EnsureCanvasGroup()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
@@ -188,6 +198,7 @@ public class GameOverPanel : MonoBehaviour
         }
     }
 
+    // Hides the result panel without animation.
     private void HideImmediately()
     {
         if (_canvasGroup == null)

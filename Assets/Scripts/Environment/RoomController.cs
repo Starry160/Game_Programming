@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>房间战斗：玩家进入锁门、清怪后开门并显示宝箱。</summary>
+/// <summary>Starts room combat, locks doors, detects clears, and reveals rewards.</summary>
 public class RoomController : MonoBehaviour
 {
     public System.Action<RoomController> RoomCleared;
@@ -19,31 +19,31 @@ public class RoomController : MonoBehaviour
     [SerializeField] private string playerTag = "Player";
 
     [Header("Treasure Reveal")]
-    [Tooltip("开启后，清怪时会显示宝箱；关闭则忽略宝箱绑定并不提示警告。")]
+    [Tooltip("Show the treasure chest after all room enemies are cleared.")]
     [SerializeField] private bool enableTreasureReveal = true;
     [SerializeField] private GameObject _treasureBox;
 
     [Header("Gate Hide Timing")]
-    [Tooltip("清怪后，DungeonDoor 延迟隐藏时间（秒）。")]
+    [Tooltip("Delay before hiding dungeon doors after the room is cleared.")]
     [SerializeField] private float dungeonDoorHideDelay = 0.8f;
-    [Tooltip("DungeonDoor 渐隐时长（秒）。")]
+    [Tooltip("Fade duration used when hiding dungeon doors after room clear.")]
     [SerializeField] private float dungeonDoorFadeDuration = 0.35f;
 
     [Header("Trigger Fallback")]
-    [Tooltip("优先使用这个触发区做玩家进入检测（推荐绑定 RoomTriggerZone）。")]
+    [Tooltip("Trigger area used to detect that the player has entered this room.")]
     [SerializeField] private Collider2D roomTriggerZone;
 
     private bool isRoomCleared = false;
     private bool isBattleStarted = false;
     private float nextCheckTime = 0f;
 
-    // 自动绑定房间触发区。
+    // Locates the room trigger so battle start checks work even if it was not assigned.
     private void Awake()
     {
         AutoBindTriggerZone();
     }
 
-    // 开局隐藏宝箱。
+    // Keeps the reward chest hidden until this room has been cleared.
     private void Start()
     {
         if (enableTreasureReveal && _treasureBox != null)
@@ -52,8 +52,8 @@ public class RoomController : MonoBehaviour
         }
     }
 
-    // 编辑器菜单：从子物体 DoorController 同步 roomGates 列表。
     [ContextMenu("Sync Room Gates From Children")]
+    // Rebuilds the room gate list from child DoorController objects.
     private void SyncRoomGatesFromChildren()
     {
         DoorController[] childDoors = GetComponentsInChildren<DoorController>(true);
@@ -63,27 +63,29 @@ public class RoomController : MonoBehaviour
             roomGates.Add(childDoors[i].gameObject);
         }
 
-        Debug.Log($"[RoomController] 已同步 {roomGates.Count} 扇门到 roomGates（仅这些门会被房间逻辑控制）。", this);
+        Debug.Log($"[RoomController] Synchronized {roomGates.Count} doors into roomGates.", this);
     }
 
-    // Inspector 变更时校验引用并去重。
+    // Keeps editor-time references and collider setup consistent.
     private void OnValidate()
     {
         AutoBindTriggerZone();
 
+        // Editor validation catches missing room pieces before the scene is played.
         if (roomTriggerZone == null)
         {
-            Debug.LogWarning("[RoomController] 未找到 roomTriggerZone。请在 Inspector 绑定 RoomTriggerZone 或给当前物体添加 Collider2D。", this);
+            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
         }
 
         if (roomGates == null || roomGates.Count == 0)
         {
-            Debug.LogWarning("[RoomController] roomGates 为空，战斗开始时不会锁门。", this);
+            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
         }
         else
         {
             roomGates.RemoveAll(gate => gate == null);
 
+            // Remove duplicate gate references so a door is not locked or unlocked twice.
             for (int i = roomGates.Count - 1; i >= 0; i--)
             {
                 for (int j = i - 1; j >= 0; j--)
@@ -100,7 +102,7 @@ public class RoomController : MonoBehaviour
             {
                 if (roomGates[i].GetComponent<DoorController>() == null)
                 {
-                    Debug.LogWarning($"[RoomController] roomGates[{i}] ({roomGates[i].name}) 没有 DoorController，无法锁门。", roomGates[i]);
+                    Debug.LogWarning($"[RoomController] roomGates[{i}] ({roomGates[i].name}) has no DoorController and cannot be locked.", roomGates[i]);
                 }
             }
 
@@ -110,14 +112,14 @@ public class RoomController : MonoBehaviour
                 GameObject childDoorObject = childDoors[i].gameObject;
                 if (!roomGates.Contains(childDoorObject))
                 {
-                    Debug.LogWarning($"[RoomController] 检测到未纳入 roomGates 的门：{childDoorObject.name}。它不会被 TestRoom_01 的房间逻辑控制。", childDoorObject);
+                    Debug.LogWarning($"[RoomController] Door {childDoorObject.name} is not included in roomGates and will not be controlled by this room.", childDoorObject);
                 }
             }
         }
 
         if (enemiesInRoom == null || enemiesInRoom.Count == 0)
         {
-            Debug.LogWarning("[RoomController] enemiesInRoom 为空，房间会被立即判定为清空。", this);
+            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
         }
         else
         {
@@ -126,11 +128,11 @@ public class RoomController : MonoBehaviour
 
         if (enableTreasureReveal && _treasureBox == null)
         {
-            Debug.LogWarning("[RoomController] _treasureBox 未绑定，清怪后不会显示宝箱。", this);
+            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
         }
     }
 
-    // 玩家进入房间触发区时开始战斗。
+    // Starts the room battle when the player crosses the room trigger.
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(playerTag))
@@ -144,12 +146,13 @@ public class RoomController : MonoBehaviour
         }
     }
 
-    // 锁门、激活敌人并开启 canChase。
+    // Locks gates, enables enemies, and activates any boss assigned to the room.
     private void StartRoomBattle()
     {
         isBattleStarted = true;
         RoomBattleStarted?.Invoke(this);
 
+        // Battle start closes every configured gate so the player cannot leave mid-fight.
         foreach (GameObject gate in roomGates)
         {
             if (gate != null)
@@ -179,6 +182,7 @@ public class RoomController : MonoBehaviour
 
             enemy.SetActive(true);
 
+            // Normal enemies use EnemyAI, while the final boss has a separate activation path.
             EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
             if (enemyAI != null)
             {
@@ -195,16 +199,12 @@ public class RoomController : MonoBehaviour
             {
                 finalBoss.ActivateBattle();
             }
-            else if (enemyAI == null)
-            {
-                Debug.LogWarning($"[RoomController] 房间内的物体 {enemy.name} 没有挂载 EnemyAI 组件，已自动跳过。");
-            }
         }
 
         nextCheckTime = Time.time + enemyCheckInterval;
     }
 
-    // 轮询清怪状态；备用：玩家已在 bounds 内则开战。
+    // Periodically checks room enemies and clears the room once none remain.
     private void Update()
     {
         TryStartBattleByBoundsFallback();
@@ -220,6 +220,7 @@ public class RoomController : MonoBehaviour
         }
 
         nextCheckTime = Time.time + enemyCheckInterval;
+        // Destroyed or inactive enemies are removed before deciding whether the room is clear.
         enemiesInRoom.RemoveAll(IsEnemyCleared);
 
         if (enemiesInRoom.Count == 0)
@@ -228,11 +229,12 @@ public class RoomController : MonoBehaviour
         }
     }
 
-    // 清怪完成：解锁/隐藏门，显示宝箱。
+    // Unlocks gates, hides dungeon doors, and reveals the treasure chest after combat.
     private void ClearRoom()
     {
         isRoomCleared = true;
 
+        // Clearing the room reverses the battle lockdown and then reveals the room reward.
         foreach (GameObject gate in roomGates)
         {
             if (gate != null)
@@ -244,7 +246,6 @@ public class RoomController : MonoBehaviour
                 }
 
                 // Keep old room-flow behavior: hide gates when room is cleared.
-                // Entrance/Exit DungeonDoor 支持延迟隐藏，让清怪反馈更自然。
                 if (IsDungeonDoorWithDelay(gate))
                 {
                     StartCoroutine(FadeOutGateAfterDelay(gate, dungeonDoorHideDelay, dungeonDoorFadeDuration));
@@ -262,13 +263,15 @@ public class RoomController : MonoBehaviour
         }
 
         RoomCleared?.Invoke(this);
-        Debug.Log("房间已清空，大门打开！");
+        Debug.Log("Room cleared. Doors opened!");
     }
 
+    // Waits briefly, fades a dungeon gate out, then disables it.
     private IEnumerator FadeOutGateAfterDelay(GameObject gate, float delay, float fadeDuration)
     {
         yield return new WaitForSeconds(delay);
 
+        // If the door was destroyed during the delay, the fade can be skipped safely.
         if (gate == null)
         {
             yield break;
@@ -289,10 +292,10 @@ public class RoomController : MonoBehaviour
 
         SetRenderersAlpha(renderers, 0f);
         gate.SetActive(false);
-        // 复位为不透明，避免未来再次激活时仍是 0 透明度。
         SetRenderersAlpha(renderers, 1f);
     }
 
+    // Returns whether this gate should use delayed fade-out behavior.
     private static bool IsDungeonDoorWithDelay(GameObject gate)
     {
         if (gate == null)
@@ -304,6 +307,7 @@ public class RoomController : MonoBehaviour
         return gateName.Contains("EntranceDungeonDoor") || gateName.Contains("ExitDungeonDoor");
     }
 
+    // Applies a shared alpha value to all renderers on a gate.
     private static void SetRenderersAlpha(SpriteRenderer[] renderers, float alpha)
     {
         if (renderers == null)
@@ -326,6 +330,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
+    // Returns whether an enemy entry should be removed from the active room list.
     private static bool IsEnemyCleared(GameObject enemyObject)
     {
         if (enemyObject == null)
@@ -347,7 +352,7 @@ public class RoomController : MonoBehaviour
         return false;
     }
 
-    // 查找 RoomTriggerZone 或自身 Collider2D。
+    // Finds the room trigger collider when it was not assigned manually.
     private void AutoBindTriggerZone()
     {
         if (roomTriggerZone != null)
@@ -355,6 +360,7 @@ public class RoomController : MonoBehaviour
             return;
         }
 
+        // Prefer a named child trigger, then fall back to this object's Collider2D.
         Transform triggerTransform = transform.Find("RoomTriggerZone");
         if (triggerTransform != null)
         {
@@ -367,7 +373,7 @@ public class RoomController : MonoBehaviour
         }
     }
 
-    // 无 OnTrigger 时，玩家已在触发 bounds 内则开战。
+    // Starts combat if the player is already inside the room trigger bounds.
     private void TryStartBattleByBoundsFallback()
     {
         if (isBattleStarted || isRoomCleared)
@@ -381,6 +387,7 @@ public class RoomController : MonoBehaviour
             return;
         }
 
+        // Bounds fallback covers cases where trigger callbacks were missed during scene setup.
         GameObject player = GameObject.FindWithTag(playerTag);
         if (player == null)
         {

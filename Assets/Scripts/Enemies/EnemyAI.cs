@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-/// <summary>敌人 AI：追击、包抄、挥砍攻击与旧版血量（可被 EnemyHealth 替代）。</summary>
+/// <summary>Controls enemy chasing, flanking, melee attacks, and fallback health behavior.</summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class EnemyAI : MonoBehaviour
     private float currentHealth;
     public float moveSpeed = 3f;
     [Header("Combat")]
-    [Tooltip("进入该距离后停止追击，视为贴身攻击范围。")]
+    [Tooltip("Radius of the melee damage sector.")]
     public float attackRange = 1.1f;
     public float attackCooldown = 1.0f;
     private float lastAttackTime = -999f;
@@ -26,17 +26,17 @@ public class EnemyAI : MonoBehaviour
     public float attackWindupDuration = 0.06f;
     public float attackSwingDuration = 0.10f;
     public float attackRecoverDuration = 0.10f;
-    [Header("AI状态设置")]
-    [Tooltip("是否允许开始追踪玩家")]
+    [Header("Settings")]
+    [Tooltip("Allows the enemy to chase the player after its room battle starts.")]
     public bool canChase = false;
     [Header("Chase Tuning")]
-    [Tooltip("敌人希望与智能目标点保持的最近距离。")]
+    [Tooltip("Distance where the enemy stops moving and prepares to attack.")]
     public float stopDistance = 1.2f;
-    [Tooltip("用于包抄玩家左右侧面的横向偏移。")]
+    [Tooltip("Horizontal offset used to approach from the side instead of the exact player center.")]
     public float flankOffset = 1.0f;
-    [Tooltip("随机游走半径，值越大绕行越明显。")]
+    [Tooltip("Radius used when picking small random chase offsets.")]
     public float wanderRadius = 2.0f;
-    [Tooltip("随机游走状态切换间隔（秒）。")]
+    [Tooltip("Time between random chase-offset refreshes.")]
     public float stateChangeInterval = 1.5f;
 
     private Transform playerTransform;
@@ -52,7 +52,7 @@ public class EnemyAI : MonoBehaviour
     private Vector3 randomOffset;
     private float nextStateChangeTime = 0f;
 
-    // 查找玩家、缓存组件与武器初始姿态。
+    // Finds the player and records weapon pivot defaults before melee movement begins.
     private void Start()
     {
         currentHealth = maxHealth;
@@ -74,18 +74,18 @@ public class EnemyAI : MonoBehaviour
             weaponPivotInitialLocalPosition = weaponPivot.localPosition;
         }
 
-        // 连续碰撞检测可降低高速/高频接触时的穿透与抖动问题。
         if (rb != null)
         {
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         }
     }
 
-    // 物理帧：追击/待机/发起攻击。
+    // Chooses between chasing, idling, and attacking during the physics step.
     private void FixedUpdate()
     {
         if (!canChase || playerTransform == null || rb == null)
         {
+            // Enemies stay idle until the room controller explicitly enables chasing.
             isInAttackRange = false;
             UpdateRunAnimation(false);
             return;
@@ -95,6 +95,7 @@ public class EnemyAI : MonoBehaviour
         bool touchingOrTooCloseByCollider = false;
         if (enemyCollider != null && playerCollider != null)
         {
+            // Collider distance catches contact cases where center-to-center range is misleading.
             ColliderDistance2D colliderDistance = enemyCollider.Distance(playerCollider);
             touchingOrTooCloseByCollider = colliderDistance.isOverlapped || colliderDistance.distance <= 0.05f;
         }
@@ -103,6 +104,7 @@ public class EnemyAI : MonoBehaviour
 
         if (isInAttackRange)
         {
+            // Stop moving before attacking so melee swings do not slide through the player.
             rb.velocity = Vector2.zero;
             rb.angularVelocity = 0f;
             UpdateRunAnimation(false);
@@ -118,6 +120,7 @@ public class EnemyAI : MonoBehaviour
         Vector3 targetPosition = CalculateSmartTargetPosition();
         if (Time.time >= nextStateChangeTime)
         {
+            // Random offsets keep groups of melee enemies from stacking on the same target point.
             Vector2 randomCircle = Random.insideUnitCircle.normalized * wanderRadius;
             float randomDistanceFactor = Random.Range(0.6f, 1.4f);
             randomOffset = new Vector3(randomCircle.x, randomCircle.y, 0f) * randomDistanceFactor;
@@ -147,7 +150,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 贴身时清零速度，避免推挤玩家。
+    // Handles ongoing physical contact with another collider.
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (rb == null)
@@ -166,7 +169,6 @@ public class EnemyAI : MonoBehaviour
             veryCloseToPlayer = Vector2.Distance(rb.position, playerTransform.position) <= attackRange + 0.1f;
         }
 
-        // 如果已经进入攻击状态或距离玩家过近，强制清掉推力，避免把玩家推着走。
         if (isInAttackRange || veryCloseToPlayer)
         {
             rb.velocity = Vector2.zero;
@@ -174,7 +176,7 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 按移动方向翻转 Sprite 与武器 pivot。
+    // Flips the enemy visuals toward movement or target direction.
     private void UpdateFacing(Vector2 direction)
     {
         if (spriteRenderer == null)
@@ -182,7 +184,6 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        // 水平朝向翻转：向左移动时翻转，向右移动时恢复。
         if (direction.x < -0.001f)
         {
             spriteRenderer.flipX = true;
@@ -195,14 +196,14 @@ public class EnemyAI : MonoBehaviour
         UpdateWeaponFacing(direction.x);
     }
 
-    // 同步武器 pivot 的 scale 与本地 X 偏移。
+    // Keeps the enemy weapon pivot aligned with the current facing direction.
     private void UpdateWeaponFacing(float dirX)
     {
         if (weaponPivot == null)
         {
             if (!hasLoggedMissingWeaponPivot)
             {
-                Debug.LogWarning($"[EnemyAI] {name} 未绑定 weaponPivot，无法同步武器朝向。", this);
+                Debug.LogWarning($"[EnemyAI] {name} is missing a required attack reference.", this);
                 hasLoggedMissingWeaponPivot = true;
             }
             return;
@@ -226,7 +227,7 @@ public class EnemyAI : MonoBehaviour
         weaponPivot.localScale = scale;
     }
 
-    // 设置 Animator 的 isRunning 参数。
+    // Updates the enemy running animation parameter.
     private void UpdateRunAnimation(bool isRunning)
     {
         if (animator == null)
@@ -237,7 +238,7 @@ public class EnemyAI : MonoBehaviour
         animator.SetBool("isRunning", isRunning);
     }
 
-    // 旧版受击扣血（无 EnemyHealth 时使用）。
+    // Applies incoming damage and related hit feedback.
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
@@ -252,7 +253,7 @@ public class EnemyAI : MonoBehaviour
         {
             feedback.PlayFeedback();
         }
-        Debug.Log(gameObject.name + " 受到伤害，剩余血量: " + currentHealth);
+        Debug.Log(gameObject.name + " took damage. Remaining health: " + currentHealth);
 
         if (currentHealth <= 0f)
         {
@@ -260,14 +261,14 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 旧版死亡：直接销毁。
+    // Starts the death flow for this object.
     private void Die()
     {
-        Debug.Log(gameObject.name + " 已死亡！");
+        Debug.Log(gameObject.name + " has died!");
         Destroy(gameObject);
     }
 
-    // 计算包抄目标点（玩家左右侧面偏移）。
+    // Offsets the target point to make enemies flank around the player.
     private Vector3 CalculateSmartTargetPosition()
     {
         Vector3 playerPos = playerTransform.position;
@@ -275,14 +276,14 @@ public class EnemyAI : MonoBehaviour
         return new Vector3(playerPos.x + xOffset, playerPos.y, playerPos.z);
     }
 
-    // 挥砍协程：前摇 → 下劈（命中帧）→ 收招。
+    // Runs the enemy melee attack wind-up, hit frame, and recovery animation.
     private IEnumerator AttackRoutine()
     {
         if (weaponPivot == null)
         {
             if (!hasLoggedMissingWeaponPivot)
             {
-                Debug.LogWarning($"[EnemyAI] {name} 未绑定 weaponPivot，无法执行旋转挥砍。", this);
+                Debug.LogWarning($"[EnemyAI] {name} is missing a required attack reference.", this);
                 hasLoggedMissingWeaponPivot = true;
             }
             lastAttackTime = Time.time;
@@ -296,6 +297,7 @@ public class EnemyAI : MonoBehaviour
         Quaternion windupRot = Quaternion.Euler(0f, 0f, attackStartAngle * dirSign);
         Quaternion swingRot = Quaternion.Euler(0f, 0f, attackEndAngle * dirSign);
 
+        // The swing is split into windup, hit frame, and recovery for readable tuning.
         yield return LerpWeaponRotation(startRot, windupRot, Mathf.Max(0.0001f, attackWindupDuration), false);
         yield return LerpWeaponRotation(windupRot, swingRot, Mathf.Max(0.0001f, attackSwingDuration), true);
         yield return LerpWeaponRotation(swingRot, startRot, Mathf.Max(0.0001f, attackRecoverDuration), false);
@@ -305,7 +307,7 @@ public class EnemyAI : MonoBehaviour
         isAttacking = false;
     }
 
-    // 武器旋转插值，可选在归一化时间点触发伤害。
+    // Interpolates the enemy weapon swing and optionally triggers the hit frame.
     private IEnumerator LerpWeaponRotation(Quaternion from, Quaternion to, float duration, bool applyHitFrame)
     {
         float elapsed = 0f;
@@ -320,6 +322,7 @@ public class EnemyAI : MonoBehaviour
 
             if (applyHitFrame && !hitDone && t >= clampedHit)
             {
+                // Damage is applied once at the configured point inside the swing animation.
                 DoHitCheck();
                 hitDone = true;
             }
@@ -334,12 +337,12 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 在 hitPoint 圆形范围内对玩家造成伤害。
+    // Checks the attack circle and applies damage to any player hit inside it.
     private void DoHitCheck()
     {
         if (hitPoint == null)
         {
-            Debug.LogWarning($"[EnemyAI] {name} 未绑定 hitPoint，跳过伤害检测。", this);
+            Debug.LogWarning($"[EnemyAI] {name} is missing a required attack reference.", this);
             return;
         }
 
@@ -371,12 +374,12 @@ public class EnemyAI : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"[EnemyAI] 命中对象 {col.name} 未找到 PlayerStats，已跳过伤害调用。");
+                Debug.LogWarning($"[EnemyAI] Hit object {col.name} has no PlayerStats, so damage was skipped.");
             }
         }
     }
 
-    // 编辑器绘制攻击判定圆。
+    // Draws the enemy melee hit radius in the Scene view.
     private void OnDrawGizmosSelected()
     {
         if (hitPoint == null)

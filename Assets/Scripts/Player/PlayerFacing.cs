@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>角色左右朝向：攻击时跟鼠标，平时跟移动方向。</summary>
+/// <summary>Flips the player toward the mouse while attacking and toward movement otherwise.</summary>
 public class PlayerFacing : MonoBehaviour
 {
-    // 每帧根据攻击/移动状态更新朝向。
+    // Updates facing from attack input first, then movement input when not attacking.
     private void Update()
     {
-        // 攻击意图：鼠标左键被按下 / 按住。
         bool isAttacking = Mouse.current != null && Mouse.current.leftButton.isPressed;
 
         if (isAttacking)
@@ -19,7 +18,7 @@ public class PlayerFacing : MonoBehaviour
         FaceByMovement();
     }
 
-    // 攻击时：鼠标在左/右决定 flip（localScale.x 符号）。
+    // Uses the mouse world position to flip the player during attacks.
     private void FaceByMouse()
     {
         if (Mouse.current == null)
@@ -33,8 +32,6 @@ public class PlayerFacing : MonoBehaviour
             return;
         }
 
-        // 2D 正交相机下，ScreenToWorldPoint 必须携带相对相机的 Z 深度；
-        // 否则 Z=0 时结果会坍缩到相机自身位置，导致相机跟随期间左右判定翻转。
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Vector3 mouseScreenWithDepth = new Vector3(
             mouseScreenPos.x,
@@ -42,7 +39,6 @@ public class PlayerFacing : MonoBehaviour
             -mainCamera.transform.position.z);
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(mouseScreenWithDepth);
 
-        // 战斗状态：鼠标左右决定角色朝向，支持“边退边打”。
         if (mouseWorldPos.x > transform.position.x)
         {
             SetFacing(1f);
@@ -53,10 +49,9 @@ public class PlayerFacing : MonoBehaviour
         }
     }
 
-    // 非攻击时：按 A/D 或左摇杆水平输入翻转。
+    // Uses keyboard or gamepad horizontal movement to flip the player while exploring.
     private void FaceByMovement()
     {
-        // 跑图状态：直接读键盘 A/D 键的水平输入；未按键则保持当前朝向。
         float horizontal = ReadHorizontalInput();
 
         if (horizontal > 0f)
@@ -69,7 +64,7 @@ public class PlayerFacing : MonoBehaviour
         }
     }
 
-    // 读取键盘与手柄的水平输入。
+    // Combines keyboard and gamepad horizontal input with a small dead zone.
     private static float ReadHorizontalInput()
     {
         float horizontal = 0f;
@@ -87,7 +82,6 @@ public class PlayerFacing : MonoBehaviour
             }
         }
 
-        // 兼容手柄：左摇杆 X 也参与水平朝向判定，带小死区防抖。
         if (Mathf.Approximately(horizontal, 0f) && Gamepad.current != null)
         {
             float stickX = Gamepad.current.leftStick.x.ReadValue();
@@ -100,7 +94,7 @@ public class PlayerFacing : MonoBehaviour
         return horizontal;
     }
 
-    // 设置 localScale.x 符号表示朝向。
+    // Applies the facing direction by changing the sign of localScale.x.
     private void SetFacing(float signX)
     {
         Vector3 scale = transform.localScale;
