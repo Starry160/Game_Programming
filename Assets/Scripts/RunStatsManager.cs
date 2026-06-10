@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>本局战绩统计：击杀、药水与存活时间。</summary>
 public class RunStatsManager : MonoBehaviour
@@ -12,6 +13,7 @@ public class RunStatsManager : MonoBehaviour
 
     private bool _isCounting;
     private static bool _hasInitializedThisRun;
+    private static bool _hasStartedRunTimer;
 
     private void Awake()
     {
@@ -28,9 +30,20 @@ public class RunStatsManager : MonoBehaviour
         {
             ResetStats();
             _hasInitializedThisRun = true;
+            _hasStartedRunTimer = false;
         }
 
-        _isCounting = true;
+        _isCounting = _hasStartedRunTimer;
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 
     private void Update()
@@ -41,21 +54,25 @@ public class RunStatsManager : MonoBehaviour
         }
 
         survivalTime += Time.deltaTime;
+        SyncToGlobalSnapshot();
     }
 
     public void AddKill()
     {
         killCount++;
+        SyncToGlobalSnapshot();
     }
 
     public void AddPotion()
     {
         potionCollected++;
+        SyncToGlobalSnapshot();
     }
 
     public void StopTimer()
     {
         _isCounting = false;
+        SyncToGlobalSnapshot();
     }
 
     public void ResetStats()
@@ -63,6 +80,7 @@ public class RunStatsManager : MonoBehaviour
         killCount = 0;
         potionCollected = 0;
         survivalTime = 0f;
+        SyncToGlobalSnapshot();
     }
 
     /// <summary>
@@ -77,6 +95,7 @@ public class RunStatsManager : MonoBehaviour
         }
 
         _hasInitializedThisRun = false;
+        _hasStartedRunTimer = false;
     }
 
     /// <summary>
@@ -87,9 +106,46 @@ public class RunStatsManager : MonoBehaviour
         if (Instance != null)
         {
             Instance.ResetStats();
-            Instance._isCounting = true;
+            Instance._isCounting = false;
+        }
+        else
+        {
+            GlobalData.persistedKillCount = 0;
+            GlobalData.persistedPotionCollected = 0;
+            GlobalData.persistedSurvivalTime = 0f;
         }
 
         _hasInitializedThisRun = true;
+        _hasStartedRunTimer = false;
+    }
+
+    private void SyncToGlobalSnapshot()
+    {
+        GlobalData.persistedKillCount = killCount;
+        GlobalData.persistedPotionCollected = potionCollected;
+        GlobalData.persistedSurvivalTime = survivalTime;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!_hasInitializedThisRun)
+        {
+            return;
+        }
+
+        // 只在 TalentRoom 传送门到达 Level_01 后开始计时。
+        if (!_hasStartedRunTimer && string.Equals(scene.name, "Level_01", System.StringComparison.Ordinal))
+        {
+            _hasStartedRunTimer = true;
+            _isCounting = true;
+            Debug.Log($"[RunStatsManager] Timer started on scene '{scene.name}'. survivalTime={survivalTime:F2}");
+            return;
+        }
+
+        // 计时起点前始终不累计。
+        if (!_hasStartedRunTimer)
+        {
+            _isCounting = false;
+        }
     }
 }

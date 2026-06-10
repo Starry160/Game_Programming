@@ -23,8 +23,10 @@ public class LevelPortal : MonoBehaviour
     public GameObject interactHint;
 
     [Header("Animation")]
-    [Tooltip("传送门的 Animator，用于播放激活动画。Trigger 参数名固定为 Activate。")]
+    [Tooltip("传送门的 Animator，用于播放激活动画。")]
     public Animator portalAnimator;
+    [Tooltip("播放激活动画使用的 Trigger 参数名。")]
+    [SerializeField] private string _activateTriggerName = "Activate";
 
     [Tooltip("吸入动画时长（秒），同时也是切场景前的总延迟。")]
     public float teleportDelay = 1.5f;
@@ -32,6 +34,7 @@ public class LevelPortal : MonoBehaviour
     private bool canInteract;
     private GameObject _currentPlayer;
     private bool _isUnlocked = true;
+    private bool _hasActivateTrigger = true;
 
     // 默认隐藏交互提示。
     private void Awake()
@@ -53,6 +56,8 @@ public class LevelPortal : MonoBehaviour
 
             SetPortalVisibility(_isUnlocked);
         }
+
+        CacheAnimatorTriggerFlag();
 
         // 默认隐藏交互提示，只有玩家靠近时才出现。
         if (interactHint != null)
@@ -144,10 +149,7 @@ public class LevelPortal : MonoBehaviour
             interactHint.SetActive(false);
         }
 
-        if (portalAnimator != null)
-        {
-            portalAnimator.SetTrigger("Activate");
-        }
+        TryPlayPortalActivateAnimation();
 
         // 冻结玩家的物理模拟，防止被吸入过程中还能移动/被碰撞推开。
         if (_currentPlayer != null)
@@ -246,5 +248,50 @@ public class LevelPortal : MonoBehaviour
         {
             interactHint.SetActive(false);
         }
+    }
+
+    private void CacheAnimatorTriggerFlag()
+    {
+        _hasActivateTrigger = true;
+        if (portalAnimator == null || string.IsNullOrEmpty(_activateTriggerName))
+        {
+            return;
+        }
+
+        _hasActivateTrigger = false;
+        AnimatorControllerParameter[] parameters = portalAnimator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter parameter = parameters[i];
+            if (parameter != null &&
+                parameter.type == AnimatorControllerParameterType.Trigger &&
+                parameter.name == _activateTriggerName)
+            {
+                _hasActivateTrigger = true;
+                break;
+            }
+        }
+
+        if (!_hasActivateTrigger)
+        {
+            Debug.LogWarning(
+                $"[LevelPortal] Animator '{portalAnimator.runtimeAnimatorController?.name}' does not contain trigger '{_activateTriggerName}'.",
+                portalAnimator);
+        }
+    }
+
+    private void TryPlayPortalActivateAnimation()
+    {
+        if (portalAnimator == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_activateTriggerName) || !_hasActivateTrigger)
+        {
+            return;
+        }
+
+        portalAnimator.SetTrigger(_activateTriggerName);
     }
 }

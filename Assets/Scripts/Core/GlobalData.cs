@@ -53,6 +53,13 @@ public static class GlobalData
     public static float persistedMaxShield = 0f;
 
     /// <summary>
+    /// 跨场景继承的本局战绩快照（用于结算面板在统计器缺失时兜底显示）。
+    /// </summary>
+    public static int persistedKillCount = 0;
+    public static int persistedPotionCollected = 0;
+    public static float persistedSurvivalTime = 0f;
+
+    /// <summary>
     /// 清空本局运行时的跨场景状态。
     /// 用于“回到主菜单后重新开始”这种应视为新开一局的场景。
     /// </summary>
@@ -66,5 +73,8 @@ public static class GlobalData
         persistedMaxHealth = 0f;
         hasPersistedMaxShield = false;
         persistedMaxShield = 0f;
+        persistedKillCount = 0;
+        persistedPotionCollected = 0;
+        persistedSurvivalTime = 0f;
     }
 }

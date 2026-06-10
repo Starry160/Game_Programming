@@ -679,7 +679,7 @@ public class PlayerStats : MonoBehaviour
 
         if (_gameOverPanel != null)
         {
-            _gameOverPanel.ShowPanel();
+            _gameOverPanel.ShowPanel(GameOverPanel.ResultType.Death);
         }
 
         _showGameOverCoroutine = null;

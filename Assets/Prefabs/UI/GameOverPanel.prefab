@@ -241,9 +241,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 299f4661a23effb4280ce20c0c215044, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _titleText: {fileID: 6891460920790100593}
   _killsText: {fileID: 7582173784127540140}
   _potionsText: {fileID: 1001223708377125876}
   _timeText: {fileID: 1926081892576781569}
+  _panelBackground: {fileID: 3117585084126745722}
+  _victoryTitle: "\u4F60\u6210\u529F\u901A\u8FC7\u4E86\u8BD5\u70BC"
+  _victoryPanelColor: {r: 0.16, g: 0.28, b: 0.5, a: 0.9}
+  _victoryTitleColor: {r: 1, g: 0.87, b: 0.35, a: 1}
   _mainMenuSceneName: MainMenu
 --- !u!1 &4001295855853778272
 GameObject:

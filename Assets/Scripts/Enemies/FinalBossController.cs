@@ -500,6 +500,11 @@ public class FinalBossController : MonoBehaviour
             return;
         }
 
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.AddKill();
+        }
+
         _phase = BossPhase.Defeated;
         _isDefeatFinalized = false;
         _isImmune = true;
