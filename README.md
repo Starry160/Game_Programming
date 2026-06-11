@@ -2,7 +2,7 @@
 
 ## Game Title
 
-**Knight Legend** — Unity product name: `Game_Programming`
+**Knight Legend** - Unity product name: `Game_Programming`
 
 ## One-Sentence Game Idea
 
@@ -22,12 +22,12 @@ Input uses Unity's **Input System** (`InputAction` bindings created in code for 
 
 ## Unity Version
 
-- **Unity 2022.3 LTS** — `2022.3.62f3c1` (revision `1623fc0bbb97`)
+- **Unity 2022.3 LTS** - `2022.3.62f3c1` (revision `1623fc0bbb97`)
 
 ## How to Run the Project
 
 1. Install **Unity Hub** and add editor **2022.3.62f3c1** (or a compatible 2022.3 LTS).
-2. In Unity Hub, click **Add** → select the `Game_Programming` folder (this directory).
+2. In Unity Hub, click **Add** -> select the `Game_Programming` folder (this directory).
 3. Open the project and wait for the first asset import to finish.
 4. Open `Assets/Scenes/MainMenu.unity` to start from the menu flow.
 5. Press **Play** in the Editor.
@@ -38,7 +38,7 @@ Input uses Unity's **Input System** (`InputAction` bindings created in code for 
 
 The run progresses through the scenes in this order:
 
-`MainMenu` → `StoryIntro` → `InitialRoom` → `TalentRoom` → `Level_01` → `Level_02` → `Final Boss` → `Final Room`
+`MainMenu` -> `StoryIntro` -> `InitialRoom` -> `TalentRoom` -> `Level_01` -> `Level_02` -> `Final Boss` -> `Final Room`
 
 - The player picks a class/weapon at a transformation pedestal and upgrades talents before combat.
 - Survival time is counted from the moment the player enters `Level_01` (via the `TalentRoom` portal).
@@ -49,7 +49,7 @@ The run progresses through the scenes in this order:
 | Feature | Description |
 |---------|-------------|
 | Class transformation | Step on a pedestal to choose a class; choice persists across scenes via `GlobalData`. |
-| Weapons | Sword (melee arc), Staff (fireball), Bow (arrow) — selected with the class. |
+| Weapons | Sword (melee arc), Staff (fireball), Bow (arrow) - selected with the class. |
 | Talent upgrades | Talent room modifies player stats (max HP / shield) carried across the run. |
 | Potions | Heal, Full Heal, Shield, and temporary Invincibility pickups. |
 | Combat | Mouse-aimed attacks; fan-shaped melee damage and projectile firing. |
@@ -102,14 +102,14 @@ Assets/
 
 ## Key Scripts
 
-- `Core/GlobalData.cs` — cross-scene run state (class, weapon, HP/shield, stat snapshot).
-- `RunStatsManager.cs` — kills, potions, and survival-time tracking.
-- `Player/PlayerController.cs` / `PlayerAttack.cs` — movement, aim, and weapon attacks.
-- `Player/CharacterTransformPedestal.cs` — class/weapon selection.
-- `Enemies/FinalBossController.cs` — two-phase boss state machine.
-- `Environment/LevelPortal.cs` — scene transition portals.
-- `Environment/TrophyEndingTrigger.cs` — victory ending in `Final Room`.
-- `GameOverPanel.cs` — shared victory/death result screen.
+- `Core/GlobalData.cs` - cross-scene run state (class, weapon, HP/shield, stat snapshot).
+- `RunStatsManager.cs` - kills, potions, and survival-time tracking.
+- `Player/PlayerController.cs` / `PlayerAttack.cs` - movement, aim, and weapon attacks.
+- `Player/CharacterTransformPedestal.cs` - class/weapon selection.
+- `Enemies/FinalBossController.cs` - two-phase boss state machine.
+- `Environment/LevelPortal.cs` - scene transition portals.
+- `Environment/TrophyEndingTrigger.cs` - victory ending in `Final Room`.
+- `GameOverPanel.cs` - shared victory/death result screen.
 
 ## Planned Features
 
@@ -122,7 +122,7 @@ Assets/
 
 | Role | Detail |
 |------|--------|
-| **Developer** | Starry160 — [Game_Programming](https://github.com/Starry160/Game_Programming) |
+| **Developer** | Starry160 - [Game_Programming](https://github.com/Starry160/Game_Programming) |
 | **Engine** | Unity 2022.3 LTS |
 | **UI text** | TextMesh Pro (Unity package) |
 
