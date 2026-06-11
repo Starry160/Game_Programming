@@ -7,16 +7,16 @@ public class EnemyAI : MonoBehaviour
 {
     public float maxHealth = 30f;
     private float currentHealth;
-    public float moveSpeed = 3f;
+    public float moveSpeed;
     [Header("Combat")]
     [Tooltip("Radius of the melee damage sector.")]
-    public float attackRange = 1.1f;
-    public float attackCooldown = 1.0f;
+    public float attackRange;
+    public float attackCooldown;
     private float lastAttackTime = -999f;
     public int attackDamage = 1;
     public float hitFrameTimeNormalized = 0.45f;
     public LayerMask playerLayer;
-    public float hitRadius = 0.8f;
+    public float hitRadius;
     public Transform hitPoint;
     private bool isAttacking = false;
     public Transform weaponPivot;
@@ -31,7 +31,7 @@ public class EnemyAI : MonoBehaviour
     public bool canChase = false;
     [Header("Chase Tuning")]
     [Tooltip("Distance where the enemy stops moving and prepares to attack.")]
-    public float stopDistance = 1.2f;
+    public float stopDistance;
     [Tooltip("Horizontal offset used to approach from the side instead of the exact player center.")]
     public float flankOffset = 1.0f;
     [Tooltip("Radius used when picking small random chase offsets.")]

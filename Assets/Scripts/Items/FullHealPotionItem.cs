@@ -13,15 +13,15 @@ public class FullHealPotionItem : ChestDropItem
     [SerializeField, Range(0f, 1f)] private float pickupSfxVolume = 0.9f;
 
     [Header("Pickup Popup")]
-    [SerializeField] private string popupText = "HP Full";
+    [SerializeField] private string popupText;
     [SerializeField] private TMP_FontAsset popupFontAsset;
     [SerializeField] private Color popupColor = Color.red;
     [SerializeField] private Color popupOutlineColor = new Color(0.12f, 0f, 0f, 1f);
     [SerializeField] private Vector3 popupOffset = new Vector3(0f, 0.9f, 0f);
-    [SerializeField] private float popupFontSize = 3.5f;
+    [SerializeField] private float popupFontSize;
     [SerializeField, Range(0f, 1f)] private float popupOutlineWidth = 0.2f;
-    [SerializeField] private float popupDuration = 0.75f;
-    [SerializeField] private float popupFloatDistance = 0.7f;
+    [SerializeField] private float popupDuration;
+    [SerializeField] private float popupFloatDistance;
     [SerializeField] private int popupSortingOrder = 200;
 
     // Caches potion visuals and prepares the pickup interaction radius.

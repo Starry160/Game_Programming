@@ -26,9 +26,9 @@ public class CharacterTransformPedestal : MonoBehaviour
 
     [Header("Class Stats")]
     [Tooltip("Player max health after choosing this class.")]
-    public float classMaxHealth = 3f;
+    public float classMaxHealth;
     [Tooltip("Player max shield after choosing this class.")]
-    public float classMaxShield = 2f;
+    public float classMaxShield;
 
     private bool canInteract;
     private GameObject _currentPlayer;

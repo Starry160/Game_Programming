@@ -8,7 +8,8 @@ public class FinalBossMeleeAttack : MonoBehaviour
 {
     [Header("Melee Timing")]
     [SerializeField] private float attackAnimDuration = 0.75f;
-    [SerializeField] private float hitDelay = 0.35f;
+    [SerializeField] private float hitDelay = 0.5f;
+    [SerializeField] private float hitActiveDuration = 0.12f;
 
     [Header("Melee Shape")]
     [SerializeField] private float meleeRange = 1.35f;
@@ -22,6 +23,7 @@ public class FinalBossMeleeAttack : MonoBehaviour
 
     public float AttackAnimDuration => Mathf.Max(0.05f, attackAnimDuration);
     public float HitDelay => Mathf.Clamp(hitDelay, 0f, AttackAnimDuration);
+    public float HitActiveDuration => Mathf.Max(0.02f, hitActiveDuration);
 
     // Stores attack references and builds the boss melee hit mask.
     private void Awake()
@@ -41,13 +43,13 @@ public class FinalBossMeleeAttack : MonoBehaviour
             return false;
         }
 
-        return IsTargetInSector(target.position);
+        return IsTargetInSector(target);
     }
 
     // Applies melee damage only when the target is inside the boss attack sector.
     public bool TryApplyDamageToTarget(Transform target)
     {
-        if (target == null || !IsTargetInSector(target.position))
+        if (target == null || !IsTargetInSector(target))
         {
             return false;
         }
@@ -67,8 +69,43 @@ public class FinalBossMeleeAttack : MonoBehaviour
         return true;
     }
 
+    private bool IsTargetInSector(Transform target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        if (IsPointInSector(target.position))
+        {
+            return true;
+        }
+
+        Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>(true);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider2D col = colliders[i];
+            if (col == null || !col.enabled || col.isTrigger || !col.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            Bounds bounds = col.bounds;
+            if (IsPointInSector(bounds.center) ||
+                IsPointInSector(new Vector3(bounds.min.x, bounds.min.y, bounds.center.z)) ||
+                IsPointInSector(new Vector3(bounds.min.x, bounds.max.y, bounds.center.z)) ||
+                IsPointInSector(new Vector3(bounds.max.x, bounds.min.y, bounds.center.z)) ||
+                IsPointInSector(new Vector3(bounds.max.x, bounds.max.y, bounds.center.z)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Checks whether a target lies inside the melee sector.
-    private bool IsTargetInSector(Vector3 targetPosition)
+    private bool IsPointInSector(Vector3 targetPosition)
     {
         Vector2 origin = meleeOrigin != null ? meleeOrigin.position : transform.position;
         Vector2 toTarget = (Vector2)(targetPosition - (Vector3)origin);

@@ -44,7 +44,7 @@ public class FinalBossController : MonoBehaviour
     [SerializeField] private float maxHealth = 6f;
     [SerializeField] private float phase1MaxHealth = 6f;
     [SerializeField] private float phase2MaxHealth = 10f;
-    [SerializeField] private float phaseTransitionDuration = 1.2f;
+    [SerializeField] private float phaseTransitionDuration;
     [SerializeField] private int phase2RegenSteps = 5;
     [SerializeField] private float phase2RegenStepInterval = 0.8f;
     [SerializeField] private float postHitInvulnerableDuration = 0.55f;
@@ -52,11 +52,11 @@ public class FinalBossController : MonoBehaviour
     [SerializeField] private float closeRangeCheckDistance = 1.6f;
 
     [Header("Arena Movement")]
-    [SerializeField] private float orbitRadius = 2.8f;
-    [SerializeField] private float retargetInterval = 0.7f;
+    [SerializeField] private float orbitRadius;
+    [SerializeField] private float retargetInterval;
     [SerializeField] private float stopDistance = 0.18f;
     [SerializeField] private bool keepCollisionWithoutPush = true;
-    [SerializeField] private float phase1DetectionRadius = 4.5f;
+    [SerializeField] private float phase1DetectionRadius;
     [SerializeField] private float phase1MeleeApproachDistance = 0.9f;
 
     [Header("Action Timing")]
@@ -405,12 +405,14 @@ public class FinalBossController : MonoBehaviour
         else if (action == BossAction.Melee)
         {
             PlayState("MeleeAttack");
-            float hitDelay = meleeAttack != null ? meleeAttack.HitDelay : 0.35f;
+            float hitDelay = meleeAttack != null ? meleeAttack.HitDelay : 0.5f;
             yield return new WaitForSeconds(Mathf.Max(minTelegraphTime, hitDelay));
-            TryApplyMeleeDamage();
+            float hitActiveDuration = meleeAttack != null ? meleeAttack.HitActiveDuration : 0.12f;
+            yield return StartCoroutine(MeleeHitWindowRoutine(hitActiveDuration));
 
             float attackAnimDuration = meleeAttack != null ? meleeAttack.AttackAnimDuration : 0.75f;
-            float remain = Mathf.Max(0.01f, attackAnimDuration - Mathf.Max(minTelegraphTime, hitDelay));
+            float elapsedAttackTime = Mathf.Max(minTelegraphTime, hitDelay) + Mathf.Max(0f, hitActiveDuration);
+            float remain = Mathf.Max(0.01f, attackAnimDuration - elapsedAttackTime);
             yield return new WaitForSeconds(remain);
         }
         else
@@ -805,19 +807,33 @@ public class FinalBossController : MonoBehaviour
     }
 
     // Applies boss contact damage when melee conditions are met.
-    private void TryApplyMeleeDamage()
+    private IEnumerator MeleeHitWindowRoutine(float duration)
+    {
+        float endTime = Time.time + Mathf.Max(0.02f, duration);
+        while (Time.time <= endTime)
+        {
+            if (TryApplyMeleeDamage())
+            {
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+    private bool TryApplyMeleeDamage()
     {
         if (_playerTransform == null)
         {
-            return;
+            return false;
         }
 
         if (meleeAttack == null)
         {
-            return;
+            return false;
         }
 
-        meleeAttack.TryApplyDamageToTarget(_playerTransform);
+        return meleeAttack.TryApplyDamageToTarget(_playerTransform);
     }
 
     // Flips the boss to face the player on the X axis.

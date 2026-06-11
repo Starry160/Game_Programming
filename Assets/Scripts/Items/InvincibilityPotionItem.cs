@@ -17,10 +17,10 @@ public class InvincibilityPotionItem : ChestDropItem
     [SerializeField] private Color popupColor = new Color(1f, 0.85f, 0.25f, 1f);
     [SerializeField] private Color popupOutlineColor = new Color(0.2f, 0.1f, 0f, 1f);
     [SerializeField] private Vector3 popupOffset = new Vector3(0f, 0.9f, 0f);
-    [SerializeField] private float popupFontSize = 3.5f;
+    [SerializeField] private float popupFontSize;
     [SerializeField, Range(0f, 1f)] private float popupOutlineWidth = 0.2f;
-    [SerializeField] private float popupDuration = 0.85f;
-    [SerializeField] private float popupFloatDistance = 0.8f;
+    [SerializeField] private float popupDuration;
+    [SerializeField] private float popupFloatDistance;
     [SerializeField] private int popupSortingOrder = 200;
 
     // Applies the pickup effect before destroying the reward object.

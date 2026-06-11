@@ -9681,7 +9681,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackAnimDuration: 0.75
-  hitDelay: 0.35
+  hitDelay: 0.5
+  hitActiveDuration: 0.12
   meleeRange: 2
   meleeHalfAngle: 60
   meleeDamage: 1

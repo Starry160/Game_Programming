@@ -64,20 +64,20 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("Cooldown")]
     [Tooltip("Cooldown time between attacks in seconds.")]
-    public float attackCooldown = 0.2f;
+    public float attackCooldown;
 
     [Header("Damage")]
     [Tooltip("Radius of the melee damage sector.")]
-    public float attackRange = 0.8f;
+    public float attackRange;
 
     [Tooltip("Total angle of the melee damage sector in degrees.")]
-    public float attackAngle = 90f;
+    public float attackAngle;
 
     [Tooltip("Layers included in melee damage checks.")]
     public LayerMask enemyLayers;
 
     [Tooltip("Damage dealt by each sword melee hit.")]
-    public int attackDamage = 15;
+    public int attackDamage;
     [Tooltip("Melee damage dealt to the final boss per hit.")]
     public float bossMeleeDamagePerHit = 1f;
     [Tooltip("Damage dealt by each fireball.")]

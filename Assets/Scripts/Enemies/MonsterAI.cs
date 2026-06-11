@@ -12,7 +12,7 @@ public class MonsterAI : MonoBehaviour
     [SerializeField] private float moveSpeed = 2f;
     [SerializeField] private float wanderRadius = 2.2f;
     [SerializeField] private float wanderInterval = 1.0f;
-    [SerializeField] private float idleDuration = 0.4f;
+    [SerializeField] private float idleDuration;
     [SerializeField] private float runThreshold = 0.05f;
 
     [Header("LOS Reposition")]
@@ -26,7 +26,7 @@ public class MonsterAI : MonoBehaviour
     [Header("Fireball Attack")]
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform mouthPoint;
-    [SerializeField] private float projectileSpeed = 8f;
+    [SerializeField] private float projectileSpeed;
     [SerializeField] private float projectileDamage = 1f;
     [SerializeField] private float attackCooldown = 1.2f;
 
