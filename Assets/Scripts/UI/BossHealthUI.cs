@@ -13,7 +13,7 @@ public class BossHealthUI : MonoBehaviour
     [SerializeField] private FinalBossController targetBoss;
     [SerializeField] private string bossObjectName = "FinalBoss";
     [SerializeField] private RoomController targetRoom;
-    [SerializeField] private string roomObjectName = "TestRoom_01";
+    [SerializeField] private string roomObjectName = "FinalBossRoom";
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI bossNameText;

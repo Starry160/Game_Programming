@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 3256956}
   - component: {fileID: 3256957}
   m_Layer: 0
-  m_Name: TestRoom_01
+  m_Name: Level02Room_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11689,7 +11689,7 @@ GameObject:
   - component: {fileID: 1105159375}
   - component: {fileID: 1105159376}
   m_Layer: 0
-  m_Name: TestRoom_02
+  m_Name: Level02Room_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12504,7 +12504,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1373099284}
   m_Layer: 0
-  m_Name: TestDungeonPrototype
+  m_Name: Level02Dungeon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 3256956}
   - component: {fileID: 3256957}
   m_Layer: 0
-  m_Name: TestRoom_01
+  m_Name: FinalBossRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -396,7 +396,7 @@ MonoBehaviour:
   targetBoss: {fileID: 655925031}
   bossObjectName: FinalBoss
   targetRoom: {fileID: 0}
-  roomObjectName: TestRoom_01
+  roomObjectName: FinalBossRoom
   bossNameText: {fileID: 858691428}
   bossDisplayName: Mecha-stone Golem
   heartImages:
@@ -11063,7 +11063,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1373099284}
   m_Layer: 0
-  m_Name: TestDungeonPrototype
+  m_Name: FinalBossArena
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
