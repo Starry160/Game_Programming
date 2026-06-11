@@ -1407,7 +1407,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 1
-      m_TileSpriteIndex: 1
+      m_TileSpriteIndex: 4
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -1427,7 +1427,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 0
+      m_TileSpriteIndex: 1
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -1458,16 +1458,16 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   m_TileSpriteArray:
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: -1002344338, guid: 1372ab3e7d7c2924c852925768a2e9be, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: 1464504723, guid: 1372ab3e7d7c2924c852925768a2e9be, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 1466633016, guid: 1372ab3e7d7c2924c852925768a2e9be, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -1694067106, guid: 1372ab3e7d7c2924c852925768a2e9be, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 1464504723, guid: 1372ab3e7d7c2924c852925768a2e9be, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 4
     m_Data:
@@ -12975,6 +12975,7 @@ MonoBehaviour:
   targetSceneName: Final Boss
   interactHint: {fileID: 1356407105}
   portalAnimator: {fileID: 0}
+  _activateTriggerName: Activate
   teleportDelay: 1
 --- !u!58 &1431736900
 CircleCollider2D:
@@ -15834,6 +15835,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 3237527988143220937, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 3653368489001464918, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -15890,6 +15895,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 6178765610162666392, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_Name
       value: Player
@@ -15909,6 +15918,10 @@ PrefabInstance:
     - target: {fileID: 8041061257663897998, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8812549771301898056, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -16837,7 +16850,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 11
+  m_SortingOrder: 12
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0.5, z: 0}
   m_MaxChunkCount: 16

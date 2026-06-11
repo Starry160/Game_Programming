@@ -482,13 +482,20 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 
 ## 11. Known Risks and Watch Areas
 
+### Resolved Watch Items
+
+| Item | Resolution | Evidence |
+|------|------------|----------|
+| Nested old projects | The earlier `2D Shooting` and `Interactive Solar System for Kids` Unity projects were moved into standalone GitHub repositories. The main repository now stays focused on the final submitted game, `Knight Legend`. | Commit `30f932b`; README "Related Classroom Projects" section |
+
+### Remaining Watch Areas
+
 | Risk | Why It Matters | Suggested Check |
 |------|----------------|-----------------|
 | Scene build order mismatch | Menu and story scripts load scenes by build index | Verify Build Settings before submission |
 | Missing Inspector references | Many systems rely on assigned transforms, prefabs, and UI objects | Check Console after each scene starts |
 | Portal target name mistakes | Scene loading uses string scene names | Verify every portal target scene exists in Build Settings |
 | Boss room setup | Boss behavior depends on room events and boss UI binding | Test final boss from room entry, not only by opening the scene directly |
-| Nested old projects | Old projects can confuse review or batch searches | Keep final submission focused on the root Unity project |
 
 ## 12. Defect Report Template
 

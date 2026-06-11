@@ -7535,6 +7535,10 @@ PrefabInstance:
       propertyPath: audioSource
       value: 
       objectReference: {fileID: 469133317}
+    - target: {fileID: 3237527988143220937, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 5058694436530547331, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.03
@@ -7575,6 +7579,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6178765610162666392, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_Name
       value: Player
@@ -7582,6 +7590,10 @@ PrefabInstance:
     - target: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: m_Layer
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8812549771301898056, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
