@@ -9,13 +9,13 @@ using System.Collections;
 public class PlayerStats : MonoBehaviour
 {
     [Header("Health")]
-    public float maxHealth = 100f;
+    public float maxHealth;
     public float currentHealth;
     public float invulnerabilityDuration = 1.5f;
     public float flashInterval = 0.1f;
 
     [Header("Shield")]
-    public float maxShield = 50f;
+    public float maxShield;
     public float currentShield;
     [Tooltip("Delay after taking damage before shield regeneration starts.")]
     public float shieldRegenDelay = 3f;
@@ -27,6 +27,7 @@ public class PlayerStats : MonoBehaviour
     public Image shieldFillImage;
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI shieldText;
+    private GameObject statusPanel;
     [Header("Debug Safety")]
     [Tooltip("Debug guard that detects abnormal movement after taking damage.")]
     public bool enablePostHitTeleportGuard = false;
@@ -130,6 +131,7 @@ public class PlayerStats : MonoBehaviour
         currentShield = maxShield;
         nextShieldRegenTime = Time.time + shieldRegenDelay;
         UpdateUI();
+        RefreshStatusHudVisibility();
     }
 
     // Rebinds HUD and result panel references after scene changes.
@@ -137,6 +139,7 @@ public class PlayerStats : MonoBehaviour
     {
         TryAutoBindUIReferences();
         UpdateUI();
+        RefreshStatusHudVisibility();
     }
 
     // Runs shield regeneration timing while the player is alive.
@@ -196,6 +199,11 @@ public class PlayerStats : MonoBehaviour
     // Finds health and shield HUD references by scene hierarchy or name.
     private void TryAutoBindUIReferences()
     {
+        if (statusPanel == null)
+        {
+            statusPanel = GameObject.Find("PlayerHUDCanvas/StatusPanel");
+        }
+
         if (healthText == null)
         {
             GameObject healthTextObj = GameObject.Find("PlayerHUDCanvas/StatusPanel/HealthText");
@@ -246,6 +254,25 @@ public class PlayerStats : MonoBehaviour
         if (shieldFillImage == null)
         {
             shieldFillImage = FindActiveComponentByName<Image>("ShieldFill");
+        }
+
+        if (statusPanel == null && healthText != null)
+        {
+            statusPanel = healthText.transform.parent != null ? healthText.transform.parent.gameObject : null;
+        }
+    }
+
+    // Hides health and shield before a class has been selected.
+    private void RefreshStatusHudVisibility()
+    {
+        if (statusPanel == null)
+        {
+            TryAutoBindUIReferences();
+        }
+
+        if (statusPanel != null)
+        {
+            statusPanel.SetActive(GlobalData.chosenWeaponIndex >= 0);
         }
     }
 
@@ -463,6 +490,31 @@ public class PlayerStats : MonoBehaviour
         GlobalData.persistedHealth = currentHealth;
 
         UpdateUI();
+    }
+
+    // Applies the base health and shield for the selected class.
+    public void ApplyClassBaseStats(float classMaxHealth, float classMaxShield)
+    {
+        if (_isDead)
+        {
+            return;
+        }
+
+        maxHealth = Mathf.Max(1f, classMaxHealth);
+        currentHealth = maxHealth;
+        maxShield = Mathf.Max(0f, classMaxShield);
+        currentShield = maxShield;
+
+        GlobalData.hasPersistedMaxHealth = true;
+        GlobalData.persistedMaxHealth = maxHealth;
+        GlobalData.hasPersistedHealth = true;
+        GlobalData.persistedHealth = currentHealth;
+        GlobalData.hasPersistedMaxShield = true;
+        GlobalData.persistedMaxShield = maxShield;
+
+        nextShieldRegenTime = Time.time + shieldRegenDelay;
+        UpdateUI();
+        RefreshStatusHudVisibility();
     }
 
     // Raises max shield and fills the gained shield amount.

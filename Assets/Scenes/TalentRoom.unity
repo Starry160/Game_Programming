@@ -320,6 +320,8 @@ MonoBehaviour:
   interactHint: {fileID: 1629067739}
   targetPortal: {fileID: 799949320}
   weaponIndex: 0
+  classMaxHealth: 4
+  classMaxShield: 2
 --- !u!58 &108483437
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4255,6 +4257,8 @@ MonoBehaviour:
   interactHint: {fileID: 1678668614}
   targetPortal: {fileID: 799949320}
   weaponIndex: 2
+  classMaxHealth: 3
+  classMaxShield: 2
 --- !u!61 &745066118
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4667,6 +4671,8 @@ MonoBehaviour:
   interactHint: {fileID: 341483837}
   targetPortal: {fileID: 799949320}
   weaponIndex: 1
+  classMaxHealth: 2
+  classMaxShield: 3
 --- !u!61 &931235040
 BoxCollider2D:
   m_ObjectHideFlags: 0

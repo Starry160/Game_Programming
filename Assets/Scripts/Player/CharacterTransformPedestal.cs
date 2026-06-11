@@ -24,6 +24,12 @@ public class CharacterTransformPedestal : MonoBehaviour
     [Tooltip("Weapon index stored in GlobalData for the transformed class.")]
     public int weaponIndex;
 
+    [Header("Class Stats")]
+    [Tooltip("Player max health after choosing this class.")]
+    public float classMaxHealth = 3f;
+    [Tooltip("Player max shield after choosing this class.")]
+    public float classMaxShield = 2f;
+
     private bool canInteract;
     private GameObject _currentPlayer;
     private Collider2D _triggerCollider;
@@ -109,8 +115,10 @@ public class CharacterTransformPedestal : MonoBehaviour
         if (weaponManager != null)
         {
             weaponManager.SwitchWeapon(weaponIndex);
-            GlobalData.chosenWeaponIndex = weaponIndex;
         }
+        GlobalData.chosenWeaponIndex = weaponIndex;
+
+        ApplyClassStats();
 
         // if (classIcon != null)
         // {
@@ -124,5 +132,26 @@ public class CharacterTransformPedestal : MonoBehaviour
         // {
         //     _triggerCollider.enabled = false;
         // }
+    }
+
+    // Stores and applies the selected class survival stats.
+    private void ApplyClassStats()
+    {
+        float safeMaxHealth = Mathf.Max(1f, classMaxHealth);
+        float safeMaxShield = Mathf.Max(0f, classMaxShield);
+
+        PlayerStats playerStats = _currentPlayer.GetComponent<PlayerStats>();
+        if (playerStats != null)
+        {
+            playerStats.ApplyClassBaseStats(safeMaxHealth, safeMaxShield);
+            return;
+        }
+
+        GlobalData.hasPersistedMaxHealth = true;
+        GlobalData.persistedMaxHealth = safeMaxHealth;
+        GlobalData.hasPersistedHealth = true;
+        GlobalData.persistedHealth = safeMaxHealth;
+        GlobalData.hasPersistedMaxShield = true;
+        GlobalData.persistedMaxShield = safeMaxShield;
     }
 }
