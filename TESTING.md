@@ -417,7 +417,34 @@ The build is considered ready for submission when:
 - Scene transitions happen in the expected order.
 - Final result panel appears with correct run statistics.
 
-## 8. Regression Checklist
+## 8. Manual Test Execution Record
+
+This table records the final manual test pass for the main project. The fix commits are mapped from the Git history by matching commit messages and changed feature areas to the issues found during playtesting. They should be read as development evidence, not as an automated test report.
+
+| Test ID | Test Date | Result | Issues Found During Testing | Fix / Evidence Commit |
+|---------|-----------|--------|-----------------------------|-----------------------|
+| TC-01 | 2026-06-10 | Pass | Main menu flow needed final polish and clearer submitted entry point. | `0784360` optimize the MainMenu scene; `a0af540` Update README.md; `9020cd4` Polish |
+| TC-02 | 2026-04-19 | Pass | Story introduction was needed before the first gameplay scene to improve player context. | `a681163` add the storyIntro; `042e1e4` feat: implement main menu UI and scene management |
+| TC-03 | 2026-04-24 | Pass after fix | Character running direction and attack direction could become inconsistent during movement and aiming. | `e25b523` Fix the running direction and attack direction of the character |
+| TC-04 | 2026-04-21 | Pass | Class selection needed an interaction prompt and reliable portal unlock after choosing a hero. | `f837cc5` Feature: portal and multi-class profession change altar; `c324928` Add a prompt for selecting heroes |
+| TC-05 | 2026-04-21 | Pass after fix | Character/class state needed to remain consistent after teleporting between scenes. | `6f14ab9` Maintain the consistency of the model of the transmitting character; `059b620` feat: implement dynamic level portal with player suck-in transition |
+| TC-06 | 2026-04-25 | Pass | Sword combat needed working attack action, damage, and feedback. | `5690445` Implement the attack action and damage of the sword; `64e811d` Add the trailing effect of the broken sword shadow |
+| TC-07 | 2026-04-25 | Pass | Mage attack needed projectile behavior and fireball impact feedback. | `d308810` Implement the attack action of the mage and the explosion of the fireball |
+| TC-08 | 2026-04-25 | Pass | Archer attack needed bow animation and arrow projectile behavior. | `c41884e` Implement the attack action of the archer and the attack effect of the bow and arrow |
+| TC-09 | 2026-05-28 | Pass after fix | Exit dungeon doors and room flow needed small fixes to keep combat-room progression reliable. | `985f7aa` add ExitDungeonDoor and fix small bugs |
+| TC-10 | 2026-05-25 | Pass | Treasure rewards needed to appear after clearing a room and provide pickup feedback. | `552732d` add treasurebox; `a6e235c` add treasurebox appearing logic; `eab111d` Update ChestDropItem.cs |
+| TC-11 | 2026-05-26 | Pass | Health, shield, and invincibility potion behavior needed implementation and prefab tuning. | `14e180c` Create life, shield, invincible potion, and create the corresponding effects; `04d3b63` Update Invincibility Potion.prefab |
+| TC-12 | 2026-05-30 | Pass after fix | Enemy behavior needed chasing, attacking, ranged monster logic, and reduced enemy overlap. | `7a4e3f8` add enemy and chasing mechanism; `da88ceb` add three enemies and automatic pathfinding and attacking; `adbbb32` Optimize the overlapping of enemies that are clustered together; `43cd731` add Monster enemy and according logic |
+| TC-13 | 2026-05-30 | Pass after fix | Run statistics for defeated enemies and collected potions were not always consistent. | `0017d22` Fix the bug in the consistency of the data for the number of defeated enemies and the collection of potions |
+| TC-14 | 2026-05-26 | Pass | Pause and death-result flow needed UI support and return-to-menu handling. | `26e194f` add esc button; `e809376` add game over panel |
+| TC-15 | 2026-06-05 | Pass after fix | Scene portals and map transitions needed reliable target flow between levels and the boss scene. | `f08e0a5` Perform the teleportation from level 1 to level 2; `11e636e` add transition from level02 to final boss; `f62a9d8` Create portal |
+| TC-16 | 2026-06-04 | Pass | Final boss needed a dedicated scene, animations, and visible boss health UI. | `dfcf047` create final boss scene and create related animations; `fff5e98` add boss blood display |
+| TC-17 | 2026-06-05 | Pass after fix | Boss phase-one behavior and death conditions needed refinement and room binding. | `e16a959` Improve the boss's first-stage form; `46c749f` Improve the first stage of boss battle and death conditions, and bind room 01 |
+| TC-18 | 2026-06-08 | Pass after fix | Boss phase transition, laser range, damage range, and laser focusing point required multiple tuning passes. | `92874cd` Achieve the transition from stage one to stage two of the boss; `87c74bf` Modify the attack range of the laser beam; `0a1b36c` Modify the damage determination range of the laser; `b346d10` Fix the issue of the offset of the laser focusing point; `366a5c0` Improve the determination of laser emission |
+| TC-19 | 2026-06-10 | Pass | Victory result UI was needed after boss completion and final room interaction. | `2ce7338` UI setup after completing the game's level completion process; `5185239` Scene Name Modification |
+| TC-20 | 2026-06-11 | Pass | Full game flow needed final naming, polish, and submission-readiness checks. | `5185239` Scene Name Modification; `9020cd4` Polish |
+
+## 9. Regression Checklist
 
 Run this checklist after any gameplay, UI, or scene-flow change:
 
@@ -433,7 +460,7 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 - Victory panel appears after the trophy ending.
 - Console has no blocking errors.
 
-## 9. Known Risks and Watch Areas
+## 10. Known Risks and Watch Areas
 
 | Risk | Why It Matters | Suggested Check |
 |------|----------------|-----------------|
@@ -443,7 +470,7 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 | Boss room setup | Boss behavior depends on room events and boss UI binding | Test final boss from room entry, not only by opening the scene directly |
 | Nested old projects | Old projects can confuse review or batch searches | Keep final submission focused on the root Unity project |
 
-## 10. Defect Report Template
+## 11. Defect Report Template
 
 Use this format when recording a bug:
 
@@ -459,6 +486,6 @@ Use this format when recording a bug:
 | Screenshot / Console Log | Evidence if available |
 | Status | Open / Fixed / Verified |
 
-## 11. Current Test Conclusion
+## 12. Current Test Conclusion
 
 The main project has a complete manual test path covering menu, story, class selection, combat, rewards, portals, final boss, death, and victory. The most important submission test is the full regression playthrough from `MainMenu` to `Final Room`, because it verifies the complete game loop that the teacher will most likely review.
