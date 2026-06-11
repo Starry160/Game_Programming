@@ -73,6 +73,13 @@ The run progresses through the scenes in this order:
 | Scene flow + level portals | Working |
 | Object pooling | Not implemented |
 
+## Related Classroom Projects
+
+The final submitted game in this repository is **Knight Legend**, located at the repository root. The following earlier classroom exercise projects have been moved into separate repositories and are not part of the final submitted game build:
+
+- [2D Shooting](https://github.com/Starry160/2D-Shooting)
+- [Interactive Solar System for Kids](https://github.com/Starry160/Interactive-Solar-System-for-Kids)
+
 ## Project Structure
 
 ```
