@@ -444,7 +444,27 @@ This table records the final manual test pass for the main project. The fix comm
 | TC-19 | 2026-06-10 | Pass | Victory result UI was needed after boss completion and final room interaction. | `2ce7338` UI setup after completing the game's level completion process; `5185239` Scene Name Modification |
 | TC-20 | 2026-06-11 | Pass | Full game flow needed final naming, polish, and submission-readiness checks. | `5185239` Scene Name Modification; `9020cd4` Polish |
 
-## 9. Regression Checklist
+## 9. Automated EditMode Tests
+
+A lightweight EditMode test suite has been added under `Assets/Tests/EditMode/Editor/`. These tests do not replace the manual full-playthrough tests. They provide automated evidence for stable core logic that can be checked without loading the full scene sequence.
+
+| Automated Test | Purpose | Coverage Type |
+|----------------|---------|---------------|
+| `GlobalData_ResetRunState_ClearsClassStatsAndRunResults` | Confirms returning to menu clears selected class, weapon, persisted stats, and run results. | Cross-scene state |
+| `RunStatsManager_AddKillAndPotion_SyncsGlobalSnapshot` | Confirms kills, potion pickups, and survival time sync into `GlobalData`. | Run statistics |
+| `RunStatsManager_ResetForMenu_ClearsCountersAndGlobalSnapshot` | Confirms the run-stat reset path clears local and persisted counters. | Run reset |
+| `PlayerStats_IncreaseMaxHealthAndHeal_UpdatesCurrentAndPersistedHealth` | Confirms max-health potion style logic updates current health and persisted max health. | Player stats |
+| `PlayerStats_IncreaseMaxShieldAndFill_UpdatesCurrentAndPersistedShield` | Confirms shield potion style logic updates current shield and persisted max shield. | Player stats |
+
+These are intentionally EditMode tests because the full game flow depends on scene objects, Inspector references, physics timing, UI layout, and animation state. Those areas remain covered by the manual regression playthrough.
+
+### Automated Test Run Result
+
+| Test Run Date | Tool | Mode | Result | Notes |
+|---------------|------|------|--------|-------|
+| 2026-06-11 | Unity Test Runner | EditMode | Pass - 5 passed, 0 failed, 0 skipped | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
+
+## 10. Regression Checklist
 
 Run this checklist after any gameplay, UI, or scene-flow change:
 
@@ -460,7 +480,7 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 - Victory panel appears after the trophy ending.
 - Console has no blocking errors.
 
-## 10. Known Risks and Watch Areas
+## 11. Known Risks and Watch Areas
 
 | Risk | Why It Matters | Suggested Check |
 |------|----------------|-----------------|
@@ -470,7 +490,7 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 | Boss room setup | Boss behavior depends on room events and boss UI binding | Test final boss from room entry, not only by opening the scene directly |
 | Nested old projects | Old projects can confuse review or batch searches | Keep final submission focused on the root Unity project |
 
-## 11. Defect Report Template
+## 12. Defect Report Template
 
 Use this format when recording a bug:
 
@@ -486,6 +506,8 @@ Use this format when recording a bug:
 | Screenshot / Console Log | Evidence if available |
 | Status | Open / Fixed / Verified |
 
-## 12. Current Test Conclusion
+## 13. Current Test Conclusion
 
 The main project has a complete manual test path covering menu, story, class selection, combat, rewards, portals, final boss, death, and victory. The most important submission test is the full regression playthrough from `MainMenu` to `Final Room`, because it verifies the complete game loop that the teacher will most likely review.
+
+The automated EditMode tests add a small safety net around cross-scene state, run statistics, and player stat persistence. Together, the manual and automated tests show both full-game validation and targeted code-level validation.
