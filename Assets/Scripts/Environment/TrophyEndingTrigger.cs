@@ -146,6 +146,14 @@ public class TrophyEndingTrigger : MonoBehaviour
             facing.enabled = false;
         }
 
+        Animator animator = _playerTransform.GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetBool("isMoving", false);
+            animator.Play("Player_Idle", 0, 0f);
+            animator.Update(0f);
+        }
+
         Rigidbody2D rb = _playerTransform.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
