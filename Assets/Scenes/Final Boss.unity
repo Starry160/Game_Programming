@@ -9684,7 +9684,8 @@ MonoBehaviour:
   hitDelay: 0.5
   hitActiveDuration: 0.12
   meleeRange: 2
-  meleeHalfAngle: 60
+  meleeUpperHalfAngle: 15
+  meleeLowerHalfAngle: 55
   meleeDamage: 1
   meleeOrigin: {fileID: 0}
 --- !u!1 &737537752 stripped

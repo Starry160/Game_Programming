@@ -1,6 +1,10 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>Dispatches sword, staff, and bow attacks based on the selected class weapon.</summary>
 public class PlayerAttack : MonoBehaviour
@@ -35,6 +39,28 @@ public class PlayerAttack : MonoBehaviour
 
     [Tooltip("Target sword swing angle in degrees.")]
     public float swordSwingAngle = -120f;
+
+    [Header("Sword Visuals")]
+    [Tooltip("Shows a short blue crescent slash during the knight's downward sword swing.")]
+    public bool showSwordSlash = true;
+
+    [Tooltip("Point used to place the visual slash. The weapon pivot keeps it near the sword tip.")]
+    public Transform swordSlashSpawnPoint;
+
+    [Tooltip("Local offset from the slash spawn point.")]
+    public Vector2 swordSlashOffset = new Vector2(0.58f, 0.9f);
+
+    [Tooltip("World scale of the visual-only sword slash.")]
+    public Vector2 swordSlashScale = new Vector2(0.75f, 0.75f);
+
+    [Tooltip("Delay after the sword attack starts before the slash appears.")]
+    public float swordSlashDelay = 0.03f;
+
+    [Tooltip("How long the visual slash stays on screen.")]
+    public float swordSlashDuration = 0.18f;
+
+    [Tooltip("Sorting order used by the slash so it renders above the player and weapon.")]
+    public int swordSlashSortingOrder = 13;
 
     [Header("Settings")]
     [Tooltip("Total duration of the staff swing.")]
@@ -72,6 +98,15 @@ public class PlayerAttack : MonoBehaviour
 
     [Tooltip("Total angle of the melee damage sector in degrees.")]
     public float attackAngle;
+
+    [Tooltip("Forward range added around the blue sword slash.")]
+    public float swordSlashDamageRadius = 0.7f;
+
+    [Tooltip("Angle of the blue sword slash damage sector in degrees.")]
+    public float swordSlashDamageAngle = 80f;
+
+    [Tooltip("Shows the real sword damage sweep and slash hit area in the Scene view.")]
+    public bool showSwordDamageGizmos = true;
 
     [Tooltip("Layers included in melee damage checks.")]
     public LayerMask enemyLayers;
@@ -118,6 +153,11 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
+        if (GlobalData.chosenWeaponIndex < 0)
+        {
+            return;
+        }
+
         // Weapon index comes from the class selection flow, so each class maps to one attack coroutine.
         switch (GlobalData.chosenWeaponIndex)
         {
@@ -131,7 +171,7 @@ public class PlayerAttack : MonoBehaviour
                 StartCoroutine(BowAttack());
                 break;
             default:
-                StartCoroutine(SwordAttack());
+                Debug.LogWarning($"[PlayerAttack] Unknown weapon index: {GlobalData.chosenWeaponIndex}.", this);
                 break;
         }
     }
@@ -152,9 +192,9 @@ public class PlayerAttack : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(0f, 0f, swordSwingAngle);
         float halfDuration = Mathf.Max(0.0001f, swordSwingDuration * 0.5f);
 
-        // Sword damage happens at the start of the swing so the visual follows the hit immediately.
-        PerformDamage();
+        // The hit resolves as the blade starts moving downward, matching the blue slash visual.
         PlayAttackSfx(swordSfx);
+        StartCoroutine(ResolveSwordHitAfterDelay());
 
         yield return LerpRotation(defaultRotation, targetRotation, halfDuration);
         yield return LerpRotation(targetRotation, defaultRotation, halfDuration);
@@ -238,6 +278,63 @@ public class PlayerAttack : MonoBehaviour
         audioSource.PlayOneShot(clip);
     }
 
+    // Delays sword hit resolution so damage matches the downward swing and blue slash.
+    private IEnumerator ResolveSwordHitAfterDelay()
+    {
+        if (swordSlashDelay > 0f)
+        {
+            yield return new WaitForSeconds(swordSlashDelay);
+        }
+
+        if (showSwordSlash)
+        {
+            SpawnSwordSlash();
+        }
+
+        PerformDamage();
+    }
+
+    // Creates a short-lived blue crescent without adding any damage collider.
+    private void SpawnSwordSlash()
+    {
+        Transform spawnPoint = swordSlashSpawnPoint != null ? swordSlashSpawnPoint : weaponPivot;
+        if (spawnPoint == null)
+        {
+            spawnPoint = attackPoint;
+        }
+
+        if (spawnPoint == null)
+        {
+            return;
+        }
+
+        bool facingRight = transform.localScale.x >= 0f;
+
+        GameObject slashObject = new GameObject("SwordSlashBlue");
+        slashObject.transform.position = GetSwordSlashWorldPosition();
+
+        slashObject.AddComponent<SpriteRenderer>();
+        SwordSlashEffect slashEffect = slashObject.AddComponent<SwordSlashEffect>();
+        slashEffect.Initialize(
+            facingRight,
+            swordSlashDuration,
+            swordSlashScale,
+            ResolveSwordSlashSortingLayerId(),
+            swordSlashSortingOrder);
+    }
+
+    private int ResolveSwordSlashSortingLayerId()
+    {
+        SpriteRenderer playerRenderer = GetComponent<SpriteRenderer>();
+        if (playerRenderer != null)
+        {
+            return playerRenderer.sortingLayerID;
+        }
+
+        SpriteRenderer childRenderer = GetComponentInChildren<SpriteRenderer>();
+        return childRenderer != null ? childRenderer.sortingLayerID : 0;
+    }
+
     // Spawns and aims a projectile toward the mouse world position.
     private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName, float projectileDamage)
     {
@@ -304,23 +401,26 @@ public class PlayerAttack : MonoBehaviour
         weaponPivot.localPosition = to;
     }
 
-    // Applies melee damage to enemies inside the attack sector.
+    // Applies melee damage to enemies inside the sword sweep or blue slash area.
     private void PerformDamage()
     {
-        if (attackPoint == null)
-        {
-            return;
-        }
+        Vector2 damageOrigin = GetSwordDamageOrigin();
+        Vector2 facingDir = transform.localScale.x > 0f ? Vector2.right : Vector2.left;
+        float sectorRange = Mathf.Max(0.05f, attackRange);
+        float halfAngle = Mathf.Clamp(attackAngle * 0.5f, 0f, 180f);
+        Vector2 slashCenter = GetSwordSlashWorldPosition();
+        Vector2 slashDir = GetSwordSlashDamageDirection(damageOrigin, facingDir, slashCenter);
+        float slashRange = GetSwordSlashDamageRange(damageOrigin, slashCenter);
+        float slashHalfAngle = Mathf.Clamp(swordSlashDamageAngle * 0.5f, 0f, 180f);
+        float queryRange = Mathf.Max(sectorRange, slashRange);
 
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(
-            attackPoint.position,
-            attackRange,
+            damageOrigin,
+            queryRange,
             enemyLayers);
+        HashSet<Component> damagedTargets = new HashSet<Component>();
 
-        Vector2 facingDir = transform.localScale.x > 0f ? Vector2.right : Vector2.left;
-        float halfAngle = attackAngle * 0.5f;
-
-        // Only targets inside the forward-facing attack cone should receive melee damage.
+        // Targets inside either the sword sweep cone or the blue slash fan receive the melee hit.
         for (int i = 0; i < hitEnemies.Length; i++)
         {
             Collider2D enemy = hitEnemies[i];
@@ -329,72 +429,275 @@ public class PlayerAttack : MonoBehaviour
                 continue;
             }
 
-            Vector2 dirToEnemy = ((Vector2)enemy.transform.position - (Vector2)attackPoint.position).normalized;
-            float angle = Vector2.Angle(facingDir, dirToEnemy);
-
-            if (angle <= halfAngle)
+            if (IsInsideSwordDamage(enemy, damageOrigin, facingDir, sectorRange, halfAngle, slashDir, slashRange, slashHalfAngle))
             {
-                // Boss damage uses its own controller, while normal enemies use health or legacy AI.
-                FinalBossController bossController = enemy.GetComponent<FinalBossController>();
-                if (bossController == null)
+                Component damageTarget = ResolveMeleeDamageTarget(enemy);
+                if (damageTarget == null)
                 {
-                    bossController = enemy.GetComponentInParent<FinalBossController>();
-                }
-
-                if (bossController != null)
-                {
-                    bossController.TakeDamage(Mathf.Max(0f, bossMeleeDamagePerHit));
+                    Debug.LogWarning($"[PlayerAttack] Sword hit {enemy.name}, but EnemyHealth/EnemyAI was not found.", enemy);
                     continue;
                 }
 
-                EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
-                if (enemyHealth == null)
+                if (damagedTargets.Add(damageTarget))
                 {
-                    enemyHealth = enemy.GetComponentInParent<EnemyHealth>();
-                }
-
-                if (enemyHealth != null)
-                {
-                    enemyHealth.TakeDamage(1);
-                }
-                else
-                {
-                    EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
-                    if (enemyAI == null)
-                    {
-                        enemyAI = enemy.GetComponentInParent<EnemyAI>();
-                    }
-
-                    if (enemyAI != null)
-                    {
-                        enemyAI.TakeDamage(attackDamage);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[PlayerAttack] Sector hit {enemy.name}, but EnemyHealth/EnemyAI was not found.", enemy);
-                    }
+                    ApplyMeleeDamage(damageTarget);
                 }
             }
         }
     }
 
-    // Draws the sword melee radius and attack cone in the Scene view.
+    private bool IsInsideSwordDamage(
+        Collider2D enemy,
+        Vector2 damageOrigin,
+        Vector2 facingDir,
+        float sectorRange,
+        float halfAngle,
+        Vector2 slashDir,
+        float slashRange,
+        float slashHalfAngle)
+    {
+        return IsColliderInsideForwardSector(enemy, damageOrigin, facingDir, sectorRange, halfAngle)
+            || IsColliderInsideForwardSector(enemy, damageOrigin, slashDir, slashRange, slashHalfAngle);
+    }
+
+    private bool IsColliderInsideForwardSector(
+        Collider2D collider,
+        Vector2 origin,
+        Vector2 facingDir,
+        float range,
+        float halfAngle)
+    {
+        Bounds bounds = collider.bounds;
+        Vector2 center = bounds.center;
+        Vector2 extents = bounds.extents;
+
+        if (IsPointInsideForwardSector(collider.ClosestPoint(origin), origin, facingDir, range, halfAngle))
+        {
+            return true;
+        }
+
+        if (IsPointInsideForwardSector(center, origin, facingDir, range, halfAngle))
+        {
+            return true;
+        }
+
+        Vector2 min = bounds.min;
+        Vector2 max = bounds.max;
+        if (IsPointInsideForwardSector(new Vector2(min.x, min.y), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(new Vector2(min.x, max.y), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(new Vector2(max.x, min.y), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(new Vector2(max.x, max.y), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(center + new Vector2(extents.x, 0f), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(center - new Vector2(extents.x, 0f), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(center + new Vector2(0f, extents.y), origin, facingDir, range, halfAngle)
+            || IsPointInsideForwardSector(center - new Vector2(0f, extents.y), origin, facingDir, range, halfAngle))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsPointInsideForwardSector(
+        Vector2 point,
+        Vector2 origin,
+        Vector2 facingDir,
+        float range,
+        float halfAngle)
+    {
+        Vector2 dirToTarget = point - origin;
+
+        if (dirToTarget.sqrMagnitude > range * range)
+        {
+            return false;
+        }
+
+        if (dirToTarget.sqrMagnitude <= 0.0001f)
+        {
+            return true;
+        }
+
+        float angle = Vector2.Angle(facingDir, dirToTarget.normalized);
+        return angle <= halfAngle;
+    }
+
+    private Component ResolveMeleeDamageTarget(Collider2D enemy)
+    {
+        FinalBossController bossController = enemy.GetComponent<FinalBossController>();
+        if (bossController == null)
+        {
+            bossController = enemy.GetComponentInParent<FinalBossController>();
+        }
+
+        if (bossController != null)
+        {
+            return bossController;
+        }
+
+        EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+        if (enemyHealth == null)
+        {
+            enemyHealth = enemy.GetComponentInParent<EnemyHealth>();
+        }
+
+        if (enemyHealth != null)
+        {
+            return enemyHealth;
+        }
+
+        EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
+        if (enemyAI == null)
+        {
+            enemyAI = enemy.GetComponentInParent<EnemyAI>();
+        }
+
+        if (enemyAI != null)
+        {
+            return enemyAI;
+        }
+
+        return null;
+    }
+
+    private void ApplyMeleeDamage(Component damageTarget)
+    {
+        FinalBossController bossController = damageTarget as FinalBossController;
+        if (bossController != null)
+        {
+            bossController.TakeDamage(Mathf.Max(0f, bossMeleeDamagePerHit));
+            return;
+        }
+
+        EnemyHealth enemyHealth = damageTarget as EnemyHealth;
+        if (enemyHealth != null)
+        {
+            enemyHealth.TakeDamage(1);
+            return;
+        }
+
+        EnemyAI enemyAI = damageTarget as EnemyAI;
+        if (enemyAI != null)
+        {
+            enemyAI.TakeDamage(attackDamage);
+        }
+    }
+
+    private Vector2 GetSwordDamageOrigin()
+    {
+        if (weaponPivot != null)
+        {
+            return weaponPivot.position;
+        }
+
+        if (attackPoint != null)
+        {
+            return attackPoint.position;
+        }
+
+        return transform.position;
+    }
+
+    private Vector2 GetSwordSlashWorldPosition()
+    {
+        if (weaponPivot != null)
+        {
+            Quaternion hitRotation = GetSwordHitLocalRotation();
+            Vector3 localSlashPosition = weaponPivot.localPosition + hitRotation * (Vector3)swordSlashOffset;
+            Transform parent = weaponPivot.parent;
+            return parent != null ? parent.TransformPoint(localSlashPosition) : localSlashPosition;
+        }
+
+        Transform spawnPoint = swordSlashSpawnPoint != null ? swordSlashSpawnPoint : attackPoint;
+        if (spawnPoint != null)
+        {
+            return spawnPoint.TransformPoint(swordSlashOffset);
+        }
+
+        return transform.position;
+    }
+
+    private Quaternion GetSwordHitLocalRotation()
+    {
+        float halfDuration = Mathf.Max(0.0001f, swordSwingDuration * 0.5f);
+        float t = Mathf.Clamp01(Mathf.Max(0f, swordSlashDelay) / halfDuration);
+        return Quaternion.Slerp(
+            Quaternion.Euler(0f, 0f, 0f),
+            Quaternion.Euler(0f, 0f, swordSwingAngle),
+            t);
+    }
+
+    // Draws the real sword sweep and slash hit area in the Scene view.
     private void OnDrawGizmosSelected()
     {
-        if (attackPoint == null)
+        if (!showSwordDamageGizmos)
         {
             return;
         }
 
-        Gizmos.color = Color.red;
-
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-
+        Vector2 damageOrigin = GetSwordDamageOrigin();
         Vector3 facingDir = transform.localScale.x > 0f ? Vector3.right : Vector3.left;
-        Vector3 upperLine = Quaternion.Euler(0f, 0f, attackAngle / 2f) * facingDir * attackRange;
-        Vector3 lowerLine = Quaternion.Euler(0f, 0f, -attackAngle / 2f) * facingDir * attackRange;
+        float sectorRange = Mathf.Max(0.05f, attackRange);
+        float halfAngle = Mathf.Clamp(attackAngle * 0.5f, 0f, 180f);
 
-        Gizmos.DrawLine(attackPoint.position, attackPoint.position + upperLine);
-        Gizmos.DrawLine(attackPoint.position, attackPoint.position + lowerLine);
+        DrawDamageSector(damageOrigin, facingDir, sectorRange, halfAngle, new Color(1f, 0.25f, 0.1f, 0.18f));
+
+        Vector2 slashCenter = GetSwordSlashWorldPosition();
+        Vector2 slashDir = GetSwordSlashDamageDirection(damageOrigin, facingDir, slashCenter);
+        float slashRange = GetSwordSlashDamageRange(damageOrigin, slashCenter);
+        float slashHalfAngle = Mathf.Clamp(swordSlashDamageAngle * 0.5f, 0f, 180f);
+        DrawDamageSector(damageOrigin, slashDir, slashRange, slashHalfAngle, new Color(0.15f, 0.85f, 1f, 0.24f));
+    }
+
+    private float GetSwordSlashDamageRange(Vector2 damageOrigin, Vector2 slashCenter)
+    {
+        float distanceToSlash = Vector2.Distance(damageOrigin, slashCenter);
+        return Mathf.Max(0.05f, distanceToSlash + swordSlashDamageRadius);
+    }
+
+    private static Vector2 GetSwordSlashDamageDirection(Vector2 damageOrigin, Vector2 fallbackDir, Vector2 slashCenter)
+    {
+        Vector2 slashDir = slashCenter - damageOrigin;
+        if (slashDir.sqrMagnitude <= 0.0001f)
+        {
+            return fallbackDir.sqrMagnitude > 0f ? fallbackDir.normalized : Vector2.right;
+        }
+
+        return slashDir.normalized;
+    }
+
+    private static void DrawDamageSector(Vector3 origin, Vector3 facingDir, float radius, float halfAngle, Color color)
+    {
+#if UNITY_EDITOR
+        Vector3 normalizedFacing = facingDir.sqrMagnitude > 0f ? facingDir.normalized : Vector3.right;
+        Vector3 startDir = Quaternion.Euler(0f, 0f, -halfAngle) * normalizedFacing;
+        Handles.color = color;
+        Handles.DrawSolidArc(origin, Vector3.forward, startDir, halfAngle * 2f, radius);
+#endif
+
+        Color outlineColor = new Color(color.r, color.g, color.b, 1f);
+        Gizmos.color = outlineColor;
+        DrawWireSector(origin, facingDir, radius, halfAngle);
+    }
+
+    private static void DrawWireSector(Vector3 origin, Vector3 facingDir, float radius, float halfAngle)
+    {
+        Vector3 normalizedFacing = facingDir.sqrMagnitude > 0f ? facingDir.normalized : Vector3.right;
+        Vector3 upperLine = Quaternion.Euler(0f, 0f, halfAngle) * normalizedFacing * radius;
+        Vector3 lowerLine = Quaternion.Euler(0f, 0f, -halfAngle) * normalizedFacing * radius;
+
+        Gizmos.DrawLine(origin, origin + upperLine);
+        Gizmos.DrawLine(origin, origin + lowerLine);
+        Gizmos.DrawWireSphere(origin, 0.04f);
+
+        const int segments = 28;
+        Vector3 previousPoint = origin + lowerLine;
+        for (int i = 1; i <= segments; i++)
+        {
+            float t = i / (float)segments;
+            float angle = Mathf.Lerp(-halfAngle, halfAngle, t);
+            Vector3 nextPoint = origin + Quaternion.Euler(0f, 0f, angle) * normalizedFacing * radius;
+            Gizmos.DrawLine(previousPoint, nextPoint);
+            previousPoint = nextPoint;
+        }
     }
 }

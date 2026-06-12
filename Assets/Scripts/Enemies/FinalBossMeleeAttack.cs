@@ -13,7 +13,8 @@ public class FinalBossMeleeAttack : MonoBehaviour
 
     [Header("Melee Shape")]
     [SerializeField] private float meleeRange = 1.35f;
-    [SerializeField, Range(5f, 180f)] private float meleeHalfAngle = 45f;
+    [SerializeField, Range(5f, 180f)] private float meleeUpperHalfAngle = 25f;
+    [SerializeField, Range(5f, 180f)] private float meleeLowerHalfAngle = 45f;
     [SerializeField] private float meleeDamage = 1f;
 
     [Header("Optional Anchor")]
@@ -122,7 +123,11 @@ public class FinalBossMeleeAttack : MonoBehaviour
 
         Vector2 forward = GetForward();
         float angle = Vector2.Angle(forward, toTarget.normalized);
-        return angle <= Mathf.Clamp(meleeHalfAngle, 1f, 180f);
+        float angleLimit = toTarget.y >= 0f
+            ? Mathf.Clamp(meleeUpperHalfAngle, 1f, 180f)
+            : Mathf.Clamp(meleeLowerHalfAngle, 1f, 180f);
+
+        return angle <= angleLimit;
     }
 
     // Returns the boss melee forward direction from facing scale.
@@ -132,32 +137,34 @@ public class FinalBossMeleeAttack : MonoBehaviour
         return ((Vector2)transform.right * facingSign).normalized;
     }
 
-    // Draws the boss melee hit circle in the Scene view.
+    // Draws the boss melee hit sector in the Scene view.
     private void OnDrawGizmosSelected()
     {
         Vector3 center = meleeOrigin != null ? meleeOrigin.position : transform.position;
         float range = Mathf.Max(0.1f, meleeRange);
-        float half = Mathf.Clamp(meleeHalfAngle, 1f, 180f);
+        float upperHalf = Mathf.Clamp(meleeUpperHalfAngle, 1f, 180f);
+        float lowerHalf = Mathf.Clamp(meleeLowerHalfAngle, 1f, 180f);
 
         SpriteRenderer sr = _spriteRenderer != null ? _spriteRenderer : GetComponent<SpriteRenderer>();
         Vector2 forward = (sr != null && sr.flipX) ? -(Vector2)transform.right : (Vector2)transform.right;
         forward = forward.normalized;
 
-        Quaternion leftRot = Quaternion.Euler(0f, 0f, half);
-        Quaternion rightRot = Quaternion.Euler(0f, 0f, -half);
-        Vector3 leftDir = leftRot * (Vector3)forward;
-        Vector3 rightDir = rightRot * (Vector3)forward;
+        float facingSign = forward.x >= 0f ? 1f : -1f;
+        float upperSignedAngle = upperHalf * facingSign;
+        float lowerSignedAngle = -lowerHalf * facingSign;
+        Vector3 upperDir = Quaternion.Euler(0f, 0f, upperSignedAngle) * (Vector3)forward;
+        Vector3 lowerDir = Quaternion.Euler(0f, 0f, lowerSignedAngle) * (Vector3)forward;
 
         Gizmos.color = new Color(1f, 0.55f, 0.2f, 0.9f);
-        Gizmos.DrawLine(center, center + leftDir * range);
-        Gizmos.DrawLine(center, center + rightDir * range);
+        Gizmos.DrawLine(center, center + upperDir * range);
+        Gizmos.DrawLine(center, center + lowerDir * range);
 
         const int segments = 24;
-        Vector3 prev = center + rightDir * range;
+        Vector3 prev = center + lowerDir * range;
         for (int i = 1; i <= segments; i++)
         {
             float t = i / (float)segments;
-            float a = Mathf.Lerp(-half, half, t);
+            float a = Mathf.Lerp(lowerSignedAngle, upperSignedAngle, t);
             Vector3 dir = Quaternion.Euler(0f, 0f, a) * (Vector3)forward;
             Vector3 next = center + dir.normalized * range;
             Gizmos.DrawLine(prev, next);

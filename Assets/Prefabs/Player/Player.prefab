@@ -284,7 +284,9 @@ GameObject:
   - component: {fileID: 8600927250155339436}
   - component: {fileID: 2124700569123723295}
   - component: {fileID: 500024848357451423}
-  m_Layer: 0
+  - component: {fileID: 1472689576281701123}
+  - component: {fileID: 5742538130350534153}
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -479,6 +481,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a357e9d10249f741bb07e73a533915d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  disableAttackAfterLoad: 0
+  loadWeaponVisualAfterLoad: 0
+  swordSprite: {fileID: 0}
+  staffSprite: {fileID: 0}
+  bowSprite: {fileID: 0}
+  weaponSortingOrder: 11
 --- !u!114 &7222279993310481780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,17 +529,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponPivot: {fileID: 2463929770410093525}
   attackPoint: {fileID: 7660329859895387763}
-  audioSource: {fileID: 0}
-  swordSfx: {fileID: 0}
-  staffSfx: {fileID: 0}
-  bowSfx: {fileID: 0}
+  audioSource: {fileID: 1472689576281701123}
+  swordSfx: {fileID: 8300000, guid: 8939e562bc92fb544aab6d586df154f1, type: 3}
+  staffSfx: {fileID: 8300000, guid: 7b4860d3fbd1dd0478c1a189a12250be, type: 3}
+  bowSfx: {fileID: 8300000, guid: 12d79a8d063a2b44aa0e260518072325, type: 3}
   swordSwingDuration: 0.2
   swordSwingAngle: -120
-  swordWavePrefab: {fileID: 2683771245454303140, guid: e80294943b961154e9c0382c8e454694, type: 3}
-  swordWaveFirePoint: {fileID: 7660329859895387763}
-  swordWaveDamage: 12
-  swordWaveSpeed: 9
-  swordWaveLifeTime: 0.7
+  showSwordSlash: 1
+  swordSlashSpawnPoint: {fileID: 2463929770410093525}
+  swordSlashOffset: {x: 0.58, y: 0.9}
+  swordSlashScale: {x: 1.5, y: 3}
+  swordSlashDelay: 0.03
+  swordSlashDuration: 0.18
+  swordSlashSortingOrder: 13
   staffSwingDuration: 0.1
   staffSwingAngle: 25
   fireballPrefab: {fileID: 7251361255885995030, guid: 6d9c2eefda4935540ba0e1395fb97a76, type: 3}
@@ -541,12 +551,16 @@ MonoBehaviour:
   arrowPrefab: {fileID: 2683771245454303140, guid: 1793ae625628b3f469e9c937ea922fb7, type: 3}
   bowFirePoint: {fileID: 4423633401160131307}
   attackCooldown: 0.4
-  attackRange: 0.9
-  attackAngle: 180
+  attackRange: 1.05
+  attackAngle: 135
+  swordSlashDamageRadius: 0.45
+  swordSlashDamageAngle: 80
+  showSwordDamageGizmos: 1
   enemyLayers:
     serializedVersion: 2
     m_Bits: 64
   attackDamage: 25
+  bossMeleeDamagePerHit: 1
   fireballDamage: 20
   arrowDamage: 10
 --- !u!114 &500024848357451423
@@ -561,6 +575,137 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0f7cc4dcdcf47f4283499d568bd4248, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &1472689576281701123
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6626967237538201883}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.5
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &5742538130350534153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6626967237538201883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c5fc5af06d38924ea3244818531fd99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 3
+  currentHealth: 3
+  invulnerabilityDuration: 1.5
+  flashInterval: 0.1
+  maxShield: 2
+  currentShield: 2
+  shieldRegenDelay: 5
+  shieldRegenInterval: 5
+  healthFillImage: {fileID: 0}
+  shieldFillImage: {fileID: 0}
+  healthText: {fileID: 0}
+  shieldText: {fileID: 0}
+  enablePostHitTeleportGuard: 0
+  teleportDistanceThreshold: 6
+  teleportDetectWindow: 0.8
+  restoreOnTeleportDetected: 1
+  enableGoldInvincibilityFlash: 1
+  invincibleFlashColor: {r: 1, g: 0.85, b: 0.2, a: 0.85}
+  invincibleFlashInterval: 0.08
+  enableInvincibleScalePulse: 1
+  invincibleScaleMin: 1
+  invincibleScaleMax: 1.05
+  invincibleScaleFrequency: 1
 --- !u!1 &7298363938268522382
 GameObject:
   m_ObjectHideFlags: 0
