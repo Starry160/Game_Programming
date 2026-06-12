@@ -443,6 +443,9 @@ This table records the final manual test pass for the main project. The fix comm
 | TC-18 | 2026-06-08 | Pass after fix | Boss phase transition, laser range, damage range, and laser focusing point required multiple tuning passes. | `92874cd` Achieve the transition from stage one to stage two of the boss; `87c74bf` Modify the attack range of the laser beam; `0a1b36c` Modify the damage determination range of the laser; `b346d10` Fix the issue of the offset of the laser focusing point; `366a5c0` Improve the determination of laser emission |
 | TC-19 | 2026-06-10 | Pass | Victory result UI was needed after boss completion and final room interaction. | `2ce7338` UI setup after completing the game's level completion process; `5185239` Scene Name Modification |
 | TC-20 | 2026-06-11 | Pass | Full game flow needed final naming, polish, and submission-readiness checks. | `5185239` Scene Name Modification; `9020cd4` Polish |
+| TC-20-Knight | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Knight class. No blocking issues were found. | Manual verification; no fix commit required |
+| TC-20-Mage | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Mage class. No blocking issues were found. | Manual verification; no fix commit required |
+| TC-20-Archer | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Archer class. No blocking issues were found. | Manual verification; no fix commit required |
 
 ## 9. Automated EditMode Tests
 
@@ -515,6 +518,6 @@ Use this format when recording a bug:
 
 ## 13. Current Test Conclusion
 
-The main project has a complete manual test path covering menu, story, class selection, combat, rewards, portals, final boss, death, and victory. The most important submission test is the full regression playthrough from `MainMenu` to `Final Room`, because it verifies the complete game loop that the teacher will most likely review.
+The main project has a complete manual test path covering menu, story, class selection, combat, rewards, portals, final boss, death, and victory. The most important submission test is the full regression playthrough from `MainMenu` to `Final Room`, because it verifies the complete game loop that the teacher will most likely review. On 2026-06-12, this full playthrough was manually completed once with each playable class: Knight, Mage, and Archer.
 
 The automated EditMode tests add a small safety net around cross-scene state, run statistics, and player stat persistence. Together, the manual and automated tests show both full-game validation and targeted code-level validation.
