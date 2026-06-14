@@ -9,13 +9,11 @@ public class Projectile : MonoBehaviour
         Player
     }
 
-    [Header("Stats")]
-    [Tooltip("Projectile movement speed in units per second.")]
+    [Header("Launch Defaults")]
+    [Tooltip("Default movement speed in units per second. MonsterAI can override this when it fires the projectile.")]
     public float speed = 10f;
 
-    [Tooltip("Damage dealt when this projectile hits a valid target.")]
-    public float damage = 20f;
-    [Tooltip("Damage dealt to the final boss per projectile hit.")]
+    [Tooltip("Damage dealt to the final boss per projectile hit. This is separate from regular damage so boss hearts stay balanced.")]
     public float bossDamagePerHit = 1f;
 
     [Tooltip("Maximum lifetime before the projectile destroys itself.")]
@@ -24,13 +22,21 @@ public class Projectile : MonoBehaviour
     [Tooltip("Effect spawned when the projectile hits a target or wall.")]
     public GameObject explosionPrefab;
 
-    [Header("Targeting")]
-    [Tooltip("Faction that this projectile is allowed to damage.")]
+    [Header("Targeting Defaults")]
+    [Tooltip("Default faction this projectile is allowed to damage. MonsterAI overrides monster fireballs to target the player.")]
     public TargetSide targetSide = TargetSide.Enemy;
-    [Tooltip("Tag used to ignore collisions with the projectile owner.")]
+    [Tooltip("Default owner tag ignored by this projectile. Player projectiles usually ignore Player; monster projectiles use Enemy.")]
     public string ownerTag = "Player";
-    [Tooltip("Transform ignored by this projectile so it cannot hit its caster.")]
+    [Tooltip("Runtime owner transform ignored by this projectile so it cannot hit its caster or caster child colliders.")]
     public Transform ownerTransform;
+
+    private float _runtimeDamage;
+
+    // Receives launch-time damage from the script that spawned this projectile.
+    public void SetDamage(float amount)
+    {
+        _runtimeDamage = Mathf.Max(0f, amount);
+    }
 
     // Schedules projectile cleanup so missed shots do not remain forever.
     private void Start()
@@ -168,7 +174,7 @@ public class Projectile : MonoBehaviour
 
         if (enemy != null)
         {
-            enemy.TakeDamage(damage);
+            enemy.TakeDamage(_runtimeDamage);
         }
         else
         {
@@ -187,7 +193,7 @@ public class Projectile : MonoBehaviour
 
         if (playerStats != null)
         {
-            playerStats.TakeDamage(damage);
+            playerStats.TakeDamage(_runtimeDamage);
         }
     }
 

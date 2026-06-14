@@ -184,6 +184,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  damage: 30
+  bossDamagePerHit: 1
   lifeTime: 2
   explosionPrefab: {fileID: 7475296370076187106, guid: 0c72669c933678d4f9512068e6e22da7, type: 3}
+  targetSide: 0
+  ownerTag: Player
+  ownerTransform: {fileID: 0}

@@ -183,10 +183,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bee7598d2b74bf0409b8ea1258743b9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  damage: 30
+  speed: 5
+  bossDamagePerHit: 1
   lifeTime: 5
   explosionPrefab: {fileID: 7475296370076187106, guid: 0c72669c933678d4f9512068e6e22da7, type: 3}
-  targetSide: 0
-  ownerTag: Player
+  targetSide: 1
+  ownerTag: Enemy
   ownerTransform: {fileID: 0}

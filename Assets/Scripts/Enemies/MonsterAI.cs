@@ -443,7 +443,7 @@ public class MonsterAI : MonoBehaviour
         if (projectile != null)
         {
             projectile.speed = projectileSpeed;
-            projectile.damage = projectileDamage;
+            projectile.SetDamage(projectileDamage);
             projectile.targetSide = Projectile.TargetSide.Player;
             projectile.ownerTag = "Enemy";
             projectile.ownerTransform = transform;

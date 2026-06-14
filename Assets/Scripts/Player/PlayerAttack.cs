@@ -369,7 +369,7 @@ public class PlayerAttack : MonoBehaviour
         Projectile projectile = projectileObj.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage = projectileDamage;
+            projectile.SetDamage(projectileDamage);
         }
     }
 
