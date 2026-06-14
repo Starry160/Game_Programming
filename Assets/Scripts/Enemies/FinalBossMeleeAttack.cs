@@ -20,16 +20,27 @@ public class FinalBossMeleeAttack : MonoBehaviour
     [Header("Optional Anchor")]
     [SerializeField] private Transform meleeOrigin;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource attackAudioSource;
+    [SerializeField] private AudioClip meleeSfx;
+    [SerializeField, Range(0f, 1f)] private float meleeSfxVolume = 0.35f;
+    [SerializeField] private Vector2 meleePitchRange = new Vector2(0.9f, 1.1f);
+
     private SpriteRenderer _spriteRenderer;
 
     public float AttackAnimDuration => Mathf.Max(0.05f, attackAnimDuration);
     public float HitDelay => Mathf.Clamp(hitDelay, 0f, AttackAnimDuration);
     public float HitActiveDuration => Mathf.Max(0.02f, hitActiveDuration);
 
-    // Stores attack references and builds the boss melee hit mask.
+    // Stores attack references, audio, and the boss-facing sprite used by the melee sector.
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        if (attackAudioSource == null)
+        {
+            attackAudioSource = GetComponent<AudioSource>();
+        }
+
         if (meleeOrigin == null)
         {
             meleeOrigin = transform;
@@ -68,6 +79,24 @@ public class FinalBossMeleeAttack : MonoBehaviour
 
         playerStats.TakeDamage(Mathf.Max(0f, meleeDamage));
         return true;
+    }
+
+    // Plays the melee swing sound at the start of the active hit window.
+    public void PlayAttackSfx()
+    {
+        if (meleeSfx == null)
+        {
+            return;
+        }
+
+        if (attackAudioSource == null)
+        {
+            AudioSource.PlayClipAtPoint(meleeSfx, transform.position, meleeSfxVolume);
+            return;
+        }
+
+        attackAudioSource.pitch = Random.Range(meleePitchRange.x, meleePitchRange.y);
+        attackAudioSource.PlayOneShot(meleeSfx, meleeSfxVolume);
     }
 
     private bool IsTargetInSector(Transform target)

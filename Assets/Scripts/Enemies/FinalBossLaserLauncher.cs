@@ -25,15 +25,26 @@ public class FinalBossLaserLauncher : MonoBehaviour
     [SerializeField, Range(0.5f, 1.2f)] private float edgeLengthScale = 1.1f;
     [SerializeField] private float edgeCheckPadding = 0.05f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource attackAudioSource;
+    [SerializeField] private AudioClip laserFireSfx;
+    [SerializeField, Range(0f, 1f)] private float laserFireSfxVolume = 0.55f;
+    [SerializeField] private Vector2 laserFirePitchRange = new Vector2(0.95f, 1.05f);
+
     [Header("Pool")]
     [SerializeField] private int prewarmCount = 2;
 
     private readonly Queue<FinalBossLaserBeam> _pool = new Queue<FinalBossLaserBeam>();
     private FinalBossLaserBeam _activeLaser;
 
-    // Prepares laser beam visuals and fallback audio before attack patterns begin.
+    // Prepares laser beam visuals, room bounds, and attack audio before patterns begin.
     private void Awake()
     {
+        if (attackAudioSource == null)
+        {
+            attackAudioSource = GetComponent<AudioSource>();
+        }
+
         AutoBindRoomTriggerZone();
         PrewarmPool();
     }
@@ -111,6 +122,25 @@ public class FinalBossLaserLauncher : MonoBehaviour
         beam.gameObject.SetActive(true);
         beam.Activate(this, firePoint, _laserVisualOffset, damagePerTick, tickInterval, laserDuration, lockDirectionOnCast, castRotation);
         _activeLaser = beam;
+        PlayLaserFireSfx();
+    }
+
+    // Plays the laser blast sound when the beam becomes active.
+    private void PlayLaserFireSfx()
+    {
+        if (laserFireSfx == null)
+        {
+            return;
+        }
+
+        if (attackAudioSource == null)
+        {
+            AudioSource.PlayClipAtPoint(laserFireSfx, transform.position, laserFireSfxVolume);
+            return;
+        }
+
+        attackAudioSource.pitch = Random.Range(laserFirePitchRange.x, laserFirePitchRange.y);
+        attackAudioSource.PlayOneShot(laserFireSfx, laserFireSfxVolume);
     }
 
     // Checks whether the boss has enough clear room to fire a laser.

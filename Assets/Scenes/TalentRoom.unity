@@ -7401,6 +7401,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1472689576281701123, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
+      propertyPath: m_Volume
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 2124700569123723295, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       propertyPath: swordSlashScale.y
       value: 3.5

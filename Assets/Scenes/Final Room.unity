@@ -3961,7 +3961,7 @@ PrefabInstance:
     - target: {fileID: 3408818367272199608, guid: bcd8450b8b784c64b9307a504cd045f7, type: 3}
       propertyPath: m_audioClip
       value: 
-      objectReference: {fileID: 8300000, guid: 7042ab5fa06f4574a856bbfc660b9547, type: 3}
+      objectReference: {fileID: 8300000, guid: 3ac89cc76a9465543aea40218a88a749, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4343,11 +4343,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disableAttackAfterLoad: 1
-  loadWeaponVisualAfterLoad: 1
-  swordSprite: {fileID: 1947919150, guid: 4da732814a17cae46842b518f8127a58, type: 3}
-  staffSprite: {fileID: -584414680, guid: 4da732814a17cae46842b518f8127a58, type: 3}
-  bowSprite: {fileID: -347343452, guid: 4da732814a17cae46842b518f8127a58, type: 3}
-  weaponSortingOrder: 11
 --- !u!1 &1265705835
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,12 +22,23 @@ public class FinalBossArmLauncher : MonoBehaviour
     [SerializeField] private bool facePlayerWhenFiring = true;
     [SerializeField] private Vector2 fallbackDirection = Vector2.right;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource attackAudioSource;
+    [SerializeField] private AudioClip armFireSfx;
+    [SerializeField, Range(0f, 1f)] private float armFireSfxVolume = 0.45f;
+    [SerializeField] private Vector2 armFirePitchRange = new Vector2(0.95f, 1.05f);
+
     private readonly Queue<FinalBossArmProjectile> _pool = new Queue<FinalBossArmProjectile>();
     private Transform _playerTransform;
 
-    // Stores the player target and spawn center used by the boss arm projectiles.
+    // Stores the player target, audio source, and spawn center used by the boss arm projectiles.
     private void Awake()
     {
+        if (attackAudioSource == null)
+        {
+            attackAudioSource = GetComponent<AudioSource>();
+        }
+
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
@@ -80,6 +91,25 @@ public class FinalBossArmLauncher : MonoBehaviour
         projectile.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg);
         projectile.gameObject.SetActive(true);
         projectile.Activate(this, shootDirection, projectileSpeed, projectileDamage, projectileLifetime, hitMask);
+        PlayArmFireSfx();
+    }
+
+    // Plays the thrown-arm launch sound when the projectile is actually released.
+    private void PlayArmFireSfx()
+    {
+        if (armFireSfx == null)
+        {
+            return;
+        }
+
+        if (attackAudioSource == null)
+        {
+            AudioSource.PlayClipAtPoint(armFireSfx, transform.position, armFireSfxVolume);
+            return;
+        }
+
+        attackAudioSource.pitch = Random.Range(armFirePitchRange.x, armFirePitchRange.y);
+        attackAudioSource.PlayOneShot(armFireSfx, armFireSfxVolume);
     }
 
     // Resolves the direction used by the boss arm projectile.

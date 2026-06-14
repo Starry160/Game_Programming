@@ -482,11 +482,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disableAttackAfterLoad: 0
-  loadWeaponVisualAfterLoad: 0
-  swordSprite: {fileID: 0}
-  staffSprite: {fileID: 0}
-  bowSprite: {fileID: 0}
-  weaponSortingOrder: 11
 --- !u!114 &7222279993310481780
 MonoBehaviour:
   m_ObjectHideFlags: 0

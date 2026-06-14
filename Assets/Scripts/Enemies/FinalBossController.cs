@@ -407,6 +407,11 @@ public class FinalBossController : MonoBehaviour
             PlayState("MeleeAttack");
             float hitDelay = meleeAttack != null ? meleeAttack.HitDelay : 0.5f;
             yield return new WaitForSeconds(Mathf.Max(minTelegraphTime, hitDelay));
+            if (meleeAttack != null)
+            {
+                meleeAttack.PlayAttackSfx();
+            }
+
             float hitActiveDuration = meleeAttack != null ? meleeAttack.HitActiveDuration : 0.12f;
             yield return StartCoroutine(MeleeHitWindowRoutine(hitActiveDuration));
 
