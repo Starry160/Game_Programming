@@ -153,5 +153,7 @@ public class CharacterTransformPedestal : MonoBehaviour
         GlobalData.persistedHealth = safeMaxHealth;
         GlobalData.hasPersistedMaxShield = true;
         GlobalData.persistedMaxShield = safeMaxShield;
+        GlobalData.hasPersistedShield = true;
+        GlobalData.persistedShield = safeMaxShield;
     }
 }

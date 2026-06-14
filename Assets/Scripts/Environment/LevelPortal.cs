@@ -205,7 +205,32 @@ public class LevelPortal : MonoBehaviour
             yield break;
         }
 
+        PersistPlayerStatsBeforeSceneLoad();
         SceneManager.LoadScene(targetSceneName);
+    }
+
+    // Saves the player's current health and shield before this portal changes scenes.
+    private void PersistPlayerStatsBeforeSceneLoad()
+    {
+        PlayerStats playerStats = null;
+        if (_currentPlayer != null)
+        {
+            playerStats = _currentPlayer.GetComponent<PlayerStats>();
+            if (playerStats == null)
+            {
+                playerStats = _currentPlayer.GetComponentInParent<PlayerStats>();
+            }
+        }
+
+        if (playerStats == null)
+        {
+            playerStats = FindObjectOfType<PlayerStats>();
+        }
+
+        if (playerStats != null)
+        {
+            playerStats.PersistCurrentStats();
+        }
     }
 
     // Unlocks the portal when its required room has been cleared.

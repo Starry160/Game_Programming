@@ -128,7 +128,17 @@ public class PlayerStats : MonoBehaviour
         }
 
         GlobalData.persistedHealth = currentHealth;
-        currentShield = maxShield;
+        if (GlobalData.hasPersistedShield)
+        {
+            currentShield = Mathf.Clamp(GlobalData.persistedShield, 0f, maxShield);
+        }
+        else
+        {
+            currentShield = maxShield;
+            GlobalData.hasPersistedShield = true;
+        }
+
+        GlobalData.persistedShield = currentShield;
         nextShieldRegenTime = Time.time + shieldRegenDelay;
         UpdateUI();
         RefreshStatusHudVisibility();
@@ -163,6 +173,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         currentShield = Mathf.Min(maxShield, currentShield + 1f);
+        PersistCurrentStats();
         nextShieldRegenTime = Time.time + shieldRegenInterval;
         UpdateUI();
     }
@@ -344,6 +355,7 @@ public class PlayerStats : MonoBehaviour
             {
                 currentShield -= amount;
                 Debug.Log("Player took damage. Current health: " + currentHealth);
+                PersistCurrentStats();
                 UpdateUI();
                 StartInvulnerability();
                 return;
@@ -354,7 +366,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
-        GlobalData.persistedHealth = currentHealth;
+        PersistCurrentStats();
         Debug.Log("Player took damage. Current health: " + currentHealth);
 
         UpdateUI();
@@ -363,7 +375,7 @@ public class PlayerStats : MonoBehaviour
         if (currentHealth <= 0f)
         {
             currentHealth = 0f;
-            GlobalData.persistedHealth = currentHealth;
+            PersistCurrentStats();
             UpdateUI();
             HandlePlayerDeath();
             return;
@@ -404,7 +416,7 @@ public class PlayerStats : MonoBehaviour
         nextShieldRegenTime = Time.time + shieldRegenDelay;
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
-        GlobalData.persistedHealth = currentHealth;
+        PersistCurrentStats();
         Debug.Log("Player took damage. Current health: " + currentHealth);
 
         UpdateUI();
@@ -412,7 +424,7 @@ public class PlayerStats : MonoBehaviour
         if (currentHealth <= 0f)
         {
             currentHealth = 0f;
-            GlobalData.persistedHealth = currentHealth;
+            PersistCurrentStats();
             UpdateUI();
             HandlePlayerDeath();
             return;
@@ -435,7 +447,7 @@ public class PlayerStats : MonoBehaviour
         }
 
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
-        GlobalData.persistedHealth = currentHealth;
+        PersistCurrentStats();
         UpdateUI();
     }
 
@@ -483,11 +495,7 @@ public class PlayerStats : MonoBehaviour
 
         maxHealth += amount;
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
-
-        GlobalData.hasPersistedMaxHealth = true;
-        GlobalData.persistedMaxHealth = maxHealth;
-        GlobalData.hasPersistedHealth = true;
-        GlobalData.persistedHealth = currentHealth;
+        PersistCurrentStats();
 
         UpdateUI();
     }
@@ -505,12 +513,7 @@ public class PlayerStats : MonoBehaviour
         maxShield = Mathf.Max(0f, classMaxShield);
         currentShield = maxShield;
 
-        GlobalData.hasPersistedMaxHealth = true;
-        GlobalData.persistedMaxHealth = maxHealth;
-        GlobalData.hasPersistedHealth = true;
-        GlobalData.persistedHealth = currentHealth;
-        GlobalData.hasPersistedMaxShield = true;
-        GlobalData.persistedMaxShield = maxShield;
+        PersistCurrentStats();
 
         nextShieldRegenTime = Time.time + shieldRegenDelay;
         UpdateUI();
@@ -532,11 +535,22 @@ public class PlayerStats : MonoBehaviour
 
         maxShield += amount;
         currentShield = Mathf.Min(maxShield, currentShield + amount);
-
-        GlobalData.hasPersistedMaxShield = true;
-        GlobalData.persistedMaxShield = maxShield;
+        PersistCurrentStats();
 
         UpdateUI();
+    }
+
+    /// <summary>Stores current player health and shield values for the next loaded scene.</summary>
+    public void PersistCurrentStats()
+    {
+        GlobalData.hasPersistedMaxHealth = true;
+        GlobalData.persistedMaxHealth = maxHealth;
+        GlobalData.hasPersistedHealth = true;
+        GlobalData.persistedHealth = currentHealth;
+        GlobalData.hasPersistedMaxShield = true;
+        GlobalData.persistedMaxShield = maxShield;
+        GlobalData.hasPersistedShield = true;
+        GlobalData.persistedShield = currentShield;
     }
 
     // Starts short post-hit invulnerability and red flash feedback.

@@ -27,6 +27,12 @@ public static class GlobalData
     /// <summary>Player max shield value carried into the next scene.</summary>
     public static float persistedMaxShield = 0f;
 
+    /// <summary>Whether the next scene should reuse the player's current shield.</summary>
+    public static bool hasPersistedShield = false;
+
+    /// <summary>Player shield value carried into the next scene.</summary>
+    public static float persistedShield = 0f;
+
     /// <summary>Enemy kills recorded for the current run.</summary>
     public static int persistedKillCount = 0;
     /// <summary>Potions collected during the current run.</summary>
@@ -45,6 +51,8 @@ public static class GlobalData
         persistedMaxHealth = 0f;
         hasPersistedMaxShield = false;
         persistedMaxShield = 0f;
+        hasPersistedShield = false;
+        persistedShield = 0f;
         persistedKillCount = 0;
         persistedPotionCollected = 0;
         persistedSurvivalTime = 0f;

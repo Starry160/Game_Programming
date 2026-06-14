@@ -257,7 +257,18 @@ public class DoorController : MonoBehaviour
         }
 
         _hasTransitioned = true;
+        PersistPlayerStatsBeforeSceneLoad();
         SceneManager.LoadScene(targetSceneName);
+    }
+
+    // Saves the player's current health and shield before this door changes scenes.
+    private static void PersistPlayerStatsBeforeSceneLoad()
+    {
+        PlayerStats playerStats = FindObjectOfType<PlayerStats>();
+        if (playerStats != null)
+        {
+            playerStats.PersistCurrentStats();
+        }
     }
 
     // Checks whether any active Enemy-tagged objects remain in the scene.

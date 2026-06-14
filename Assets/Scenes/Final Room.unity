@@ -2209,8 +2209,8 @@ Camera:
   m_GameObject: {fileID: 553869434}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.023529412, g: 0.02745098, b: 0.14509805, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -4137,6 +4137,7 @@ GameObject:
   - component: {fileID: 1107209162}
   - component: {fileID: 1107209163}
   - component: {fileID: 1107209164}
+  - component: {fileID: 1107209165}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -4343,6 +4344,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disableAttackAfterLoad: 1
+--- !u!114 &1107209165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1107209156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c5fc5af06d38924ea3244818531fd99, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  maxHealth: 3
+  currentHealth: 3
+  invulnerabilityDuration: 1.5
+  flashInterval: 0.1
+  maxShield: 2
+  currentShield: 2
+  shieldRegenDelay: 5
+  shieldRegenInterval: 5
+  healthFillImage: {fileID: 0}
+  shieldFillImage: {fileID: 0}
+  healthText: {fileID: 0}
+  shieldText: {fileID: 0}
+  enablePostHitTeleportGuard: 0
+  teleportDistanceThreshold: 6
+  teleportDetectWindow: 0.8
+  restoreOnTeleportDetected: 1
+  enableGoldInvincibilityFlash: 1
+  invincibleFlashColor: {r: 1, g: 0.85, b: 0.2, a: 0.85}
+  invincibleFlashInterval: 0.08
+  enableInvincibleScalePulse: 1
+  invincibleScaleMin: 1
+  invincibleScaleMax: 1.05
+  invincibleScaleFrequency: 1
 --- !u!1 &1265705835
 GameObject:
   m_ObjectHideFlags: 0
