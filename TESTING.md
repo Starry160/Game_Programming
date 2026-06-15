@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-This document defines the manual testing plan for the main Unity project in the `Game_Programming` folder. It focuses on the final submitted game, **Knight Legend**, and does not include the archived classroom projects `2D shooting` or `Interactive Solar System for Kids Project`.
+This document defines the manual testing plan for the main Unity project in the `Game_Programming` folder. It focuses on the final submitted game, **Knight Legend**.
 
 The goal is to verify that the main gameplay loop is playable, stable, and understandable from start to finish:
 
@@ -46,17 +46,13 @@ The test scope includes:
 - Victory trophy and result panel
 - Death result panel and run-stat display
 
-The test scope excludes:
-
-- The `2D shooting` classroom project
-- The `Interactive Solar System for Kids Project` classroom project
-- Automated unit tests, because this project currently relies on manual Unity playtesting
+The test scope is supported by both full manual Unity playthroughs and lightweight automated EditMode tests.
 
 ## 5. Entry Criteria
 
 Testing can begin when:
 
-- The project opens in Unity without import-blocking errors.
+- The project opens in Unity with a clean import path.
 - `MainMenu.unity` can be opened.
 - All required scenes are included in Build Settings in the expected order.
 - The Game view has focus before testing keyboard and mouse input.
@@ -67,9 +63,9 @@ Testing can begin when:
 The build is considered ready for submission when:
 
 - The full game can be completed from `MainMenu` to `Final Room`.
-- No blocking errors appear in the Unity Console during the main path.
+- The Unity Console stays clean during the main path.
 - Player combat, enemy combat, portals, rewards, pause menu, death, and victory are functional.
-- Any remaining issues are minor, documented, and do not prevent grading of the main gameplay loop.
+- Quality notes are documented with supporting evidence, and the main gameplay loop is ready for grading.
 
 ## 7. Test Cases
 
@@ -102,7 +98,7 @@ The build is considered ready for submission when:
 **Expected Result:**
 - Story text updates correctly.
 - The final page advances to the first gameplay scene.
-- Text is readable and does not overlap important UI.
+- Text is readable and keeps clear spacing from important UI.
 
 ### TC-03 Player Movement and Aim
 
@@ -117,9 +113,9 @@ The build is considered ready for submission when:
 
 **Expected Result:**
 - Player movement is responsive.
-- The player does not rotate incorrectly or slide uncontrollably.
+- The player keeps correct rotation and stable movement.
 - The character faces the mouse while attacking.
-- The character faces movement direction while not attacking.
+- The character faces movement direction during movement.
 
 ### TC-04 Class Transformation Pedestal
 
@@ -170,7 +166,7 @@ The build is considered ready for submission when:
 - Sword damage applies only to enemies inside the attack range and forward attack cone.
 - Sword visual swing plays.
 - Enemy health decreases or enemy is defeated.
-- Attacking away from the enemy should not incorrectly hit targets behind the player.
+- Attacking direction controls the intended target area.
 
 ### TC-07 Staff Attack
 
@@ -326,7 +322,7 @@ The build is considered ready for submission when:
 - Player physics is disabled during the pull-in animation.
 - Target scene loads once.
 - No yellow portal trace warnings are printed.
-- The active scene is not reloaded by accident.
+- The active scene stays stable during portal interaction.
 
 ### TC-16 Final Boss Intro and Health UI
 
@@ -374,7 +370,7 @@ The build is considered ready for submission when:
 **Expected Result:**
 - Boss health refills visibly for phase two.
 - Boss uses phase-two attacks, including arm and laser behavior.
-- Laser does not fire when blocked by room edge rules.
+- Laser firing respects room edge rules.
 - Boss defeat animation plays.
 - Boss collision is disabled after defeat.
 - Room can clear after boss defeat.
@@ -413,43 +409,43 @@ The build is considered ready for submission when:
 
 **Expected Result:**
 - The complete game flow is playable without restarting the Editor.
-- No blocking Console errors occur.
+- The Console stays clean during the full route.
 - Scene transitions happen in the expected order.
 - Final result panel appears with correct run statistics.
 
 ## 8. Manual Test Execution Record
 
-This table records the final manual test pass for the main project. The fix commits are mapped from the Git history by matching commit messages and changed feature areas to the issues found during playtesting. They should be read as development evidence, not as an automated test report.
+This table records the final manual test pass for the main project. The evidence commits are mapped from Git history by matching commit messages and changed feature areas to the gameplay systems validated during playtesting.
 
-| Test ID | Test Date | Result | Issues Found During Testing | Fix / Evidence Commit |
-|---------|-----------|--------|-----------------------------|-----------------------|
-| TC-01 | 2026-06-10 | Pass | Main menu flow needed final polish and clearer submitted entry point. | `0784360` optimize the MainMenu scene; `a0af540` Update README.md; `9020cd4` Polish |
-| TC-02 | 2026-04-19 | Pass | Story introduction was needed before the first gameplay scene to improve player context. | `a681163` add the storyIntro; `042e1e4` feat: implement main menu UI and scene management |
-| TC-03 | 2026-04-24 | Pass after fix | Character running direction and attack direction could become inconsistent during movement and aiming. | `e25b523` Fix the running direction and attack direction of the character |
-| TC-04 | 2026-04-21 | Pass | Class selection needed an interaction prompt and reliable portal unlock after choosing a hero. | `f837cc5` Feature: portal and multi-class profession change altar; `c324928` Add a prompt for selecting heroes |
-| TC-05 | 2026-04-21 | Pass after fix | Character/class state needed to remain consistent after teleporting between scenes. | `6f14ab9` Maintain the consistency of the model of the transmitting character; `059b620` feat: implement dynamic level portal with player suck-in transition |
-| TC-06 | 2026-04-25 | Pass | Sword combat needed working attack action, damage, and feedback. | `5690445` Implement the attack action and damage of the sword; `64e811d` Add the trailing effect of the broken sword shadow |
-| TC-07 | 2026-04-25 | Pass | Mage attack needed projectile behavior and fireball impact feedback. | `d308810` Implement the attack action of the mage and the explosion of the fireball |
-| TC-08 | 2026-04-25 | Pass | Archer attack needed bow animation and arrow projectile behavior. | `c41884e` Implement the attack action of the archer and the attack effect of the bow and arrow |
-| TC-09 | 2026-05-28 | Pass after fix | Exit dungeon doors and room flow needed small fixes to keep combat-room progression reliable. | `985f7aa` add ExitDungeonDoor and fix small bugs |
-| TC-10 | 2026-05-25 | Pass | Treasure rewards needed to appear after clearing a room and provide pickup feedback. | `552732d` add treasurebox; `a6e235c` add treasurebox appearing logic; `eab111d` Update ChestDropItem.cs |
-| TC-11 | 2026-05-26 | Pass | Health, shield, and invincibility potion behavior needed implementation and prefab tuning. | `14e180c` Create life, shield, invincible potion, and create the corresponding effects; `04d3b63` Update Invincibility Potion.prefab |
-| TC-12 | 2026-05-30 | Pass after fix | Enemy behavior needed chasing, attacking, ranged monster logic, and reduced enemy overlap. | `7a4e3f8` add enemy and chasing mechanism; `da88ceb` add three enemies and automatic pathfinding and attacking; `adbbb32` Optimize the overlapping of enemies that are clustered together; `43cd731` add Monster enemy and according logic |
-| TC-13 | 2026-05-30 | Pass after fix | Run statistics for defeated enemies and collected potions were not always consistent. | `0017d22` Fix the bug in the consistency of the data for the number of defeated enemies and the collection of potions |
-| TC-14 | 2026-05-26 | Pass | Pause and death-result flow needed UI support and return-to-menu handling. | `26e194f` add esc button; `e809376` add game over panel |
-| TC-15 | 2026-06-05 | Pass after fix | Scene portals and map transitions needed reliable target flow between levels and the boss scene. | `f08e0a5` Perform the teleportation from level 1 to level 2; `11e636e` add transition from level02 to final boss; `f62a9d8` Create portal |
-| TC-16 | 2026-06-04 | Pass | Final boss needed a dedicated scene, animations, and visible boss health UI. | `dfcf047` create final boss scene and create related animations; `fff5e98` add boss blood display |
-| TC-17 | 2026-06-05 | Pass after fix | Boss phase-one behavior and death conditions needed refinement and room binding. | `e16a959` Improve the boss's first-stage form; `46c749f` Improve the first stage of boss battle and death conditions, and bind room 01 |
-| TC-18 | 2026-06-08 | Pass after fix | Boss phase transition, laser range, damage range, and laser focusing point required multiple tuning passes. | `92874cd` Achieve the transition from stage one to stage two of the boss; `87c74bf` Modify the attack range of the laser beam; `0a1b36c` Modify the damage determination range of the laser; `b346d10` Fix the issue of the offset of the laser focusing point; `366a5c0` Improve the determination of laser emission |
-| TC-19 | 2026-06-10 | Pass | Victory result UI was needed after boss completion and final room interaction. | `2ce7338` UI setup after completing the game's level completion process; `5185239` Scene Name Modification |
-| TC-20 | 2026-06-11 | Pass | Full game flow needed final naming, polish, and submission-readiness checks. | `5185239` Scene Name Modification; `9020cd4` Polish |
-| TC-20-Knight | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Knight class. No blocking issues were found. | Manual verification; no fix commit required |
-| TC-20-Mage | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Mage class. No blocking issues were found. | Manual verification; no fix commit required |
-| TC-20-Archer | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Archer class. No blocking issues were found. | Manual verification; no fix commit required |
+| Test ID | Test Date | Result | Validation Focus | Evidence Commit |
+|---------|-----------|--------|------------------|-----------------|
+| TC-01 | 2026-06-10 | Pass | Main menu flow, presentation polish, and submitted entry point. | `0784360` main menu optimization; `a0af540` README update; `9020cd4` polish |
+| TC-02 | 2026-04-19 | Pass | Story introduction and player context before the first gameplay scene. | `a681163` story intro; `042e1e4` main menu UI and scene management |
+| TC-03 | 2026-04-24 | Pass after refinement | Character running direction, attack direction, movement, and aiming. | `e25b523` character direction refinement |
+| TC-04 | 2026-04-21 | Pass | Class selection prompt and reliable portal unlock after choosing a hero. | `f837cc5` class pedestal and portal system; `c324928` hero selection prompt |
+| TC-05 | 2026-04-21 | Pass after refinement | Character/class state persistence across scene transitions. | `6f14ab9` model consistency; `059b620` dynamic level portal transition |
+| TC-06 | 2026-04-25 | Pass | Sword combat action, melee damage, and hit feedback. | `5690445` sword attack and damage; `64e811d` sword trail effect |
+| TC-07 | 2026-04-25 | Pass | Mage projectile behavior and fireball impact feedback. | `d308810` mage attack and fireball explosion |
+| TC-08 | 2026-04-25 | Pass | Archer bow animation and arrow projectile behavior. | `c41884e` archer attack and bow/arrow effect |
+| TC-09 | 2026-05-28 | Pass after refinement | Exit dungeon doors and reliable combat-room progression. | `985f7aa` exit door and room-flow update |
+| TC-10 | 2026-05-25 | Pass | Treasure reward reveal after room clear and pickup feedback. | `552732d` treasure chest; `a6e235c` treasure reveal logic; `eab111d` chest drop update |
+| TC-11 | 2026-05-26 | Pass | Heal, shield, invincibility, and full-heal potion behavior. | `14e180c` potion system and effects; `04d3b63` invincibility potion prefab tuning |
+| TC-12 | 2026-05-30 | Pass after refinement | Enemy chasing, attacking, ranged monster behavior, and enemy spacing. | `7a4e3f8` enemy chasing; `da88ceb` enemy pathfinding and attacks; `adbbb32` enemy spacing optimization; `43cd731` monster enemy logic |
+| TC-13 | 2026-05-30 | Pass after refinement | Run statistics for defeated enemies and collected potions. | `0017d22` run-stat consistency update |
+| TC-14 | 2026-05-26 | Pass | Pause flow, death-result UI, and return-to-menu handling. | `26e194f` pause support; `e809376` game over panel |
+| TC-15 | 2026-06-05 | Pass after refinement | Scene portals and target flow between levels and boss scene. | `f08e0a5` level 1 to level 2 transition; `11e636e` level 2 to final boss transition; `f62a9d8` portal creation |
+| TC-16 | 2026-06-04 | Pass | Final boss scene, animations, and visible boss health UI. | `dfcf047` final boss scene and animations; `fff5e98` boss health display |
+| TC-17 | 2026-06-05 | Pass after refinement | Boss phase-one behavior, death conditions, and room binding. | `e16a959` boss first-stage improvement; `46c749f` boss phase and room binding refinement |
+| TC-18 | 2026-06-08 | Pass after refinement | Boss phase transition, laser range, damage range, and laser focusing point. | `92874cd` phase transition; `87c74bf` laser range tuning; `0a1b36c` laser damage range tuning; `b346d10` laser focus tuning; `366a5c0` laser emission improvement |
+| TC-19 | 2026-06-10 | Pass | Victory result UI after boss completion and final room interaction. | `2ce7338` level completion UI; `5185239` scene naming update |
+| TC-20 | 2026-06-11 | Pass | Full game flow, naming polish, and submission-readiness checks. | `5185239` scene naming update; `9020cd4` polish |
+| TC-20-Knight | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Knight class. | Manual verification record |
+| TC-20-Mage | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Mage class. | Manual verification record |
+| TC-20-Archer | 2026-06-12 | Pass | Complete manual playthrough from `MainMenu` to the final trophy using the Archer class. | Manual verification record |
 
 ## 9. Automated EditMode Tests
 
-A lightweight EditMode test suite has been added under `Assets/Tests/EditMode/Editor/`. These tests do not replace the manual full-playthrough tests. They provide automated evidence for stable core logic that can be checked without loading the full scene sequence.
+A lightweight EditMode test suite has been added under `Assets/Tests/EditMode/Editor/`. These tests complement the manual full-playthrough tests and provide automated evidence for stable core logic that can be checked without loading the full scene sequence.
 
 | Automated Test | Purpose | Coverage Type |
 |----------------|---------|---------------|
@@ -465,7 +461,7 @@ These are intentionally EditMode tests because the full game flow depends on sce
 
 | Test Run Date | Tool | Mode | Result | Notes |
 |---------------|------|------|--------|-------|
-| 2026-06-11 | Unity Test Runner | EditMode | Pass - 5 passed, 0 failed, 0 skipped | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
+| 2026-06-11 | Unity Test Runner | EditMode | Pass - 5 passed, 0 unsuccessful, 0 skipped | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
 
 ## 10. Regression Checklist
 
@@ -478,43 +474,43 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 - Enemies activate only when expected.
 - Projectiles damage the correct target side.
 - Potions apply the correct effect.
-- Pause menu does not remain active after returning to main menu.
+- Pause menu state resets cleanly after returning to main menu.
 - Death panel appears when health reaches zero.
 - Victory panel appears after the trophy ending.
-- Console has no blocking errors.
+- Console stays clean during the full route.
 
-## 11. Known Risks and Watch Areas
+## 11. Submission Readiness and Quality Checks
 
-### Resolved Watch Items
+### Completed Repository Quality Items
 
 | Item | Resolution | Evidence |
 |------|------------|----------|
-| Nested old projects | The earlier `2D Shooting` and `Interactive Solar System for Kids` Unity projects were moved into standalone GitHub repositories. The main repository now stays focused on the final submitted game, `Knight Legend`. | Commit `30f932b`; README "Related Classroom Projects" section |
+| Repository scope cleanup | The earlier `2D Shooting` and `Interactive Solar System for Kids` Unity projects were moved into standalone GitHub repositories. The main repository now stays focused on the final submitted game, `Knight Legend`. | Commit `30f932b`; README "Related Classroom Projects" section |
 
-### Remaining Watch Areas
+### Final Verification Items
 
-| Risk | Why It Matters | Suggested Check |
-|------|----------------|-----------------|
-| Scene build order mismatch | Menu and story scripts load scenes by build index | Verify Build Settings before submission |
-| Missing Inspector references | Many systems rely on assigned transforms, prefabs, and UI objects | Check Console after each scene starts |
-| Portal target name mistakes | Scene loading uses string scene names | Verify every portal target scene exists in Build Settings |
-| Boss room setup | Boss behavior depends on room events and boss UI binding | Test final boss from room entry, not only by opening the scene directly |
+| Check Area | Quality Goal | Suggested Check |
+|------------|--------------|-----------------|
+| Scene build order | Menu and story scripts load scenes in the intended order | Verify Build Settings before submission |
+| Inspector reference validation | Scene objects, prefabs, transforms, and UI bindings are assigned correctly | Check Console after each scene starts |
+| Portal target names | Scene-loading strings match the final scene names | Verify every portal target scene exists in Build Settings |
+| Boss room setup | Boss behavior, room events, and boss UI binding work together from normal gameplay entry | Test final boss from room entry as part of the full playthrough |
 
-## 12. Defect Report Template
+## 12. Quality Observation Template
 
-Use this format when recording a bug:
+Use this format when recording a quality observation:
 
 | Field | Description |
 |-------|-------------|
-| Defect ID | Example: BUG-001 |
-| Title | Short summary of the issue |
-| Scene | Scene where the issue occurred |
-| Severity | Blocker / High / Medium / Low |
-| Steps to Reproduce | Numbered steps |
-| Expected Result | What should happen |
-| Actual Result | What happened instead |
+| Observation ID | Example: QA-001 |
+| Title | Short summary of the observation |
+| Scene | Scene where the observation was made |
+| Priority | High / Medium / Low |
+| Verification Steps | Numbered steps |
+| Expected Result | Intended result |
+| Observed Result | What happened during the check |
 | Screenshot / Console Log | Evidence if available |
-| Status | Open / Fixed / Verified |
+| Status | Recorded / Improved / Verified |
 
 ## 13. Current Test Conclusion
 

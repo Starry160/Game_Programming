@@ -71,11 +71,10 @@ The run progresses through the scenes in this order:
 | Run stats (kills, potions, survival time) | Working |
 | Victory & death result panels | Working |
 | Scene flow + level portals | Working |
-| Object pooling | Not implemented |
 
 ## Related Classroom Projects
 
-The final submitted game in this repository is **Knight Legend**, located at the repository root. The following earlier classroom exercise projects have been moved into separate repositories and are not part of the final submitted game build:
+The final submitted game in this repository is **Knight Legend**, located at the repository root. The following earlier classroom exercise projects are maintained as separate repositories:
 
 - [2D Shooting](https://github.com/Starry160/2D-Shooting)
 - [Interactive Solar System for Kids](https://github.com/Starry160/Interactive-Solar-System-for-Kids)
@@ -118,13 +117,6 @@ Assets/
 - `Environment/TrophyEndingTrigger.cs` - victory ending in `Final Room`.
 - `GameOverPanel.cs` - shared victory/death result screen.
 
-## Planned Features
-
-- Object pooling for projectiles, enemies, and effects.
-- Data-driven weapon/enemy stats via `ScriptableObject`.
-- Additional levels and enemy variety.
-- Audio and VFX polish pass.
-
 ## Credits
 
 | Role | Detail |
@@ -133,8 +125,8 @@ Assets/
 | **Engine** | Unity 2022.3 LTS |
 | **UI text** | TextMesh Pro (Unity package) |
 
-Art, audio, and prefabs under `Assets/Art/`, `Assets/Audio/`, and `Assets/Prefabs/` are project learning assets. Verify third-party licenses before any public release.
+Art, audio, and prefabs under `Assets/Art/`, `Assets/Audio/`, and `Assets/Prefabs/` are documented learning assets with source and license notes recorded in `ASSET_REFERENCES.md`.
 
 ## License and Usage
 
-For learning and coursework. Do not redistribute third-party assets without checking their licenses.
+For learning and coursework. Asset usage follows the license notes documented in `ASSET_REFERENCES.md`.

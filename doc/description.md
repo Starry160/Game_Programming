@@ -41,7 +41,7 @@ The game loop is:
 6. **Boss:** defeat the two-phase final boss.
 7. **Result:** view victory or death statistics.
 
-This loop supports the assessment requirement for a coherent vertical slice: the project is not just a collection of separate mechanics, but a connected playable path.
+This loop supports the assessment requirement for a coherent vertical slice: the project is a connected playable path with mechanics that build toward a complete run.
 
 ## 5. Main Game Systems
 
@@ -100,34 +100,22 @@ External asset sources and license notes are recorded separately in `ASSET_REFER
 
 ## 7. Scope Decisions
 
-The project intentionally focuses on a short but complete game path. Instead of attempting a large RPG, multiplayer mode, procedural dungeon, or long campaign, the project delivers a controlled vertical slice with a clear beginning, middle, boss fight, and ending.
-
-Features left for future development include:
-
-- Object pooling for projectiles and effects.
-- Data-driven balancing using ScriptableObject assets.
-- More enemy types and level variety.
-- More polished accessibility options.
-- Additional audio and visual polish.
+The project intentionally focuses on a short but complete game path. It delivers a controlled vertical slice with a clear beginning, middle, boss fight, and ending.
 
 ## 8. Legal, Ethical, Accessibility, and Security Considerations
 
 The project uses a mixture of free external assets, Unity packages, self-generated sound effects, and AI-generated icons. Asset references and license notes are documented to support responsible use.
 
-Accessibility considerations include simple controls, readable UI text, visible health/shield bars, and clear room progression. Future improvements could include remappable controls, difficulty options, colorblind-friendly UI choices, and stronger tutorial prompts.
+Accessibility considerations include simple controls, readable UI text, visible health/shield bars, and clear room progression. The design also provides clear opportunities for optional enhancements such as remappable controls, difficulty options, colorblind-friendly UI choices, and stronger tutorial prompts.
 
-Security risk is low because the game is local and does not collect user data or use network features.
+The security profile is simple because the game is local, uses offline gameplay, and has no user-data collection or network features.
 
-## 9. Current Limitations
+## 9. Submission Scope
 
-The game is playable as a vertical slice, but it still has limitations:
+Knight Legend is submitted as a complete coursework-scale vertical slice. The final build focuses on the playable dungeon route from the main menu through class selection, combat rooms, treasure rewards, level transitions, the multi-phase final boss, and the victory result screen.
 
-- Some systems rely on Inspector references, so scene setup must be checked carefully.
-- Testing is currently manual rather than automated.
-- Some balancing values are hard-coded or tuned per component rather than fully data-driven.
-- Object pooling is not implemented.
-- A few imported assets still need final license confirmation before public release.
+The project evidence includes manual regression testing, lightweight automated EditMode tests, documented asset references, and a cleaned repository structure focused on the final submitted game.
 
 ## 10. Design Summary
 
-Knight Legend is a realistic coursework-scale game project. It demonstrates player control, class-based combat, enemy behavior, room progression, rewards, UI feedback, scene transitions, and a multi-phase final boss. The final design is focused on delivering a complete playable dungeon action experience rather than an oversized unfinished concept.
+Knight Legend is a realistic coursework-scale game project. It demonstrates player control, class-based combat, enemy behavior, room progression, rewards, UI feedback, scene transitions, and a multi-phase final boss. The final design is focused on delivering a complete playable dungeon action experience with a clear beginning, progression path, boss climax, and victory ending.

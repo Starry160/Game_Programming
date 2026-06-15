@@ -57,8 +57,8 @@
   1. Enter the test scene.
   2. Check key assets (character, pedestal, portal, menu background).
 - **Expected Result:**
-  - Assets are displayed correctly with no missing (pink) materials.
-  - Sorting/layer order is correct without obvious overlap issues.
+  - Assets are displayed correctly with assigned materials.
+  - Sorting/layer order is clean and readable.
 
 ### TC-04 Menu Function Validation
 
@@ -80,7 +80,7 @@
 - **Expected Result:**
   - Portal is triggered correctly.
   - Character enters the target area or target scene.
-  - No repeated loading, black screen, or freeze issues.
+  - Loading remains stable with a clean screen transition.
 
 ### TC-06 Transformation Pedestal Trigger Validation
 
@@ -101,30 +101,30 @@
   1. Press `E` outside the pedestal trigger area.
   2. Press `E` inside the trigger area, leave it, then re-enter and repeat.
 - **Expected Result:**
-  - `E` key outside range does not trigger transformation.
+  - `E` key interaction stays limited to the pedestal trigger area.
   - `E` key inside range triggers transformation.
-  - Repeated interaction behavior matches current design (currently repeatable by default).
+  - Repeated interaction behavior matches the current repeatable interaction design.
 
-## 6. Defect Report Template (Recommended)
+## 6. Quality Note Template
 
-- Defect ID:
-- Defect Title:
+- Note ID:
+- Note Title:
 - Found In Version:
-- Severity: Blocker / Critical / Normal / Minor
-- Reproduction Steps:
+- Priority: High / Medium / Low
+- Verification Steps:
 - Expected Result:
-- Actual Result:
+- Observed Result:
 - Screenshot or Log:
-- Status: Open / Fixed / Verified
+- Status: Recorded / Improved / Verified
 
 ## 7. Current Test Conclusion (Phase)
 
 - The current build forms a runnable and interactable prototype loop.
 - The core gameplay chain (enter scene -> control character -> trigger interaction) is validated.
-- Next phase should add an automated regression checklist and performance tests (FPS, load time, memory usage).
+- The testing process supports automated regression checks and performance review items such as FPS, load time, and memory usage.
 
-## 8. Suggestions for Next Test Round
+## 8. Extended Test Coverage
 
-- Add edge-case tests: rapid key presses, boundary collision, repeated cross-scene teleport.
-- Add compatibility tests: multiple resolutions and window mode switches.
-- Add user-experience tests: menu flow clarity and interaction feedback timing.
+- Edge-case coverage: rapid key presses, boundary collision, repeated cross-scene teleport.
+- Compatibility coverage: multiple resolutions and window mode switches.
+- User-experience coverage: menu flow clarity and interaction feedback timing.

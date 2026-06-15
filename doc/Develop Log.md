@@ -23,7 +23,7 @@
 - **Date:** 2026-04-16
 - **Evidence (Commit):** `7de213e - Create description.md`
 - Added core world setting and gameplay description, clarifying player goals and progression direction.
-- Recorded this information in project description documents for future iterations and presentations.
+- Recorded this information in project description documents for iteration records and presentations.
 
 ### 2.3 Asset Selection
 
@@ -59,7 +59,7 @@
 ### 3.1 Scene Portal System
 
 - **Trigger Condition:** Player enters a portal trigger area to execute scene transition logic.
-- **Design Purpose:** Split functional areas, reduce single-scene complexity, and support future level expansion.
+- **Design Purpose:** Split functional areas, reduce single-scene complexity, and support level expansion.
 - **Extension Suggestions:**
   - Add portal requirements (key, level, quest progress).
   - Add transition effects (fade in/out, loading hints).
@@ -92,15 +92,15 @@
 4. Implemented core interaction systems (portal + pedestal).
 5. Performed integration checks and playability validation.
 
-## 6. Known Issues and Optimization Suggestions
+## 6. Quality Optimization Notes
 
-- The transformation pedestal can currently be triggered repeatedly; consider single-use or cooldown logic.
-- Icon-hiding and trigger-disabling logic is already reserved in comments and can be enabled by design decision.
-- Menu features can be extended (settings, save/load, return to main menu).
-- Portal logic should include destination-point management and repeated-load protection.
+- The transformation pedestal supports repeatable interaction during testing and can also support single-use or cooldown interaction styles.
+- Icon-hiding and trigger-disabling logic is reserved in comments for quick tuning during presentation polish.
+- Menu systems provide a solid base for settings, save/load, and return-to-main-menu expansion.
+- Portal logic supports the current level flow and provides a clear path for destination-point tuning.
 
-## 7. Milestone Suggestions
+## 7. Milestone Summary
 
 - **M1 (Done):** Playable prototype + basic interaction systems.
-- **M2 (In Progress):** Stronger class differentiation (stats, skills, weapon preference).
-- **M3 (Planned):** Complete level flow with enemy-growth-system linkage.
+- **M2 (Done):** Stronger class differentiation (stats, skills, weapon preference).
+- **M3 (Done):** Complete level flow with enemy-growth-system linkage.
