@@ -98,24 +98,25 @@ Assets/
                  TreasureChest, TrophyEndingTrigger
     Items/       PotionItem, FullHealPotionItem, ShieldPotionItem,
                  InvincibilityPotionItem, ChestDropItem, Projectile
-    Managers/    MainMenuManager, StoryIntroManager
-    UI/          PauseMenuController, BossHealthUI
+    Managers/    MainMenuManager, StoryIntroManager,
+                 AudioManager, RunStatsManager
+    UI/          PauseMenuController, BossHealthUI,
+                 GameOverPanel, UICharacterAnimator
     Camera/      CameraController
     Effects/     HitFeedback
-    RunStatsManager.cs, GameOverPanel.cs, UICharacterAnimator.cs
   Animations/, Prefabs/, Art/, Audio/   project assets
 ```
 
 ## Key Scripts
 
 - `Core/GlobalData.cs` - cross-scene run state (class, weapon, HP/shield, stat snapshot).
-- `RunStatsManager.cs` - kills, potions, and survival-time tracking.
+- `Managers/RunStatsManager.cs` - kills, potions, and survival-time tracking.
 - `Player/PlayerController.cs` / `PlayerAttack.cs` - movement, aim, and weapon attacks.
 - `Player/CharacterTransformPedestal.cs` - class/weapon selection.
 - `Enemies/FinalBossController.cs` - two-phase boss state machine.
 - `Environment/LevelPortal.cs` - scene transition portals.
 - `Environment/TrophyEndingTrigger.cs` - victory ending in `Final Room`.
-- `GameOverPanel.cs` - shared victory/death result screen.
+- `UI/GameOverPanel.cs` - shared victory/death result screen.
 
 ## Credits
 
