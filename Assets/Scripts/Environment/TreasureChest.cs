@@ -64,7 +64,6 @@ public class TreasureChest : MonoBehaviour
     {
         if (_dropPrefab == null)
         {
-            Debug.LogWarning("[TreasureChest] _dropPrefab is not assigned, so no drop can pop out.", this);
             return;
         }
 
@@ -79,7 +78,6 @@ public class TreasureChest : MonoBehaviour
 
         if (dropItem == null)
         {
-            Debug.LogWarning($"[TreasureChest] Spawned drop object {dropObj.name} does not have ChestDropItem.", dropObj);
             return;
         }
 

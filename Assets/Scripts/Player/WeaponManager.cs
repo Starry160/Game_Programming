@@ -30,7 +30,6 @@ public class WeaponManager : MonoBehaviour
 
         if (weapons == null || index < 0 || index >= weapons.Length)
         {
-            Debug.LogWarning($"[WeaponManager] Invalid weapon index: {index}.", this);
             return;
         }
 

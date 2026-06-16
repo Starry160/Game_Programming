@@ -150,7 +150,6 @@ public class RunStatsManager : MonoBehaviour
         {
             _hasStartedRunTimer = true;
             _isCounting = true;
-            Debug.Log($"[RunStatsManager] Timer started on scene '{scene.name}'. survivalTime={survivalTime:F2}");
             return;
         }
 

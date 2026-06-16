@@ -46,11 +46,6 @@ public class HitFeedback : MonoBehaviour
         {
             originalColor = spriteRenderer.color;
         }
-        else
-        {
-            Debug.LogWarning($"[HitFeedback] {name} has no SpriteRenderer. Only position shake will be applied.", this);
-        }
-
         if (canShake && shakeTarget != null)
         {
             originalLocalPosition = shakeTarget.localPosition;

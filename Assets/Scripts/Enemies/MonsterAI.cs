@@ -43,7 +43,6 @@ public class MonsterAI : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Transform _playerTransform;
     private PlayerStats _playerStats;
-    private bool _hasLoggedMissingRoomController = false;
     private Collider2D _cachedRoomTriggerZone;
 
     private Vector2 _wanderTargetPos;
@@ -208,12 +207,6 @@ public class MonsterAI : MonoBehaviour
 
         if (roomController == null)
         {
-            if (!_hasLoggedMissingRoomController)
-            {
-                Debug.LogWarning($"[MonsterAI] {name} has no RoomController assigned, so same-room behavior is assumed.", this);
-                _hasLoggedMissingRoomController = true;
-            }
-
             return true;
         }
 

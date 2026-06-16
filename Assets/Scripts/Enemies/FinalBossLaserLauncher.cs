@@ -84,7 +84,6 @@ public class FinalBossLaserLauncher : MonoBehaviour
     {
         if (laserBeamPrefab == null)
         {
-            Debug.LogWarning("[FinalBossLaserLauncher] laserBeamPrefab is not assigned.", this);
             return;
         }
 

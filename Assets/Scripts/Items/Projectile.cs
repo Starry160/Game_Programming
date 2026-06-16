@@ -169,7 +169,6 @@ public class Projectile : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning($"[Projectile] Hit likely enemy object {col.name}, but EnemyHealth was not found.");
     }
 
     // Applies projectile damage to the player stats component.
@@ -201,7 +200,6 @@ public class Projectile : MonoBehaviour
     // Handles projectile impact against walls, doors, or obstacles.
     private void OnHitEnvironment(GameObject environment)
     {
-        Debug.Log($"{gameObject.name} hit environment: {environment.name}");
         SpawnExplosionAndDestroy();
     }
 

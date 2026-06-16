@@ -39,11 +39,6 @@ public class ShieldPotionItem : ChestDropItem
         {
             playerStats.IncreaseMaxShieldAndFill(shieldIncreaseAmount);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[ShieldPotionItem] {name} picked up. Max and current shield +{shieldIncreaseAmount}.");
-        }
-        else
-        {
-            Debug.LogWarning($"[ShieldPotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();

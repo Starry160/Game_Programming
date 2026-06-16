@@ -79,7 +79,6 @@ public class FinalBossArmLauncher : MonoBehaviour
     {
         if (armProjectilePrefab == null)
         {
-            Debug.LogWarning("[FinalBossArmLauncher] armProjectilePrefab is not assigned.", this);
             return;
         }
 

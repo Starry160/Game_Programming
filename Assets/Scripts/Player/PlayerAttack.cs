@@ -173,9 +173,6 @@ public class PlayerAttack : MonoBehaviour
             case WEAPON_BOW:
                 StartCoroutine(BowAttack());
                 break;
-            default:
-                Debug.LogWarning($"[PlayerAttack] Unknown weapon index: {GlobalData.chosenWeaponIndex}.", this);
-                break;
         }
     }
 
@@ -253,7 +250,7 @@ public class PlayerAttack : MonoBehaviour
         float halfDuration = Mathf.Max(0.0001f, bowRecoilDuration * 0.5f);
 
         // Bow attack fires first, then uses a short local-position recoil for feedback.
-        SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, "Arrow", arrowDamage);
+        SpawnProjectileTowardMouse(arrowPrefab, bowFirePoint, arrowDamage);
         PlayAttackSfx(bowSfx);
 
         yield return LerpPosition(startPosition, recoilPosition, halfDuration);
@@ -266,7 +263,7 @@ public class PlayerAttack : MonoBehaviour
     // Spawns the mage fireball from the staff fire point.
     private void SpawnFireball()
     {
-        SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, "Fireball", fireballDamage);
+        SpawnProjectileTowardMouse(fireballPrefab, staffFirePoint, fireballDamage);
     }
 
     // Plays an attack sound with slight pitch variation.
@@ -340,17 +337,15 @@ public class PlayerAttack : MonoBehaviour
     }
 
     // Spawns and aims a projectile toward the mouse world position.
-    private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, string debugName, float projectileDamage)
+    private void SpawnProjectileTowardMouse(GameObject prefab, Transform spawnPoint, float projectileDamage)
     {
         if (prefab == null)
         {
-            Debug.LogWarning($"[PlayerAttack] {debugName} prefab is not configured, so it cannot be fired.", this);
             return;
         }
 
         if (spawnPoint == null)
         {
-            Debug.LogWarning($"[PlayerAttack] {debugName} prefab is not configured, so it cannot be fired.", this);
             return;
         }
 
@@ -438,7 +433,6 @@ public class PlayerAttack : MonoBehaviour
                 Component damageTarget = ResolveMeleeDamageTarget(enemy);
                 if (damageTarget == null)
                 {
-                    Debug.LogWarning($"[PlayerAttack] Sword hit {enemy.name}, but EnemyHealth was not found.", enemy);
                     continue;
                 }
 

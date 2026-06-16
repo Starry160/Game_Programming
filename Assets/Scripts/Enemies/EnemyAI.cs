@@ -48,7 +48,6 @@ public class EnemyAI : MonoBehaviour
     private bool isInAttackRange;
     private Quaternion weaponInitialRotation = Quaternion.identity;
     private Vector3 weaponPivotInitialLocalPosition = Vector3.zero;
-    private bool hasLoggedMissingWeaponPivot = false;
     private Vector3 randomOffset;
     private float nextStateChangeTime = 0f;
 
@@ -199,11 +198,6 @@ public class EnemyAI : MonoBehaviour
     {
         if (weaponPivot == null)
         {
-            if (!hasLoggedMissingWeaponPivot)
-            {
-                Debug.LogWarning($"[EnemyAI] {name} is missing a required attack reference.", this);
-                hasLoggedMissingWeaponPivot = true;
-            }
             return;
         }
 
@@ -249,11 +243,6 @@ public class EnemyAI : MonoBehaviour
     {
         if (weaponPivot == null)
         {
-            if (!hasLoggedMissingWeaponPivot)
-            {
-                Debug.LogWarning($"[EnemyAI] {name} is missing a required attack reference.", this);
-                hasLoggedMissingWeaponPivot = true;
-            }
             lastAttackTime = Time.time;
             yield break;
         }
@@ -310,7 +299,6 @@ public class EnemyAI : MonoBehaviour
     {
         if (hitPoint == null)
         {
-            Debug.LogWarning($"[EnemyAI] {name} is missing a required attack reference.", this);
             return;
         }
 
@@ -338,11 +326,6 @@ public class EnemyAI : MonoBehaviour
             {
                 const float contactDamage = 1f;
                 playerStats.TakeDamage(contactDamage);
-                Debug.Log($"[EnemyAI] {name} Hit Player: {col.name}, damage={contactDamage}");
-            }
-            else
-            {
-                Debug.LogWarning($"[EnemyAI] Hit object {col.name} has no PlayerStats, so damage was skipped.");
             }
         }
     }

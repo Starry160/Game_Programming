@@ -65,8 +65,6 @@ public class RoomController : MonoBehaviour
         {
             roomGates.Add(childDoors[i].gameObject);
         }
-
-        Debug.Log($"[RoomController] Synchronized {roomGates.Count} doors into roomGates.", this);
     }
 
     // Keeps editor-time references and collider setup consistent.
@@ -74,17 +72,7 @@ public class RoomController : MonoBehaviour
     {
         AutoBindTriggerZone();
 
-        // Editor validation catches missing room pieces before the scene is played.
-        if (roomTriggerZone == null)
-        {
-            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
-        }
-
-        if (roomGates == null || roomGates.Count == 0)
-        {
-            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
-        }
-        else
+        if (roomGates != null)
         {
             roomGates.RemoveAll(gate => gate == null);
 
@@ -100,38 +88,11 @@ public class RoomController : MonoBehaviour
                     }
                 }
             }
-
-            for (int i = 0; i < roomGates.Count; i++)
-            {
-                if (roomGates[i].GetComponent<DoorController>() == null)
-                {
-                    Debug.LogWarning($"[RoomController] roomGates[{i}] ({roomGates[i].name}) has no DoorController and cannot be locked.", roomGates[i]);
-                }
-            }
-
-            DoorController[] childDoors = GetComponentsInChildren<DoorController>(true);
-            for (int i = 0; i < childDoors.Length; i++)
-            {
-                GameObject childDoorObject = childDoors[i].gameObject;
-                if (!roomGates.Contains(childDoorObject))
-                {
-                    Debug.LogWarning($"[RoomController] Door {childDoorObject.name} is not included in roomGates and will not be controlled by this room.", childDoorObject);
-                }
-            }
         }
 
-        if (enemiesInRoom == null || enemiesInRoom.Count == 0)
-        {
-            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
-        }
-        else
+        if (enemiesInRoom != null)
         {
             enemiesInRoom.RemoveAll(enemy => enemy == null);
-        }
-
-        if (enableTreasureReveal && _treasureBox == null)
-        {
-            Debug.LogWarning("[RoomController] Required room reference is missing. Check the Inspector setup.", this);
         }
     }
 
@@ -266,7 +227,6 @@ public class RoomController : MonoBehaviour
         }
 
         RoomCleared?.Invoke(this);
-        Debug.Log("Room cleared. Doors opened!");
     }
 
     // Waits briefly, fades a dungeon gate out, then disables it.

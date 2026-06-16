@@ -56,11 +56,6 @@ public class FullHealPotionItem : ChestDropItem
         {
             playerStats.Heal(playerStats.maxHealth);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[FullHealPotionItem] {name} picked up. Health fully restored.");
-        }
-        else
-        {
-            Debug.LogWarning($"[FullHealPotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();

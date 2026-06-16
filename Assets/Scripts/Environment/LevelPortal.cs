@@ -197,7 +197,6 @@ public class LevelPortal : MonoBehaviour
 
         if (string.IsNullOrEmpty(targetSceneName))
         {
-            Debug.LogWarning($"[LevelPortal] {name} has no targetSceneName configured, so it cannot load a scene.", this);
             yield break;
         }
 

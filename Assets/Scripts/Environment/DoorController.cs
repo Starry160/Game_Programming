@@ -42,8 +42,6 @@ public class DoorController : MonoBehaviour
     private bool isLocked = false;
     private bool isRoomCleared = false;
     private float nextEnemyCheckTime = 0f;
-    private float _nextLockedLogTime = 0f;
-    private const float LOCKED_LOG_INTERVAL = 1f;
 
     // Captures the door collider, renderer, and closed-state visuals for later restore.
     private void Awake()
@@ -105,7 +103,6 @@ public class DoorController : MonoBehaviour
 
         if (isLocked)
         {
-            LogLockedMessage();
             return;
         }
 
@@ -130,7 +127,6 @@ public class DoorController : MonoBehaviour
 
         if (isLocked)
         {
-            LogLockedMessage();
             return;
         }
 
@@ -231,7 +227,6 @@ public class DoorController : MonoBehaviour
     {
         if (isLocked || !isRoomCleared)
         {
-            LogLockedMessage();
             return false;
         }
 
@@ -249,7 +244,6 @@ public class DoorController : MonoBehaviour
 
         if (string.IsNullOrEmpty(targetSceneName))
         {
-            Debug.LogWarning($"[DoorController] {name} is marked as an exit door, but targetSceneName is not configured.", this);
             return;
         }
 
@@ -287,17 +281,5 @@ public class DoorController : MonoBehaviour
         }
 
         return false;
-    }
-
-    // Shows a throttled message when the room is still locked by enemies.
-    private void LogLockedMessage()
-    {
-        if (Time.time < _nextLockedLogTime)
-        {
-            return;
-        }
-
-        _nextLockedLogTime = Time.time + LOCKED_LOG_INTERVAL;
-        Debug.Log("[Dungeon Seal] Enemies remain in the room. The door cannot open!");
     }
 }

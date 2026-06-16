@@ -39,11 +39,6 @@ public class InvincibilityPotionItem : ChestDropItem
         {
             playerStats.GrantTemporaryInvincibility(invincibilityDuration);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[InvincibilityPotionItem] {name} picked up. Invincibility granted for {invincibilityDuration:F1} seconds.");
-        }
-        else
-        {
-            Debug.LogWarning($"[InvincibilityPotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();

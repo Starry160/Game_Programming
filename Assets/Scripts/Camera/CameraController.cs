@@ -59,10 +59,6 @@ public class CameraController : MonoBehaviour
             _target = player.transform;
             TryPlayIntroCinematic(player.transform);
         }
-        else
-        {
-            Debug.LogWarning("[CameraController] PlayerController was not found in the scene. The camera will remain still.");
-        }
     }
 
     // Updates camera or visual follow logic after normal Update movement.

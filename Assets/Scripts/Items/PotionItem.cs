@@ -39,11 +39,6 @@ public class PotionItem : ChestDropItem
         {
             playerStats.IncreaseMaxHealthAndHeal(healthIncreaseAmount);
             SpawnPopup(playerStats.transform.position + popupOffset);
-            Debug.Log($"[PotionItem] {name} picked up. Max and current health +{healthIncreaseAmount}.");
-        }
-        else
-        {
-            Debug.LogWarning($"[PotionItem] {name} was picked up, but PlayerStats was not found.");
         }
 
         PlayPickupSfx();

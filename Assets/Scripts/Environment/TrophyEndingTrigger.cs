@@ -115,10 +115,6 @@ public class TrophyEndingTrigger : MonoBehaviour
             panel.PrepareForRuntime();
             panel.ShowPanel(GameOverPanel.ResultType.Victory);
         }
-        else
-        {
-            Debug.LogWarning("[TrophyEndingTrigger] GameOverPanel was not found, so the results panel cannot be shown.", this);
-        }
     }
 
     // Disables player movement and attack scripts during the ending flow.

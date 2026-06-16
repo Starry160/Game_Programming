@@ -37,15 +37,6 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI shieldText;
     private GameObject statusPanel;
-    [Header("Movement Safety")]
-    [Tooltip("Optional guard that detects abnormal movement after taking damage.")]
-    public bool enablePostHitTeleportGuard = false;
-    [Tooltip("Minimum movement distance treated as abnormal after a hit.")]
-    public float teleportDistanceThreshold = 6f;
-    [Tooltip("Time window for detecting abnormal movement after a hit.")]
-    public float teleportDetectWindow = 0.8f;
-    [Tooltip("Restore the pre-hit position when abnormal movement is detected.")]
-    public bool restoreOnTeleportDetected = true;
     [Header("Invincibility VFX")]
     [Tooltip("Enable gold flashing during temporary invincibility.")]
     public bool enableGoldInvincibilityFlash = true;
@@ -341,9 +332,6 @@ public class PlayerStats : MonoBehaviour
             return;
         }
 
-        Vector3 preHitPosition = transform.position;
-        string preHitScene = SceneManager.GetActiveScene().name;
-
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayPlayerHit();
@@ -363,7 +351,6 @@ public class PlayerStats : MonoBehaviour
             if (amount <= currentShield)
             {
                 currentShield -= amount;
-                Debug.Log("Player took damage. Current health: " + currentHealth);
                 PersistCurrentStats();
                 UpdateUI();
                 StartInvulnerability();
@@ -376,7 +363,6 @@ public class PlayerStats : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         PersistCurrentStats();
-        Debug.Log("Player took damage. Current health: " + currentHealth);
 
         UpdateUI();
 
@@ -426,7 +412,6 @@ public class PlayerStats : MonoBehaviour
 
         currentHealth = Mathf.Max(0f, currentHealth - amount);
         PersistCurrentStats();
-        Debug.Log("Player took damage. Current health: " + currentHealth);
 
         UpdateUI();
 
@@ -766,98 +751,5 @@ public class PlayerStats : MonoBehaviour
         }
 
         _showGameOverCoroutine = null;
-    }
-
-    // Starts debug monitoring for abnormal movement after damage.
-    private void StartPostHitTeleportGuard(Vector3 preHitPosition, string preHitScene)
-    {
-        if (!enablePostHitTeleportGuard)
-        {
-            return;
-        }
-
-        StartCoroutine(PostHitTeleportGuardRoutine(preHitPosition, preHitScene));
-    }
-
-    // Detects and optionally restores suspicious post-hit movement.
-    private IEnumerator PostHitTeleportGuardRoutine(Vector3 preHitPosition, string preHitScene)
-    {
-        float timer = 0f;
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-
-        while (timer < teleportDetectWindow)
-        {
-            timer += Time.deltaTime;
-
-            string currentScene = SceneManager.GetActiveScene().name;
-            if (!string.Equals(currentScene, preHitScene, StringComparison.Ordinal))
-            {
-                Debug.LogWarning($"[HitTeleportGuard] Scene changed after hit: {preHitScene} -> {currentScene}");
-                yield break;
-            }
-
-            float movedDistance = Vector3.Distance(transform.position, preHitPosition);
-            if (movedDistance >= teleportDistanceThreshold)
-            {
-                Debug.LogWarning(
-                    $"[HitTeleportGuard] Abnormal movement after hit detected, before={preHitPosition}, after={transform.position}, dist={movedDistance:F2}");
-                LogNearestPortalAndDoorHints();
-
-                if (restoreOnTeleportDetected)
-                {
-                    transform.position = preHitPosition;
-                    if (rb != null)
-                    {
-                        rb.velocity = Vector2.zero;
-                        rb.angularVelocity = 0f;
-                    }
-                    Debug.LogWarning("[HitTeleportGuard] Restored the pre-hit position for debug protection.");
-                }
-                yield break;
-            }
-
-            yield return null;
-        }
-    }
-
-    // Logs nearby portal and door distances for debugging movement issues.
-    private void LogNearestPortalAndDoorHints()
-    {
-        Vector3 playerPos = transform.position;
-
-        LevelPortal[] portals = FindObjectsOfType<LevelPortal>(true);
-        float nearestPortalDist = float.MaxValue;
-        string nearestPortalName = "none";
-        for (int i = 0; i < portals.Length; i++)
-        {
-            LevelPortal portal = portals[i];
-            if (portal == null) continue;
-            float d = Vector3.Distance(playerPos, portal.transform.position);
-            if (d < nearestPortalDist)
-            {
-                nearestPortalDist = d;
-                nearestPortalName = portal.name;
-            }
-        }
-
-        DoorController[] doors = FindObjectsOfType<DoorController>(true);
-        float nearestDoorDist = float.MaxValue;
-        string nearestDoorName = "none";
-        for (int i = 0; i < doors.Length; i++)
-        {
-            DoorController door = doors[i];
-            if (door == null) continue;
-            float d = Vector3.Distance(playerPos, door.transform.position);
-            if (d < nearestDoorDist)
-            {
-                nearestDoorDist = d;
-                nearestDoorName = door.name;
-            }
-        }
-
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        bool rbSimulated = rb != null && rb.simulated;
-        Debug.LogWarning(
-            $"[HitTeleportGuard] nearestPortal={nearestPortalName} ({nearestPortalDist:F2}), nearestDoor={nearestDoorName} ({nearestDoorDist:F2}), rb.simulated={rbSimulated}");
     }
 }
