@@ -464,7 +464,26 @@ These are intentionally EditMode tests because the full game flow depends on sce
 | 2026-06-11 | Unity Test Runner | EditMode | Pass - 5 passed, 0 unsuccessful, 0 skipped | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
 | 2026-06-16 | Unity Test Runner | EditMode | Pass - 5 passed, 0 failed, 0 skipped | Re-ran the full EditMode suite in the Unity Test Runner after the final cleanup pass. |
 
-## 10. Regression Checklist
+## 10. Visual Evidence Index
+
+The screenshots below provide visual evidence for automated testing, build configuration, clean-console verification, major gameplay systems, boss behavior, victory, death, and pause flow.
+
+| Evidence File | Validation Area | Related Test Coverage |
+|---------------|-----------------|-----------------------|
+| [01-test-runner-editmode-pass.png](doc/evidence/01-test-runner-editmode-pass.png) | Unity Test Runner shows the EditMode suite passing with 5 successful tests. | Automated EditMode tests |
+| [02-build-settings-scene-order.png](doc/evidence/02-build-settings-scene-order.png) | Build Settings include all required scenes in the correct gameplay order. | Entry criteria, TC-15, TC-20 |
+| [03-console-clean-after-play.png](doc/evidence/03-console-clean-after-play.png) | Unity Console shows 0 errors and 0 warnings after a completed play session. | Exit criteria, TC-20 |
+| [04-main-menu.png](doc/evidence/04-main-menu.png) | Main menu loads correctly and presents the submitted entry point. | TC-01 |
+| [05-class-selection-talent-room.png](doc/evidence/05-class-selection-talent-room.png) | Class/weapon selection persists into the talent room with health and shield UI visible. | TC-04, TC-05 |
+| [06-level01-combat.png](doc/evidence/06-level01-combat.png) | Level_01 combat shows player/enemy interaction, health/shield changes, and locked room flow. | TC-06, TC-09, TC-12, TC-13 |
+| [07-treasure-potion-reward.png](doc/evidence/07-treasure-potion-reward.png) | Treasure chest and potion reward appear after room progression. | TC-10, TC-11 |
+| [08-final-boss-phase1.png](doc/evidence/08-final-boss-phase1.png) | Final boss phase one shows boss UI, player combat, and boss encounter setup. | TC-16, TC-17 |
+| [09-final-boss-phase2-laser.png](doc/evidence/09-final-boss-phase2-laser.png) | Final boss phase two shows the laser attack and continued boss behavior. | TC-18 |
+| [10-victory-result-stats.png](doc/evidence/10-victory-result-stats.png) | Victory result panel displays run statistics after the final trophy ending. | TC-19, TC-20 |
+| [11-death-result-stats.png](doc/evidence/11-death-result-stats.png) | Death result panel displays battle statistics after player defeat. | TC-13 |
+| [12-pause-menu-confirmation.png](doc/evidence/12-pause-menu-confirmation.png) | Pause return-to-menu confirmation appears and blocks accidental progress loss. | TC-14 |
+
+## 11. Regression Checklist
 
 Run this checklist after any gameplay, UI, or scene-flow change:
 
@@ -480,7 +499,7 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 - Victory panel appears after the trophy ending.
 - Console stays clean during the full route.
 
-## 11. Submission Readiness and Quality Checks
+## 12. Submission Readiness and Quality Checks
 
 ### Completed Repository Quality Items
 
@@ -497,7 +516,7 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 | Portal target names | Scene-loading strings match the final scene names | Verify every portal target scene exists in Build Settings |
 | Boss room setup | Boss behavior, room events, and boss UI binding work together from normal gameplay entry | Test final boss from room entry as part of the full playthrough |
 
-## 12. Quality Observation Template
+## 13. Quality Observation Template
 
 Use this format when recording a quality observation:
 
@@ -513,7 +532,7 @@ Use this format when recording a quality observation:
 | Screenshot / Console Log | Evidence if available |
 | Status | Recorded / Improved / Verified |
 
-## 13. Current Test Conclusion
+## 14. Current Test Conclusion
 
 The main project has a complete manual test path covering menu, story, class selection, combat, rewards, portals, final boss, death, and victory. The most important submission test is the full regression playthrough from `MainMenu` to `Final Room`, because it verifies the complete game loop that the teacher will most likely review. On 2026-06-12, this full playthrough was manually completed once with each playable class: Knight, Mage, and Archer.
 
