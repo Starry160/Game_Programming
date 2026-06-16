@@ -169,20 +169,7 @@ public class Projectile : MonoBehaviour
             return;
         }
 
-        EnemyAI enemy = col.GetComponent<EnemyAI>();
-        if (enemy == null)
-        {
-            enemy = col.GetComponentInParent<EnemyAI>();
-        }
-
-        if (enemy != null)
-        {
-            enemy.TakeDamage(_runtimeDamage);
-        }
-        else
-        {
-            Debug.LogWarning($"[Projectile] Hit likely enemy object {col.name}, but EnemyHealth/EnemyAI was not found.");
-        }
+        Debug.LogWarning($"[Projectile] Hit likely enemy object {col.name}, but EnemyHealth was not found.");
     }
 
     // Applies projectile damage to the player stats component.

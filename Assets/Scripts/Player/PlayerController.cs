@@ -189,7 +189,7 @@ public class PlayerController : MonoBehaviour
                !float.IsInfinity(value.x) && !float.IsInfinity(value.y);
     }
 
-    // Keeps legacy aim-facing logic disabled in favor of PlayerFacing.
+    // Keeps aim-facing updates centralized in PlayerFacing.
     private void UpdateFacingByAim()
     {
         if (_spriteRenderer == null || Mathf.Approximately(_moveInput.x, 0f))

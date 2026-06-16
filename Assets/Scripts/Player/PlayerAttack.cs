@@ -438,7 +438,7 @@ public class PlayerAttack : MonoBehaviour
                 Component damageTarget = ResolveMeleeDamageTarget(enemy);
                 if (damageTarget == null)
                 {
-                    Debug.LogWarning($"[PlayerAttack] Sword hit {enemy.name}, but EnemyHealth/EnemyAI was not found.", enemy);
+                    Debug.LogWarning($"[PlayerAttack] Sword hit {enemy.name}, but EnemyHealth was not found.", enemy);
                     continue;
                 }
 
@@ -553,17 +553,6 @@ public class PlayerAttack : MonoBehaviour
             return enemyHealth;
         }
 
-        EnemyAI enemyAI = enemy.GetComponent<EnemyAI>();
-        if (enemyAI == null)
-        {
-            enemyAI = enemy.GetComponentInParent<EnemyAI>();
-        }
-
-        if (enemyAI != null)
-        {
-            return enemyAI;
-        }
-
         return null;
     }
 
@@ -584,11 +573,6 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        EnemyAI enemyAI = damageTarget as EnemyAI;
-        if (enemyAI != null)
-        {
-            enemyAI.TakeDamage(attackDamage);
-        }
     }
 
     // Gets the world position used as the origin for sword damage checks.

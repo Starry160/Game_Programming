@@ -260,7 +260,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f383a045738d67b47b89c367b4a6065c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 30
   moveSpeed: 2
   attackRange: 1.5
   attackCooldown: 1.2
@@ -272,7 +271,6 @@ MonoBehaviour:
   hitRadius: 0.65
   hitPoint: {fileID: 8247348354957733732}
   weaponPivot: {fileID: 8204735489776971827}
-  weaponSprite: {fileID: 1885675107780856603}
   attackStartAngle: 35
   attackEndAngle: -85
   attackWindupDuration: 0.06

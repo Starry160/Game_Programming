@@ -14,7 +14,7 @@ public class FinalBossLaserBeam : MonoBehaviour
     [SerializeField] private Vector2 _damageBoxOffset = new Vector2(1.1f, 0f);
     [SerializeField] private Vector2 _damageBoxSize = new Vector2(2.2f, 0.45f);
     [SerializeField] private float _damageStartDelay = 0.1f;
-    [Header("Debug")]
+    [Header("Scene Gizmo")]
     [SerializeField] private bool _showDamageGizmo = true;
     [SerializeField] private Color _damageGizmoColor = new Color(1f, 0.15f, 0.15f, 0.65f);
 

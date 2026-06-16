@@ -484,7 +484,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3740624061549214576, guid: b4a38eeb296e3da4ba8664e36d515a08, type: 3}
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
-      propertyPath: _potionPrefab
+      propertyPath: _dropPrefab
       value: 
       objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 4853467264397208411, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
@@ -15667,7 +15667,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
-      propertyPath: _potionPrefab
+      propertyPath: _dropPrefab
       value: 
       objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 4853467264397208411, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}

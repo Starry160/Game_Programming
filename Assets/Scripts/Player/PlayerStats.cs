@@ -11,15 +11,21 @@ using System.Collections;
 /// </summary>
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Health")]
+    [HideInInspector]
     public float maxHealth;
+    [HideInInspector]
     public float currentHealth;
+
+    [HideInInspector]
+    public float maxShield;
+    [HideInInspector]
+    public float currentShield;
+
+    [Header("Damage Feedback")]
     public float invulnerabilityDuration = 1.5f;
     public float flashInterval = 0.1f;
 
-    [Header("Shield")]
-    public float maxShield;
-    public float currentShield;
+    [Header("Shield Regeneration")]
     [Tooltip("Delay after taking damage before shield regeneration starts.")]
     public float shieldRegenDelay = 3f;
     [Tooltip("Time between each shield regeneration tick.")]
@@ -31,8 +37,8 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI shieldText;
     private GameObject statusPanel;
-    [Header("Debug Safety")]
-    [Tooltip("Debug guard that detects abnormal movement after taking damage.")]
+    [Header("Movement Safety")]
+    [Tooltip("Optional guard that detects abnormal movement after taking damage.")]
     public bool enablePostHitTeleportGuard = false;
     [Tooltip("Minimum movement distance treated as abnormal after a hit.")]
     public float teleportDistanceThreshold = 6f;

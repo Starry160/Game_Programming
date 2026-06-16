@@ -8,8 +8,6 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {
-    public float maxHealth = 30f;
-    private float currentHealth;
     public float moveSpeed;
     [Header("Combat")]
     [Tooltip("Radius of the melee damage sector.")]
@@ -23,7 +21,6 @@ public class EnemyAI : MonoBehaviour
     public Transform hitPoint;
     private bool isAttacking = false;
     public Transform weaponPivot;
-    public Transform weaponSprite;
     public float attackStartAngle = 35f;
     public float attackEndAngle = -85f;
     public float attackWindupDuration = 0.06f;
@@ -58,8 +55,6 @@ public class EnemyAI : MonoBehaviour
     // Finds the player and records weapon pivot defaults before melee movement begins.
     private void Start()
     {
-        currentHealth = maxHealth;
-
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
@@ -241,36 +236,6 @@ public class EnemyAI : MonoBehaviour
         animator.SetBool("isRunning", isRunning);
     }
 
-    // Applies incoming damage and related hit feedback.
-    public void TakeDamage(float damage)
-    {
-        currentHealth -= damage;
-
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayEnemyHit();
-        }
-
-        HitFeedback feedback = GetComponent<HitFeedback>();
-        if (feedback != null)
-        {
-            feedback.PlayFeedback();
-        }
-        Debug.Log(gameObject.name + " took damage. Remaining health: " + currentHealth);
-
-        if (currentHealth <= 0f)
-        {
-            Die();
-        }
-    }
-
-    // Starts the death flow for this object.
-    private void Die()
-    {
-        Debug.Log(gameObject.name + " has died!");
-        Destroy(gameObject);
-    }
-
     // Offsets the target point to make enemies flank around the player.
     private Vector3 CalculateSmartTargetPosition()
     {
@@ -371,9 +336,9 @@ public class EnemyAI : MonoBehaviour
 
             if (playerStats != null)
             {
-                const float debugDamage = 1f;
-                playerStats.TakeDamage(debugDamage);
-                Debug.Log($"[EnemyAI] {name} Hit Player: {col.name}, damage={debugDamage}");
+                const float contactDamage = 1f;
+                playerStats.TakeDamage(contactDamage);
+                Debug.Log($"[EnemyAI] {name} Hit Player: {col.name}, damage={contactDamage}");
             }
             else
             {

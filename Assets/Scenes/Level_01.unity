@@ -845,7 +845,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3740624061549214576, guid: b4a38eeb296e3da4ba8664e36d515a08, type: 3}
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
-      propertyPath: _potionPrefab
+      propertyPath: _dropPrefab
       value: 
       objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 4853467264397208411, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
@@ -12516,41 +12516,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
   m_PrefabInstance: {fileID: 1494049658}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &599690556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 599690555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c5fc5af06d38924ea3244818531fd99, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 3
-  currentHealth: 3
-  invulnerabilityDuration: 1.5
-  flashInterval: 0.1
-  maxShield: 2
-  currentShield: 2
-  shieldRegenDelay: 5
-  shieldRegenInterval: 5
-  healthFillImage: {fileID: 0}
-  shieldFillImage: {fileID: 0}
-  healthText: {fileID: 0}
-  shieldText: {fileID: 0}
-  enablePostHitTeleportGuard: 0
-  teleportDistanceThreshold: 6
-  teleportDetectWindow: 0.8
-  restoreOnTeleportDetected: 1
-  enableGoldInvincibilityFlash: 1
-  invincibleFlashColor: {r: 1, g: 0.85, b: 0.2, a: 0.85}
-  invincibleFlashInterval: 0.08
-  enableInvincibleScalePulse: 1
-  invincibleScaleMin: 1
-  invincibleScaleMax: 1.05
-  invincibleScaleFrequency: 2
 --- !u!114 &599690568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18611,9 +18576,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 599690556}
-    - targetCorrespondingSourceObject: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 599690568}
     - targetCorrespondingSourceObject: {fileID: 6626967237538201883, guid: ec6b36777e9f45843b78453a25c77684, type: 3}
       insertIndex: -1
@@ -19083,10 +19045,6 @@ PrefabInstance:
       value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5053211153473208482, guid: cc339552946e648438f61c346c17de89, type: 3}
-      propertyPath: weaponSprite
-      value: 
-      objectReference: {fileID: 1566153439}
-    - target: {fileID: 5053211153473208482, guid: cc339552946e648438f61c346c17de89, type: 3}
       propertyPath: attackCooldown
       value: 1.2
       objectReference: {fileID: 0}
@@ -19412,7 +19370,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
-      propertyPath: _potionPrefab
+      propertyPath: _dropPrefab
       value: 
       objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 4853467264397208411, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
@@ -20256,7 +20214,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2529157329202231919, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}
-      propertyPath: _potionPrefab
+      propertyPath: _dropPrefab
       value: 
       objectReference: {fileID: 3740624061549214576, guid: 993029312ef307c4aa20bdef2de81c7c, type: 3}
     - target: {fileID: 4853467264397208411, guid: 37900a7eea1aaa742b4e8a0d76161d73, type: 3}

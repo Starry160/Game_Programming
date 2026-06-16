@@ -143,7 +143,7 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
-    // Keeps legacy aim-facing logic disabled in favor of PlayerFacing.
+    // Keeps aim-facing updates centralized in PlayerFacing.
     private void UpdateFacingByAim(Vector2 aimDirection)
     {
         if (_spriteRenderer == null)

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 /// Handles treasure chests that appear after combat. When the player opens the chest,
@@ -9,7 +8,6 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(Animator))]
 public class TreasureChest : MonoBehaviour
 {
-    [FormerlySerializedAs("_potionPrefab")]
     [SerializeField] private GameObject _dropPrefab;
     [SerializeField] private float _moveDistance = 0.8f;
     [SerializeField] private float _spawnSideOffset = 0.25f;
