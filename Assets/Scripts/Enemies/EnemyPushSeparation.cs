@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Soft separation for enemy swarms.
-/// Attach this on SeparationSensor trigger child.
+/// Adds gentle separation between nearby enemies so groups do not stack on top of each other.
+/// Attach this to a trigger child object around an enemy that owns the Rigidbody2D.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider2D))]

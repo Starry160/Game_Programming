@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Tracks enemy heart health, hit feedback, and death fade-out.</summary>
+/// <summary>
+/// Manages normal enemy health display and death handling. It updates heart sprites, plays hit
+/// feedback, reports kills to the run tracker, and fades the enemy out before destroying it.
+/// </summary>
 [DisallowMultipleComponent]
 public class EnemyHealth : MonoBehaviour
 {

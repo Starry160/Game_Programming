@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Moves the boss arm projectile and returns it to the pool after impact.
+/// Controls one boss arm projectile after it is launched. It moves forward, damages the player
+/// on hit, spawns optional impact effects, and returns itself to the launcher pool.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class FinalBossArmProjectile : MonoBehaviour

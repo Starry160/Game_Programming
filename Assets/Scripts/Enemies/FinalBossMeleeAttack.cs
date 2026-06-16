@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Checks the boss melee sector and applies damage to the player.
+/// Handles the boss close-range attack hit check. It compares the player position with the
+/// boss-facing direction, range, and angle so melee damage matches the attack animation.
 /// </summary>
 [DisallowMultipleComponent]
 public class FinalBossMeleeAttack : MonoBehaviour
@@ -99,6 +100,7 @@ public class FinalBossMeleeAttack : MonoBehaviour
         attackAudioSource.PlayOneShot(meleeSfx, meleeSfxVolume);
     }
 
+    // Checks whether the target or its colliders are inside the melee sector.
     private bool IsTargetInSector(Transform target)
     {
         if (target == null)

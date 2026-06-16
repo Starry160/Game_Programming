@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-/// <summary>Opens once when touched and pops rewards out horizontally.</summary>
+/// <summary>
+/// Handles treasure chests that appear after combat. When the player opens the chest,
+/// it changes sprite and spawns reward items that pop outward before becoming collectible.
+/// </summary>
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Animator))]
 public class TreasureChest : MonoBehaviour

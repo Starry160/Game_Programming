@@ -1,7 +1,10 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>Increases max health, heals the player, and shows pickup feedback.</summary>
+/// <summary>
+/// Health upgrade potion dropped from chests. It increases the player's maximum health,
+/// heals by the same amount, records the pickup, and displays feedback text.
+/// </summary>
 public class PotionItem : ChestDropItem
 {
     [Header("Life Potion Effect")]
@@ -90,7 +93,10 @@ public class PotionItem : ChestDropItem
     }
 }
 
-/// <summary>Floats pickup text upward and fades it out after a short duration.</summary>
+/// <summary>
+/// Simple popup-text helper used by potion rewards. It moves the text upward over time,
+/// fades it out, and destroys the popup when the feedback duration is finished.
+/// </summary>
 public class PopupMotion : MonoBehaviour
 {
     private TextMeshPro _tmp;

@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Applies the previously selected class animator when a level loads.</summary>
+/// <summary>
+/// Restores the player's selected class after scene loading. It reads GlobalData, applies the
+/// correct animator controller, switches the weapon, and disables attacks until a class exists.
+/// </summary>
 [RequireComponent(typeof(Animator))]
 public class PlayerClassLoader : MonoBehaviour
 {
@@ -17,6 +20,7 @@ public class PlayerClassLoader : MonoBehaviour
         }
     }
 
+    // Applies the animator controller selected during class choice.
     private void ApplySelectedClass()
     {
         if (GlobalData.chosenAnimatorController == null)
@@ -31,6 +35,7 @@ public class PlayerClassLoader : MonoBehaviour
         }
     }
 
+    // Disables player attack input for scenes that only show the character.
     private void DisableAttack()
     {
         PlayerAttack attack = GetComponent<PlayerAttack>();

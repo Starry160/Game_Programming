@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>Flips the player toward the mouse while attacking and toward movement otherwise.</summary>
+/// <summary>
+/// Controls the player's left-right facing direction. During attacks it faces the mouse target,
+/// and during movement it faces the horizontal movement direction.
+/// </summary>
 public class PlayerFacing : MonoBehaviour
 {
     // Updates facing from attack input first, then movement input when not attacking.

@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>Starts room combat, locks doors, detects clears, and reveals rewards.</summary>
+/// <summary>
+/// Coordinates one combat room. It starts battles when the player enters, locks gates,
+/// activates enemies or the boss, watches for room clear, and reveals exits or rewards.
+/// </summary>
 public class RoomController : MonoBehaviour
 {
     public System.Action<RoomController> RoomCleared;

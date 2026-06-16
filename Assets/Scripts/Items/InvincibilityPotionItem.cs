@@ -1,7 +1,10 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>Grants temporary invincibility and pickup feedback when collected.</summary>
+/// <summary>
+/// Chest reward that gives the player temporary invincibility. It starts the protection effect,
+/// records the potion pickup, plays sound, and displays a short popup message.
+/// </summary>
 public class InvincibilityPotionItem : ChestDropItem
 {
     [Header("Invincibility Effect")]

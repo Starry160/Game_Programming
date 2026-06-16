@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Shows the selected weapon object and hides the others.</summary>
+/// <summary>
+/// Keeps the visible weapon object in sync with the selected class. It hides all weapon prefabs
+/// first, then activates only the sword, staff, or bow object requested by the class system.
+/// </summary>
 public class WeaponManager : MonoBehaviour
 {
     [Header("Weapons")]

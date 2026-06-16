@@ -1,7 +1,10 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>Restores the player to full health when collected in the scene.</summary>
+/// <summary>
+/// Chest reward that restores the player's current health to their maximum health.
+/// It also reports the pickup to the run statistics and shows audio and popup feedback.
+/// </summary>
 public class FullHealPotionItem : ChestDropItem
 {
     [Header("Scene Setup")]

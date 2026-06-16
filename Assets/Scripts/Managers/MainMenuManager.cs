@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Handles main menu start and quit actions.</summary>
+/// <summary>
+/// Handles the main menu buttons. Starting a game resets run state before loading the story scene,
+/// while quitting exits the build or stops play mode in the Unity Editor.
+/// </summary>
 public class MainMenuManager : MonoBehaviour
 {
     [Header("Scene")]

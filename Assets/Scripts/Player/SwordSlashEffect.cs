@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Short-lived visual-only crescent slash for the knight sword swing.</summary>
+/// <summary>
+/// Visual-only crescent slash used by the knight attack. Damage is handled in PlayerAttack,
+/// so this script only controls the temporary slash sprite movement and lifetime.
+/// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class SwordSlashEffect : MonoBehaviour
 {
@@ -16,6 +19,7 @@ public class SwordSlashEffect : MonoBehaviour
     private float lifetime = 0.12f;
     private float elapsed;
 
+    // Initializes the slash visual with facing, lifetime, scale, and sorting settings.
     public void Initialize(
         bool facingRight,
         float duration,
@@ -39,6 +43,7 @@ public class SwordSlashEffect : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, 0f, facingRight ? -18f : 18f);
     }
 
+    // Updates the slash fade-out and scale animation over its lifetime.
     private void Update()
     {
         elapsed += Time.deltaTime;
@@ -60,6 +65,7 @@ public class SwordSlashEffect : MonoBehaviour
         }
     }
 
+    // Creates or reuses the procedural sprite used by the sword slash effect.
     private static Sprite GetOrCreateSlashSprite()
     {
         if (slashSprite != null)

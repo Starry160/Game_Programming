@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Stores selected class, weapon, player stats, and run results across scene loads.</summary>
+/// <summary>
+/// Stores cross-scene run data that must survive scene loading, such as the selected class,
+/// active weapon, player health and shield, and final run statistics for the result panel.
+/// </summary>
 public static class GlobalData
 {
     /// <summary>Animator controller selected at the class pedestal.</summary>

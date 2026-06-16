@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Starts and stops pooled boss laser beams from animation events.
+/// Controls the final boss laser attack. Animation events request laser start and end,
+/// while this script manages pooled beams, aiming, sound, and active laser lifetime.
 /// </summary>
 public class FinalBossLaserLauncher : MonoBehaviour
 {

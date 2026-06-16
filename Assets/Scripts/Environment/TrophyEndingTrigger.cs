@@ -2,7 +2,8 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Shows the victory results panel when the player reaches the final trophy.
+/// Finishes the run when the player reaches the final trophy. It waits for interaction,
+/// disables player control, stops the timer, and shows the victory result panel.
 /// </summary>
 public class TrophyEndingTrigger : MonoBehaviour
 {

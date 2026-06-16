@@ -1,9 +1,12 @@
 using UnityEngine;
 
-/// <summary>Provides shared hit sound playback for player and enemy feedback.</summary>
+/// <summary>
+/// Small singleton audio service for shared hit sounds. Player, enemy, and boss scripts can call
+/// this manager instead of each object needing its own duplicated hit-sound setup.
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
-    /// <summary>Provides shared hit sound playback for player and enemy feedback.</summary>
+    /// <summary>Current shared audio manager instance used by gameplay scripts.</summary>
     public static AudioManager Instance;
 
     [Header("Hit Sounds")]

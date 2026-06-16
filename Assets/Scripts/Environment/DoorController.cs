@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Controls door sprites, locking, collision, and optional scene transitions.</summary>
+/// <summary>
+/// Controls dungeon doors used for room locking and level exits. It manages prompts, open and
+/// closed visuals, blocking collision, enemy-clear checks, and optional scene transitions.
+/// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
 {
@@ -209,7 +212,7 @@ public class DoorController : MonoBehaviour
         _isOpen = false;
     }
 
-    /// <summary>Controls door sprites, locking, collision, and optional scene transitions.</summary>
+    /// <summary>Locks or unlocks this door when the room controller starts or clears combat.</summary>
     public void SetLocked(bool locked)
     {
         isLocked = locked;

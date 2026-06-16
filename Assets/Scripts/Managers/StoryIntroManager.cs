@@ -2,7 +2,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Displays story pages one by one before loading the gameplay scene.</summary>
+/// <summary>
+/// Controls the short story introduction before gameplay. It advances through text pages and
+/// loads the next scene once the final page has been shown.
+/// </summary>
 public class StoryIntroManager : MonoBehaviour
 {
     [Header("Story")]

@@ -6,7 +6,10 @@ using UnityEngine.InputSystem;
 using UnityEditor;
 #endif
 
-/// <summary>Dispatches sword, staff, and bow attacks based on the selected class weapon.</summary>
+/// <summary>
+/// Main player combat script. It reads the selected weapon index from the class system and runs
+/// the matching attack style: knight sword sweep, mage fireball, or archer arrow.
+/// </summary>
 public class PlayerAttack : MonoBehaviour
 {
     private const int WEAPON_SWORD = 0;
@@ -323,6 +326,7 @@ public class PlayerAttack : MonoBehaviour
             swordSlashSortingOrder);
     }
 
+    // Resolves the sorting layer used to render the sword slash effect.
     private int ResolveSwordSlashSortingLayerId()
     {
         SpriteRenderer playerRenderer = GetComponent<SpriteRenderer>();
@@ -446,6 +450,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    // Checks whether an enemy collider is inside either sword damage sector.
     private bool IsInsideSwordDamage(
         Collider2D enemy,
         Vector2 damageOrigin,
@@ -460,6 +465,7 @@ public class PlayerAttack : MonoBehaviour
             || IsColliderInsideForwardSector(enemy, damageOrigin, slashDir, slashRange, slashHalfAngle);
     }
 
+    // Checks whether a collider overlaps the forward-facing damage sector.
     private bool IsColliderInsideForwardSector(
         Collider2D collider,
         Vector2 origin,
@@ -498,6 +504,7 @@ public class PlayerAttack : MonoBehaviour
         return false;
     }
 
+    // Checks whether a point is inside a forward-facing sector.
     private static bool IsPointInsideForwardSector(
         Vector2 point,
         Vector2 origin,
@@ -521,6 +528,7 @@ public class PlayerAttack : MonoBehaviour
         return angle <= halfAngle;
     }
 
+    // Resolves which damage component should receive a melee hit.
     private Component ResolveMeleeDamageTarget(Collider2D enemy)
     {
         FinalBossController bossController = enemy.GetComponent<FinalBossController>();
@@ -559,6 +567,7 @@ public class PlayerAttack : MonoBehaviour
         return null;
     }
 
+    // Applies melee damage to the resolved enemy or boss target.
     private void ApplyMeleeDamage(Component damageTarget)
     {
         FinalBossController bossController = damageTarget as FinalBossController;
@@ -582,6 +591,7 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    // Gets the world position used as the origin for sword damage checks.
     private Vector2 GetSwordDamageOrigin()
     {
         if (weaponPivot != null)
@@ -597,6 +607,7 @@ public class PlayerAttack : MonoBehaviour
         return transform.position;
     }
 
+    // Calculates the world position where the sword slash effect appears.
     private Vector2 GetSwordSlashWorldPosition()
     {
         if (weaponPivot != null)
@@ -616,6 +627,7 @@ public class PlayerAttack : MonoBehaviour
         return transform.position;
     }
 
+    // Calculates the local rotation reached when the sword hit is triggered.
     private Quaternion GetSwordHitLocalRotation()
     {
         float halfDuration = Mathf.Max(0.0001f, swordSwingDuration * 0.5f);
@@ -648,12 +660,14 @@ public class PlayerAttack : MonoBehaviour
         DrawDamageSector(damageOrigin, slashDir, slashRange, slashHalfAngle, new Color(0.15f, 0.85f, 1f, 0.24f));
     }
 
+    // Calculates the damage range needed to cover the slash effect area.
     private float GetSwordSlashDamageRange(Vector2 damageOrigin, Vector2 slashCenter)
     {
         float distanceToSlash = Vector2.Distance(damageOrigin, slashCenter);
         return Mathf.Max(0.05f, distanceToSlash + swordSlashDamageRadius);
     }
 
+    // Calculates the direction from the sword damage origin toward the slash center.
     private static Vector2 GetSwordSlashDamageDirection(Vector2 damageOrigin, Vector2 fallbackDir, Vector2 slashCenter)
     {
         Vector2 slashDir = slashCenter - damageOrigin;
@@ -665,6 +679,7 @@ public class PlayerAttack : MonoBehaviour
         return slashDir.normalized;
     }
 
+    // Draws a filled and outlined damage sector in the Scene view.
     private static void DrawDamageSector(Vector3 origin, Vector3 facingDir, float radius, float halfAngle, Color color)
     {
 #if UNITY_EDITOR
@@ -679,6 +694,7 @@ public class PlayerAttack : MonoBehaviour
         DrawWireSector(origin, facingDir, radius, halfAngle);
     }
 
+    // Draws the outline of a sector using gizmo lines and an arc.
     private static void DrawWireSector(Vector3 origin, Vector3 facingDir, float radius, float halfAngle)
     {
         Vector3 normalizedFacing = facingDir.sqrMagnitude > 0f ? facingDir.normalized : Vector3.right;

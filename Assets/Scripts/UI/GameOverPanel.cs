@@ -4,7 +4,10 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
 
-/// <summary>Shows final run results for death or victory and returns to the main menu.</summary>
+/// <summary>
+/// Shared result panel for both death and victory. It fills in kills, potion count, survival time,
+/// applies different visuals for each result type, fades in, and returns the player to the menu.
+/// </summary>
 public class GameOverPanel : MonoBehaviour
 {
     public enum ResultType

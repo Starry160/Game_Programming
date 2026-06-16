@@ -3,7 +3,10 @@ using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-/// <summary>Schedules final boss phases, attacks, movement windows, and death flow.</summary>
+/// <summary>
+/// Main state machine for the final boss encounter. It controls phase one and phase two,
+/// attack scheduling, movement windows, damage rules, phase transition, and the defeat flow.
+/// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(SpriteRenderer))]
@@ -826,6 +829,7 @@ public class FinalBossController : MonoBehaviour
         }
     }
 
+    // Checks whether the current melee window can damage the player.
     private bool TryApplyMeleeDamage()
     {
         if (_playerTransform == null)

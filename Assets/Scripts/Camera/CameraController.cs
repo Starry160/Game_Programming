@@ -2,7 +2,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Smoothly follows the player and can play the boss intro camera sequence.</summary>
+/// <summary>
+/// Controls the gameplay camera. It normally follows the player smoothly, but can temporarily
+/// take control during the final boss intro to show the arena and then return to the player.
+/// </summary>
 [RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour
 {

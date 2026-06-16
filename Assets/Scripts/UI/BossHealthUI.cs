@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Displays the final boss name and heart-based health meter.
+/// Displays the final boss UI during the boss room battle. It binds to the active boss,
+/// updates the heart-based health meter, and hides the UI when the boss fight is finished.
 /// </summary>
 public class BossHealthUI : MonoBehaviour
 {

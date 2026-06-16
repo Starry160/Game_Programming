@@ -1,7 +1,10 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>Moves chest rewards into the room and handles pickup timing and idle effects.</summary>
+/// <summary>
+/// Base behavior for reward items dropped from treasure chests. It moves the item out of the
+/// chest, enables pickup after the pop-out motion, plays idle effects, and calls the pickup effect.
+/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(SpriteRenderer))]

@@ -1,7 +1,10 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>Increases max shield, fills the shield gain, and shows pickup feedback.</summary>
+/// <summary>
+/// Shield upgrade potion dropped from chests. It increases maximum shield, fills the gained shield,
+/// records the pickup, and shows sound and popup feedback.
+/// </summary>
 public class ShieldPotionItem : ChestDropItem
 {
     [Header("Shield Potion Effect")]

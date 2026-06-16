@@ -5,7 +5,10 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
 
-/// <summary>Manages player health, shield, invincibility, potion effects, and HUD updates.</summary>
+/// <summary>
+/// Central player survival script. It manages health, shield, shield regeneration, temporary
+/// invincibility, potion stat changes, HUD updates, death handling, and stat persistence.
+/// </summary>
 public class PlayerStats : MonoBehaviour
 {
     [Header("Health")]

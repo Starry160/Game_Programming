@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>Keeps UI character images at their native sprite size.</summary>
+/// <summary>
+/// Small UI preview helper for character images. It keeps the image at native sprite size
+/// and plays a lightweight idle rotation so menu or selection characters feel alive.
+/// </summary>
 [ExecuteAlways]
 [RequireComponent(typeof(Image))]
 public class UICharacterAnimator : MonoBehaviour
@@ -27,7 +30,7 @@ public class UICharacterAnimator : MonoBehaviour
         RefreshNativeSize();
     }
 
-    /// <summary>Keeps UI character images at their native sprite size.</summary>
+    /// <summary>Refreshes the UI image size after sprite or inspector changes.</summary>
     public void RefreshNativeSize()
     {
         if (_image == null)

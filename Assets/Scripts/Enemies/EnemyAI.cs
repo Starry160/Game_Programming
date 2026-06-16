@@ -1,7 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-/// <summary>Controls enemy chasing, flanking, melee attacks, and fallback health behavior.</summary>
+/// <summary>
+/// Controls the basic melee enemy behavior used by skeleton-style enemies. It waits for room
+/// activation, chases the player with small offsets, faces the target, and performs melee attacks.
+/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {

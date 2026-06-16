@@ -1,7 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
-/// <summary>Plays hit flash and optional shake feedback without disturbing gameplay physics.</summary>
+/// <summary>
+/// Adds short visual feedback when a character is hit. It flashes sprites and can shake the
+/// object locally, while restoring the original color and position after the effect.
+/// </summary>
 public class HitFeedback : MonoBehaviour
 {
     [Header("Feedback Settings")]

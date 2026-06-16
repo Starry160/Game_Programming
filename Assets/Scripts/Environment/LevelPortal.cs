@@ -3,7 +3,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-/// <summary>Handles player interaction, portal pull-in animation, and scene loading.</summary>
+/// <summary>
+/// Handles interactive portals between scenes. It can stay locked until a room is cleared,
+/// shows prompts, saves player stats, plays a pull-in effect, and loads the target scene.
+/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class LevelPortal : MonoBehaviour
 {

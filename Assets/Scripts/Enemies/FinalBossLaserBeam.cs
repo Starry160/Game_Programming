@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Runs the boss laser beam, follows its emitter, and applies tick damage.
+/// Represents an active boss laser beam. It follows the emitter while active, keeps the visual
+/// aligned with the laser direction, applies repeated player damage, and returns to the pool.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class FinalBossLaserBeam : MonoBehaviour

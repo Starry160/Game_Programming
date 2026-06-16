@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>Handles player movement, aim input, physics motion, and movement animation.</summary>
+/// <summary>
+/// Handles player movement and aiming input. It builds runtime input actions, moves the Rigidbody2D
+/// during physics updates, tracks mouse or gamepad aim direction, and updates movement animation.
+/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerController : MonoBehaviour

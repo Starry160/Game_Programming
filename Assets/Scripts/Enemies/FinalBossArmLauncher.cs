@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Launches pooled boss arm projectiles from animation events.
+/// Handles the final boss arm-projectile attack. Animation events call this script to fire
+/// pooled arm projectiles from the correct launch point toward the player.
 /// </summary>
 public class FinalBossArmLauncher : MonoBehaviour
 {

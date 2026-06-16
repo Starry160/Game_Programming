@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Controls ranged monster movement, line-of-sight repositioning, and fireball attacks.</summary>
+/// <summary>
+/// Controls the ranged monster enemy. It keeps distance from the player, checks line of sight,
+/// repositions when blocked, aims at the player, and fires projectiles on a cooldown.
+/// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
 public class MonsterAI : MonoBehaviour

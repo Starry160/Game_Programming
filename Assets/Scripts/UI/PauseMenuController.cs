@@ -2,7 +2,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>Controls pause, resume, and return-to-menu confirmation UI.</summary>
+/// <summary>
+/// Controls the pause menu during gameplay. It handles Escape input, time scale changes,
+/// resume behavior, return-to-menu confirmation, and run-state cleanup when leaving a run.
+/// </summary>
 public class PauseMenuController : MonoBehaviour
 {
     [Header("Panels")]

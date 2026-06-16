@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>Lets the player change class, equip the matching weapon, and unlock progression.</summary>
+/// <summary>
+/// Handles the class-selection pedestal in the starting flow. It applies the chosen animator,
+/// weapon, starting stats, and unlocks the next portal after the player confirms the class.
+/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class CharacterTransformPedestal : MonoBehaviour
 {

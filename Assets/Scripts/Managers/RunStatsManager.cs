@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-/// <summary>Tracks kills, potion pickups, and survival time for the current run.</summary>
+/// <summary>
+/// Persistent run-stat tracker. It counts kills, potion pickups, and survival time across scenes,
+/// then syncs those values into GlobalData so death and victory panels can display them.
+/// </summary>
 public class RunStatsManager : MonoBehaviour
 {
     public static RunStatsManager Instance;
@@ -92,7 +95,7 @@ public class RunStatsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Tracks kills, potion pickups, and survival time for the current run.
+    /// Clears counters and timer state when the player returns to the main menu.
     /// </summary>
     public static void ResetForMenu()
     {
@@ -107,7 +110,7 @@ public class RunStatsManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Tracks kills, potion pickups, and survival time for the current run.
+    /// Starts a fresh run by resetting saved counters before gameplay begins.
     /// </summary>
     public static void BeginNewRun()
     {

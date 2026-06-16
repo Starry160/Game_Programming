@@ -1,6 +1,9 @@
 using UnityEngine;
 
-/// <summary>Moves projectiles forward, applies hit damage, and destroys them on impact.</summary>
+/// <summary>
+/// Generic projectile behavior for player and enemy shots. It moves forward, ignores its owner,
+/// applies damage to valid targets, spawns impact effects, and removes itself on collision or timeout.
+/// </summary>
 public class Projectile : MonoBehaviour
 {
     public enum TargetSide
