@@ -48,7 +48,8 @@ AI suggestions were treated as drafts, not final answers. The developer checked 
 - Manual regression test records in `TESTING.md`.
 - Full playthroughs using Knight, Mage, and Archer.
 - Automated EditMode tests under `Assets/Tests/EditMode/Editor/`.
-- A successful Unity Test Runner result showing 5 EditMode tests passed.
+- A successful Unity Test Runner result showing 11 EditMode tests passed, recorded in `doc/evidence/01-test-runner-editmode-pass.png`.
+- Final visual evidence for build order, clean Console state, class selection, combat, rewards, final boss behavior, victory, death, and pause flow under `doc/evidence/`.
 
 ## Academic Integrity Statement
 

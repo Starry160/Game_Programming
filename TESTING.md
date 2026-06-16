@@ -452,17 +452,26 @@ A lightweight EditMode test suite has been added under `Assets/Tests/EditMode/Ed
 | `GlobalData_ResetRunState_ClearsClassStatsAndRunResults` | Confirms returning to menu clears selected class, weapon, persisted stats, and run results. | Cross-scene state |
 | `RunStatsManager_AddKillAndPotion_SyncsGlobalSnapshot` | Confirms kills, potion pickups, and survival time sync into `GlobalData`. | Run statistics |
 | `RunStatsManager_ResetForMenu_ClearsCountersAndGlobalSnapshot` | Confirms the run-stat reset path clears local and persisted counters. | Run reset |
+| `RunStatsManager_BeginNewRunWithoutInstance_ClearsPersistedRunCounters` | Confirms starting a new run clears saved kill, potion, and survival-time counters even before the manager exists in the scene. | Run reset |
 | `PlayerStats_IncreaseMaxHealthAndHeal_UpdatesCurrentAndPersistedHealth` | Confirms max-health potion style logic updates current health and persisted max health. | Player stats |
 | `PlayerStats_IncreaseMaxShieldAndFill_UpdatesCurrentAndPersistedShield` | Confirms shield potion style logic updates current shield and persisted max shield. | Player stats |
+| `PlayerStats_ApplyClassBaseStats_SetsAndPersistsHealthAndShield` | Confirms class selection applies and persists the correct base health and shield values. | Player stats / class setup |
+| `PlayerStats_StatUpgradeMethods_IgnoreNonPositiveAmounts` | Confirms invalid stat-upgrade values do not change player health or shield state. | Player stats edge cases |
+| `PlayerStats_PersistCurrentStats_SavesHealthAndShieldSnapshot` | Confirms current health and shield snapshots are saved for scene transitions. | Cross-scene state |
+| `WeaponManager_SwitchWeapon_ActivatesOnlyRequestedWeapon` | Confirms weapon switching enables only the selected weapon object. | Weapon selection |
+| `WeaponManager_SwitchWeapon_InvalidIndex_HidesAllWeapons` | Confirms invalid weapon indexes fail safely by leaving all weapons hidden. | Weapon selection edge cases |
 
 These are intentionally EditMode tests because the full game flow depends on scene objects, Inspector references, physics timing, UI layout, and animation state. Those areas remain covered by the manual regression playthrough.
+
+The suite now covers 11 targeted EditMode checks across cross-scene state, run statistics, player stat persistence, class setup, and weapon selection.
 
 ### Automated Test Run Result
 
 | Test Run Date | Tool | Mode | Result | Notes |
 |---------------|------|------|--------|-------|
-| 2026-06-11 | Unity Test Runner | EditMode | Pass - 5 passed, 0 unsuccessful, 0 skipped | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
-| 2026-06-16 | Unity Test Runner | EditMode | Pass - 5 passed, 0 failed, 0 skipped | Re-ran the full EditMode suite in the Unity Test Runner after the final cleanup pass. |
+| 2026-06-11 | Unity Test Runner | EditMode | Pass - historical baseline suite completed with five passing checks and no skipped tests. | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
+| 2026-06-16 | Unity Test Runner | EditMode | Pass - historical baseline rerun completed with five passing checks, 0 failures, and 0 skipped tests. | Re-ran the original EditMode suite in the Unity Test Runner after the final cleanup pass. |
+| 2026-06-16 | Unity Test Runner | EditMode | Pass - 11 passed, 0 failed, 0 skipped | Re-ran the expanded EditMode suite after adding tests for run reset, class base stats, stat persistence, invalid stat upgrades, and weapon switching. Evidence screenshot: `doc/evidence/01-test-runner-editmode-pass.png`. |
 
 ## 10. Visual Evidence Index
 
@@ -470,7 +479,7 @@ The screenshots below provide visual evidence for automated testing, build confi
 
 | Evidence File | Validation Area | Related Test Coverage |
 |---------------|-----------------|-----------------------|
-| [01-test-runner-editmode-pass.png](doc/evidence/01-test-runner-editmode-pass.png) | Unity Test Runner shows the EditMode suite passing with 5 successful tests. | Automated EditMode tests |
+| [01-test-runner-editmode-pass.png](doc/evidence/01-test-runner-editmode-pass.png) | Unity Test Runner shows the expanded EditMode suite passing with 11 successful tests. | Automated EditMode tests |
 | [02-build-settings-scene-order.png](doc/evidence/02-build-settings-scene-order.png) | Build Settings include all required scenes in the correct gameplay order. | Entry criteria, TC-15, TC-20 |
 | [03-console-clean-after-play.png](doc/evidence/03-console-clean-after-play.png) | Unity Console shows 0 errors and 0 warnings after a completed play session. | Exit criteria, TC-20 |
 | [04-main-menu.png](doc/evidence/04-main-menu.png) | Main menu loads correctly and presents the submitted entry point. | TC-01 |
@@ -509,30 +518,19 @@ Run this checklist after any gameplay, UI, or scene-flow change:
 
 ### Final Verification Items
 
-| Check Area | Quality Goal | Suggested Check |
-|------------|--------------|-----------------|
-| Scene build order | Menu and story scripts load scenes in the intended order | Verify Build Settings before submission |
-| Inspector reference validation | Scene objects, prefabs, transforms, and UI bindings are assigned correctly | Check Console after each scene starts |
-| Portal target names | Scene-loading strings match the final scene names | Verify every portal target scene exists in Build Settings |
-| Boss room setup | Boss behavior, room events, and boss UI binding work together from normal gameplay entry | Test final boss from room entry as part of the full playthrough |
+| Check Area | Result | Evidence |
+|------------|--------|----------|
+| Scene build order | Verified. All required scenes are included in Build Settings in the intended order from `MainMenu` through `Final Room`. | [Build Settings scene order](doc/evidence/02-build-settings-scene-order.png) |
+| Clean final play session | Verified. The final play session shows no Console errors or warnings after entering the result screen. | [Clean Console after play](doc/evidence/03-console-clean-after-play.png) |
+| Automated EditMode coverage | Verified. The expanded EditMode suite passes with 11 tests, 0 failures, and 0 skipped tests. | [EditMode test pass](doc/evidence/01-test-runner-editmode-pass.png) |
+| Main menu entry point | Verified. The submitted game starts from the finished `Knight Legend` main menu instead of a development-only scene. | [Main menu](doc/evidence/04-main-menu.png) |
+| Talent room setup | Verified. The class selection room displays the selectable weapons, HUD values, and portal entry flow. | [Talent room](doc/evidence/05-class-selection-talent-room.png) |
+| Combat and reward loop | Verified. Level gameplay, player damage state, potion reward, and treasure reward states were captured during play. | [Level combat](doc/evidence/06-level01-combat.png), [Treasure and potion reward](doc/evidence/07-treasure-potion-reward.png) |
+| Final boss behavior | Verified. Boss phase behavior and laser attack behavior were checked from normal gameplay entry. | [Final boss phase 1](doc/evidence/08-final-boss-phase1.png), [Final boss phase 2 laser](doc/evidence/09-final-boss-phase2-laser.png) |
+| Result screens | Verified. Both victory and defeat result panels display run statistics instead of ending silently or returning without feedback. | [Victory result](doc/evidence/10-victory-result-stats.png), [Death result](doc/evidence/11-death-result-stats.png) |
+| Pause and return flow | Verified. The pause menu shows a confirmation prompt before leaving the current run. | [Pause confirmation](doc/evidence/12-pause-menu-confirmation.png) |
 
-## 13. Quality Observation Template
-
-Use this format when recording a quality observation:
-
-| Field | Description |
-|-------|-------------|
-| Observation ID | Example: QA-001 |
-| Title | Short summary of the observation |
-| Scene | Scene where the observation was made |
-| Priority | High / Medium / Low |
-| Verification Steps | Numbered steps |
-| Expected Result | Intended result |
-| Observed Result | What happened during the check |
-| Screenshot / Console Log | Evidence if available |
-| Status | Recorded / Improved / Verified |
-
-## 14. Current Test Conclusion
+## 13. Current Test Conclusion
 
 The main project has a complete manual test path covering menu, story, class selection, combat, rewards, portals, final boss, death, and victory. The most important submission test is the full regression playthrough from `MainMenu` to `Final Room`, because it verifies the complete game loop that the teacher will most likely review. On 2026-06-12, this full playthrough was manually completed once with each playable class: Knight, Mage, and Archer.
 

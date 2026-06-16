@@ -2,9 +2,11 @@
 
 ## 1. Project Overview
 
-- Project Name: Game_Programming (2D top-down pixel-style prototype)
+- Project Name: Game_Programming (early 2D top-down pixel-style prototype)
 - Engine Version: Unity 2022.3 LTS
-- Core Goal: Build a playable baseline loop from prototype to functional demo, including map, character, menu, world background, scene portals, and a multi-class transformation pedestal system.
+- Prototype Goal: Build a playable baseline loop for the future dungeon game, including map layout, player movement, camera follow, menu entry, story/background context, scene portals, and a multi-class transformation pedestal system.
+
+This document keeps the early development stage record. Later final-submission evidence is recorded separately in `README.md` and `TESTING.md`.
 
 ## 2. Completed Features with Dates
 
@@ -15,92 +17,98 @@
 
 - **Date:** 2026-04-16
 - **Evidence (Commit):** `28aeabd - Create prototype.jpg`; `55170c4 - Initial commit`
-- Built the core gameplay prototype (character movement, basic interaction, object placement).
-- Completed the initial scene visual layout for gameplay pace and interaction flow validation.
+- Built the first gameplay concept sketch and prototype direction.
+- Established the early top-down dungeon idea, including character position, room layout, and basic interaction points.
 
 ### 2.2 Game Description Expansion
 
 - **Date:** 2026-04-16
 - **Evidence (Commit):** `7de213e - Create description.md`
-- Added core world setting and gameplay description, clarifying player goals and progression direction.
-- Recorded this information in project description documents for iteration records and presentations.
+- Added the first written game description and world setting.
+- Clarified that the player would move through dungeon spaces, interact with objects, and progress toward a larger adventure structure.
 
 ### 2.3 Asset Selection
 
 - **Date:** 2026-04-16
 - **Evidence (Commit):** `28aeabd - Create prototype.jpg`; `af40e6d - Update README.md`
-- Selected base assets for character, environment, and interactable objects.
-- Kept asset style consistent with the project theme to ensure readability and visual identity in prototype stage.
+- Selected early pixel-art assets for the character, dungeon environment, and interactive objects.
+- Checked that the chosen assets matched the readable 2D top-down style planned for the prototype.
 
 ### 2.4 Test Map Setup and Test Character Selection
 
 - **Date:** 2026-04-17
 - **Evidence (Commit):** `2a4a863 - feat(player): Reconstructed the pure code-driven mobile system and implemented the 2D frame animation for the main character.`; `033dd30 - Keep the camera always following the character`
-- Created a test map for feature verification and integration checks.
-- Configured a test character for movement, collision, interaction, and animation switching validation.
+- Created a test map for movement, collision, and camera-follow checks.
+- Configured a first playable character to verify movement feel and animation playback.
+- Added camera follow so the prototype could be explored as a playable space instead of a static scene.
 
 ### 2.5 Game Menu Setup and Background Content Addition
 
 - **Date:** 2026-04-19
 - **Evidence (Commit):** `042e1e4 - feat: implement main menu UI and scene management`; `a681163 - add the storyIntro`
-- Implemented the basic game menu structure (start and feature entry points).
-- Added background/lore content to improve narrative completeness and player immersion.
+- Implemented the first main menu and scene entry flow.
+- Added story/background content to give the prototype a clearer game identity before gameplay starts.
 
 ### 2.6 Scene Portal and Multi-Class Transformation Pedestal System
 
 - **Date:** 2026-04-20
 - **Evidence (Commit):** `f837cc5 - Feature: New scene teleportation portal and multi-class profession change altar system have been added.`; `7fe24a5 - add door-open animation`
-- Implemented the core scene portal feature for cross-area transitions.
-- Implemented the core multi-class transformation pedestal logic for proximity-based class transformation.
-- Enabled character animation-controller switching after transformation to reflect class differences.
+- Implemented the first scene portal feature for moving between prototype areas.
+- Implemented the early multi-class transformation pedestal interaction.
+- Enabled player presentation changes after interacting with the pedestal, giving the prototype its first class-selection mechanic.
 
-## 3. Key System Design Notes
+## 3. Early System Design Notes
 
 ### 3.1 Scene Portal System
 
-- **Trigger Condition:** Player enters a portal trigger area to execute scene transition logic.
-- **Design Purpose:** Split functional areas, reduce single-scene complexity, and support level expansion.
-- **Extension Suggestions:**
-  - Add portal requirements (key, level, quest progress).
-  - Add transition effects (fade in/out, loading hints).
+- **Trigger Condition:** The player enters a portal trigger area and activates the interaction.
+- **Design Purpose:** Split the prototype into multiple functional areas and test whether scene-to-scene flow could support later level progression.
+- **Prototype Result:** The portal system proved that the project could move beyond one test map and support a connected route.
 
 ### 3.2 Multi-Class Transformation Pedestal System
 
-- **Trigger Condition:** Player enters the pedestal collider area and can interact.
-- **Interaction Key:** `E` key is currently used to trigger class transformation.
-- **Execution Result:** Switches the player's `RuntimeAnimatorController` on `Animator` to change class presentation.
-- **Current Script:** `Assets/Scripts/CharacterTransformPedestal.cs`
+- **Trigger Condition:** The player enters the pedestal collider area and can interact.
+- **Interaction Key:** `E` key is used for interaction.
+- **Prototype Result:** The player's class presentation can change after interaction, making the pedestal a clear foundation for later class and weapon selection.
+- **Script Location in Current Repository:** `Assets/Scripts/Player/CharacterTransformPedestal.cs`
 - **Implemented Points:**
-  - Uses `OnTriggerEnter2D` / `OnTriggerExit2D` to manage interaction state.
-  - Uses `CompareTag("Player")` for player identification.
-  - Uses the New Input System to read keyboard input and trigger transformation.
+  - Uses trigger enter/exit checks to know whether the player is in range.
+  - Uses player identification before allowing transformation.
+  - Gives visible feedback by changing the player's class presentation.
 
-## 4. Current File and Script Notes
+## 4. Early File and Script Notes
 
-- `Assets/Scripts/CharacterTransformPedestal.cs`
-  - Handles pedestal interaction detection and animator-controller switching.
+- `Assets/Scripts/Player/CharacterTransformPedestal.cs`
+  - Handles the prototype class-transformation interaction.
+- `Assets/Scripts/Environment/LevelPortal.cs`
+  - Handles the prototype scene-transition interaction.
 - `doc/description.md`
-  - Stores gameplay concept, player goal, and style direction.
+  - Stores the early gameplay concept, player goal, and style direction.
 - `README.md`
-  - Provides the project quick introduction entry.
+  - Provides the project entry information and later overall project summary.
 
 ## 5. Development Process Record
 
-1. Confirmed prototype scope and gameplay boundaries.
-2. Built map and character test scene.
-3. Added UI menu and world/background content.
-4. Implemented core interaction systems (portal + pedestal).
-5. Performed integration checks and playability validation.
+1. Confirmed the early dungeon-game concept and visual direction.
+2. Created a first map and movement test scene.
+3. Added player movement, animation, and camera follow.
+4. Added menu and story entry content.
+5. Implemented the first interactive systems: portal and transformation pedestal.
+6. Performed prototype playability checks before expanding into combat, rewards, and boss systems later.
 
-## 6. Quality Optimization Notes
+## 6. Prototype Quality Notes
 
-- The transformation pedestal supports repeatable interaction during testing and can also support single-use or cooldown interaction styles.
-- Icon-hiding and trigger-disabling logic is reserved in comments for quick tuning during presentation polish.
-- Menu systems provide a solid base for settings, save/load, and return-to-main-menu expansion.
-- Portal logic supports the current level flow and provides a clear path for destination-point tuning.
+| Area | Observation | Prototype Resolution |
+|------|-------------|----------------------|
+| Player movement | The player needed responsive movement before any combat or room design could be evaluated. | Code-driven movement and frame animation were added, then checked in the test map. |
+| Camera follow | A static camera made the test map feel disconnected from player movement. | Camera follow was added so the player stayed visible while exploring. |
+| Menu entry | The project needed a clearer start point than opening a test scene directly. | A basic main menu and scene-management flow were implemented. |
+| Story context | The early prototype lacked player motivation and world framing. | Story intro content was added to connect the menu to the dungeon concept. |
+| Portal interaction | Scene changes needed to be tested before building larger level flow. | The portal system was added and used as the foundation for later route progression. |
+| Class transformation | The original prototype needed a stronger player-choice mechanic. | The pedestal interaction was added to test class presentation switching. |
 
 ## 7. Milestone Summary
 
-- **M1 (Done):** Playable prototype + basic interaction systems.
-- **M2 (Done):** Stronger class differentiation (stats, skills, weapon preference).
-- **M3 (Done):** Complete level flow with enemy-growth-system linkage.
+- **M1 (Done):** Playable prototype with map, player movement, animation, and camera follow.
+- **M2 (Done):** Menu and story intro added to provide a complete entry point.
+- **M3 (Done):** Portal and class-transformation pedestal added as the first interaction systems.
