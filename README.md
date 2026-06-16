@@ -79,6 +79,12 @@ The final submitted game in this repository is **Knight Legend**, located at the
 - [2D Shooting](https://github.com/Starry160/2D-Shooting)
 - [Interactive Solar System for Kids](https://github.com/Starry160/Interactive-Solar-System-for-Kids)
 
+## Supporting Documents
+
+- [Testing Evidence](TESTING.md)
+- [Asset References](ASSET_REFERENCES.md)
+- [AI Usage Statement](AI_USAGE_STATEMENT.md)
+
 ## Project Structure
 
 ```

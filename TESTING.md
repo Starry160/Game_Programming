@@ -462,6 +462,7 @@ These are intentionally EditMode tests because the full game flow depends on sce
 | Test Run Date | Tool | Mode | Result | Notes |
 |---------------|------|------|--------|-------|
 | 2026-06-11 | Unity Test Runner | EditMode | Pass - 5 passed, 0 unsuccessful, 0 skipped | Verified in the Unity Test Runner after adding the lightweight EditMode test suite. |
+| 2026-06-16 | Unity Test Runner | EditMode | Pass - 5 passed, 0 failed, 0 skipped | Re-ran the full EditMode suite in the Unity Test Runner after the final cleanup pass. |
 
 ## 10. Regression Checklist
 
