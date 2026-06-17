@@ -3,7 +3,6 @@
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
 .utmp/
-# 改为非根锚定，覆盖嵌套 Unity 项目里的同名缓存目录。
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
