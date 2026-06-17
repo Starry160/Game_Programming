@@ -84,6 +84,7 @@ The final submitted game in this repository is **Knight Legend**, located at the
 - [Testing Evidence](TESTING.md)
 - [Asset References](ASSET_REFERENCES.md)
 - [AI Usage Statement](AI_USAGE_STATEMENT.md)
+- [Class Notes and Process Evidence](doc/class-notes/README.md)
 
 ## Project Structure
 
