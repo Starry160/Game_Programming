@@ -778,7 +778,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1086592114}
   m_Layer: 0
-  m_Name: UI_TreasureBoxShowcase
+  m_Name: UI_TitleTreasureGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -793,17 +793,18 @@ RectTransform:
   m_GameObject: {fileID: 1086592113}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1.4999948, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1522196180}
+  - {fileID: 1597036072}
   m_Father: {fileID: 1749632558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 12.925, y: 764.3545}
-  m_SizeDelta: {x: 550.15, y: 135.8868}
-  m_Pivot: {x: 0.5, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 13, y: 191}
+  m_SizeDelta: {x: 650, y: 260}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1298931906
 GameObject:
   m_ObjectHideFlags: 0
@@ -1145,14 +1146,14 @@ RectTransform:
   m_GameObject: {fileID: 1522196179}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.7, z: 1}
+  m_LocalScale: {x: 1, y: 1.05, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1086592114}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9, y: -6}
+  m_AnchoredPosition: {x: -12, y: 154}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1522196181
@@ -1223,11 +1224,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1749632558}
+  m_Father: {fileID: 1086592114}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 13, y: 191}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 550.3044, y: 107.0597}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1597036073
@@ -1665,7 +1666,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 614093918}
-  - {fileID: 1597036072}
   - {fileID: 985691485}
   - {fileID: 1663722203}
   - {fileID: 2038255865}
